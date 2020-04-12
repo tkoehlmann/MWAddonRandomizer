@@ -13,22 +13,22 @@ Record* read_record(_IO_FILE *f, Settings& settings);
 bool read_header(Record *r, FILE *f);
 bool read_subrecords(Record *r, FILE *f);
 
-
-std::unordered_map<std::string, Record*>* ReadESMFile(std::string filepath, Settings& settings)
+std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, Settings &settings, size_t *total_file_size_bytes)
 {
-    printf("Start\n");
     FILE *f = fopen(filepath.c_str(), "rb");
-    auto result = new std::unordered_map<std::string, Record*>();
+    size_t f_size = io::get_file_size(f);
+    *total_file_size_bytes += f_size;
+    auto result = new std::unordered_map<std::string, std::vector<Record *>>();
     if (f == nullptr)
         return nullptr;
 
     Record *r;
     while   (
-                !feof(f) &&
+                (ftell(f) < f_size) &&
                 ((r = read_record(f, settings)) != nullptr)
             )
     {
-        (*result)[r->GetID()] = r;
+        (*result)[r->GetID()].push_back(r);
     }
 
     fclose(f);

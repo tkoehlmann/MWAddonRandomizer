@@ -1,7 +1,7 @@
-#include <iostream>
 #include <string>
 #include <cstdint>
 #include <cstdio>
+#include <chrono>
 
 #include "esmloader.hpp"
 //#include "iohelpers.hpp"
@@ -14,18 +14,23 @@ int main(int argc, char **argv)
     Settings settings;
     std::string files[] = {"Morrowind.esm"/*, "Tribunal.esm", "Bloodmoon.esm"*/};
 
+    auto start = std::chrono::high_resolution_clock::now();
+    size_t total_file_size_bytes = 0;
     for (std::string file : files)
     {
-        auto res = ReadESMFile(file, settings);
+        std::unordered_map<std::string, std::vector<Record*>> *res = ReadESMFile(file, settings, &total_file_size_bytes);
         if (res == nullptr)
             printf("Error reading file: %s", file.c_str());
-        // TODO: Merge
-        for (auto element : *res)
-        {
-            //printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
-            printf("Record: %s\n", element.first.c_str());
-        }
+        else
+            for (auto element : *res)
+            {
+                // TODO: Merge
+                printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
+            }
     }
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    printf("Finished reading files, total size: %0.1f MiB, time: %f seconds\n", (double)total_file_size_bytes / (1024L*1024L), elapsed.count());
 
     return 0;
 }

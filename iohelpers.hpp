@@ -13,6 +13,7 @@ namespace io
     std::string read_string(FILE *f);
     std::string read_record_id(FILE *f);
     float read_float(FILE *f);
-}
+    size_t get_file_size(FILE *f);
+} // namespace io
 
 #endif // __IOHELPERS_H_

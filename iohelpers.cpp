@@ -44,10 +44,9 @@ std::string io::read_string(FILE *f)
 
 std::string io::read_record_id(FILE *f)
 {
-    char name[5];
+    char name[5] = {'\0', '\0', '\0', '\0', '\0'};
     if (fread(name, 1, 4, f) < 4)
         throw "Error in io::read_record_id";
-    name[4] = '\0';
     return std::string(name);
 }
 
@@ -61,5 +60,14 @@ float io::read_float(FILE *f)
           (data[2] << 16) |
           (data[1] <<  8) |
           (data[0] <<  0) ;
+    return res;
+}
+
+size_t io::get_file_size(FILE *f)
+{
+    size_t prev = ftell(f);
+    fseek(f, 0, SEEK_END);
+    size_t res = ftell(f);
+    fseek(f, prev, SEEK_SET);
     return res;
 }
