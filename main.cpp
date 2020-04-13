@@ -12,7 +12,14 @@
 int main(int argc, char **argv)
 {
     Settings settings;
-    settings.Weapons = ShuffleType::Random;
+    settings.WeaponsWeight = ShuffleType::Random;
+    settings.WeaponsValue = ShuffleType::Random;
+    settings.WeaponsHealth = ShuffleType::Random;
+    settings.WeaponsSpeed = ShuffleType::Random;
+    settings.WeaponsEnchantPts = ShuffleType::Random;
+    settings.WeaponsDamage = ShuffleType::Random;
+    settings.WeaponsResistance = ShuffleType::Random;
+    settings.WeaponsModels = ShuffleType::Random;
     settings.UpdateAffectedRecords();
 
     std::string files[] = {"Morrowind.esm" /*, "Tribunal.esm", "Bloodmoon.esm"*/};
