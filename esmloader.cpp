@@ -38,9 +38,10 @@ std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string 
 Record* read_record(_IO_FILE *f, Settings& settings)
 {
     Record *res;
+    size_t dont_care = 0;
     try
     {
-        std::string id = io::read_record_id(f);
+        std::string id = io::read_record_id(f, &dont_care);
         bool unknown = RecordToSubrecordTypes.find(id) == RecordToSubrecordTypes.end();
         if (unknown)
         {
@@ -50,7 +51,11 @@ Record* read_record(_IO_FILE *f, Settings& settings)
         else
         {
             res = new Record(id);
-            read_header(res, f);
+            if (!read_header(res, f))
+            {
+                printf("Error reading header data for record ID \"%s\"\n", res->GetID().c_str());
+                exit(1);
+            }
             res->Ignored = !settings.IsRecordAffected(res->GetID()) || unknown;
 
             if (res->Ignored)
@@ -61,10 +66,7 @@ Record* read_record(_IO_FILE *f, Settings& settings)
             else
             {
                 // Create subrecords
-                if (!read_header(res, f))
-                    printf("Error reading header data for record ID \"%s\"\n", res->GetID().c_str());
-                else
-                    read_subrecords(res, f);
+                read_subrecords(res, f);
             }
         }
     }
@@ -82,9 +84,10 @@ bool read_header(Record *r, FILE *f)
 {
     try
     {
-        r->Size = io::read_dword(f);
-        io::read_dword(f); // This is an unknown field of 4 bytes
-        io::read_dword(f); // Flags, not important here
+        size_t dont_care = 0;
+        r->Size = io::read_dword(f, &dont_care);
+        io::read_dword(f, &dont_care); // This is an unknown field of 4 bytes
+        io::read_dword(f, &dont_care); // Flags, not important here
     }
     catch (...)
     {
@@ -102,11 +105,9 @@ bool read_subrecords(Record *r, FILE *f)
     {
         while (bytecount < r->Size)
         {
-            std::string srid = io::read_record_id(f);
-
+            std::string srid = io::read_record_id(f, &bytecount);
             Subrecord *sr = new Subrecord(r->GetID(), srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
-
-            break; // Debug
+            r->AddSubrecord(sr);
         }
     }
     catch (...)

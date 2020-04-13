@@ -12,8 +12,10 @@
 int main(int argc, char **argv)
 {
     Settings settings;
-    std::string files[] = {"Morrowind.esm"/*, "Tribunal.esm", "Bloodmoon.esm"*/};
+    settings.Weapons = ShuffleType::Random;
+    settings.UpdateAffectedRecords();
 
+    std::string files[] = {"Morrowind.esm" /*, "Tribunal.esm", "Bloodmoon.esm"*/};
     auto start = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
     for (std::string file : files)

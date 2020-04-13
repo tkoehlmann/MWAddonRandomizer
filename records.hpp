@@ -44,7 +44,6 @@ private:
     std::unordered_map<std::string, Subrecord*> *m_subrecords;
 };
 
-
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;
 
 #endif /* __RECORDS_HPP_ */
