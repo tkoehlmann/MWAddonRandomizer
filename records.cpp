@@ -16,35 +16,41 @@ Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordData
     {
     case RecordDataType::Data:
         s = io::read_dword(f, bytes_read);
-        m_data = malloc(s);
+        m_data = (uint8_t*)malloc(s);
+        m_data_size = s;
         if (!fread(m_data, 1, s, f))
             throw "Error in Subrecord::Subrecord";
         *bytes_read += s;
         break;
     case RecordDataType::Float:
-        m_data = malloc(sizeof(float));
-        *(float *)m_data = io::read_float(f, bytes_read);
+        m_data = (uint8_t*)malloc(sizeof(float));
+        m_data_size = sizeof(float);
+        *(float*)m_data = io::read_float(f, bytes_read);
         break;
     case RecordDataType::Int8:
-        m_data = malloc(sizeof(uint8_t));
-        *(uint8_t *)m_data = io::read_byte(f, bytes_read);
+        m_data = (uint8_t*)malloc(sizeof(int8_t));
+        m_data_size = sizeof(uint8_t);
+        *(int8_t*)m_data = io::read_byte(f, bytes_read);
         break;
     case RecordDataType::Int16:
-        m_data = malloc(sizeof(uint16_t));
-        *(uint16_t *)m_data = io::read_word(f, bytes_read);
+        m_data = (uint8_t*)malloc(sizeof(int16_t));
+        m_data_size = sizeof(uint16_t);
+        *(int16_t*)m_data = io::read_word(f, bytes_read);
         break;
     case RecordDataType::Int32:
-        m_data = malloc(sizeof(uint32_t));
-        *(uint32_t *)m_data = io::read_dword(f, bytes_read);
+        m_data = (uint8_t*)malloc(sizeof(int32_t));
+        m_data_size = sizeof(int32_t);
+        *(int32_t*)m_data = io::read_dword(f, bytes_read);
         break;
     case RecordDataType::Int64:
-        m_data = malloc(2 * sizeof(uint32_t));
-        *(uint32_t *)m_data = io::read_dword(f, bytes_read);
-        *((uint32_t *)m_data + 1) = io::read_dword(f, bytes_read);
+        m_data = (uint8_t*)malloc(2 * sizeof(int32_t));
+        m_data_size = 2 * sizeof(int32_t);
+        *(int32_t*)m_data = io::read_dword(f, bytes_read);
+        *((int32_t*)m_data + 1) = io::read_dword(f, bytes_read);
         break;
     case RecordDataType::String:
         str = io::read_string(f, bytes_read);
-        m_data = calloc(str.length() + 1 , sizeof(char));
+        m_data = (uint8_t*)calloc(str.length() + 1, sizeof(char));
         strcpy((char*)m_data, str.c_str());
         break;
     default:
@@ -67,12 +73,22 @@ RecordDataType Subrecord::GetType()
     return m_type;
 }
 
-void* Subrecord::GetData()
+uint8_t* Subrecord::GetData()
 {
     return m_data;
 }
 
+void Subrecord::SetData(uint8_t *data, size_t bytes)
+{
+    if (bytes != m_data_size)
+        auto ptr = realloc(m_data, bytes);
+    memcpy(m_data, data, bytes);
+}
 
+size_t Subrecord::GetSize()
+{
+    return m_data_size;
+}
 
 Record::Record(std::string record_id)
 {
@@ -107,6 +123,11 @@ std::string Record::GetID()
     return m_id;
 }
 
+Subrecord* Record::operator[](std::string srid)
+{
+    bool unknown = m_subrecords->find(srid) == m_subrecords->end();
+    return unknown ? nullptr : (*m_subrecords)[srid];
+}
 
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>
     RecordToSubrecordTypes =

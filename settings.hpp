@@ -24,10 +24,12 @@ public:
     Settings();
     uint32_t GetSeed(); // Returns the seed ID
     uint32_t GetNext(); // Retrieves the next random number
-    uint32_t GetNext(uint32_t i); // Retrieves the next random number in the range 0 to i-1
+    uint32_t GetNext(int i); // Retrieves the next random number in the range 0 to i-1
+    float GetNext(double i); // Retrieves the next random number in the range 0 to i-1
     void UpdateAffectedRecords();
     bool IsRecordAffected(std::string id);
 
+    // Caution: Can only work by changing cells which is not implemented and won't be for some time!
     ShuffleType Artifacts;
     bool ConsiderMasterPropylonIndexAsArtifact = false;
     bool ConsiderRegularPropylonIndicesAsArtifacts = false;

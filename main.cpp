@@ -7,6 +7,7 @@
 //#include "iohelpers.hpp"
 //#include "records.hpp"
 #include "settings.hpp"
+#include "randomizer.hpp"
 
 
 int main(int argc, char **argv)
@@ -31,11 +32,18 @@ int main(int argc, char **argv)
         if (res == nullptr)
             printf("Error reading file: %s", file.c_str());
         else
+        {
             for (auto element : *res)
             {
                 // TODO: Merge
-                printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
             }
+
+            // Not correct, just for testing! This should be done with the merged data!
+            (*res)["WEAP"] = Randomizer::RandomizeWeapons((*res)["WEAP"], settings);
+
+            for (auto element : *res)
+                printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
+        }
     }
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;

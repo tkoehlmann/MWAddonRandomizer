@@ -56,8 +56,8 @@ Record* read_record(_IO_FILE *f, Settings& settings)
                 printf("Error reading header data for record ID \"%s\"\n", res->GetID().c_str());
                 exit(1);
             }
-            res->Ignored = !settings.IsRecordAffected(res->GetID()) || unknown;
 
+            res->Ignored = !settings.IsRecordAffected(res->GetID()) || unknown;
             if (res->Ignored)
             {
                 // Just skip over it

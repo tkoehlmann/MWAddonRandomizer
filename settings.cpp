@@ -16,9 +16,17 @@ uint32_t Settings::GetNext()
     return rand();
 }
 
-uint32_t Settings::GetNext(uint32_t i)
+uint32_t Settings::GetNext(int i)
 {
     return rand() % i;
+}
+
+float Settings::GetNext(double i)
+{
+    const double multiplier = 1000.0; // good enough
+    int v = i * multiplier;
+    v = rand() % v;
+    return (double)v / multiplier;
 }
 
 uint32_t Settings::GetSeed()

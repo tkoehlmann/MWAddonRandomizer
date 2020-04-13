@@ -21,12 +21,16 @@ public:
     ~Subrecord();
     std::string GetID();
     RecordDataType GetType();
-    void* GetData();          // replace with get_int8, get_int16, ... ?
+    // We have a getter+setter so that the ownership of the data is clear (it's this object!)
+    uint8_t* GetData();
+    void SetData(uint8_t *data, size_t bytes);
+    size_t GetSize();
 
 private:
     std::string m_id;
     RecordDataType m_type;
-    void *m_data;
+    uint8_t *m_data;
+    size_t m_data_size;
 };
 
 class Record {
@@ -34,9 +38,9 @@ public:
     Record(std::string record_id);
     ~Record();
     void AddSubrecord(Subrecord *subrecord);
+    Subrecord *operator[](std::string srid);
     std::string GetID();
     bool Ignored;
-
     size_t Size;
 
 private:

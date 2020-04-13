@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_executable(morrowindaddonrandomizercpp main.cpp esmloader.cpp records.cpp iohelpers.cpp settings.cpp)
+add_executable(morrowindaddonrandomizercpp main.cpp esmloader.cpp records.cpp iohelpers.cpp settings.cpp randomizer.cpp)
 
 add_library(mwaddonrandomizer SHARED records.cpp iohelpers.cpp)
 set_target_properties(mwaddonrandomizer PROPERTIES VERSION ${PROJECT_VERSION})
