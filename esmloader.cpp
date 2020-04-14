@@ -106,7 +106,7 @@ bool read_subrecords(Record *r, FILE *f)
         while (bytecount < r->Size)
         {
             std::string srid = io::read_record_id(f, &bytecount);
-            Subrecord *sr = new Subrecord(r->GetID(), srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
+            auto sr = Subrecord(r->GetID(), srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
             r->AddSubrecord(sr);
         }
     }

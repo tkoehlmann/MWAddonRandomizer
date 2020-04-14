@@ -23,20 +23,20 @@ namespace Weapons
             init_str(rec, "ITEX", ITEX);
             init_str(rec, "SCRI", SCRI);
 
-            ENAM = (rec["ENAM"] == nullptr)
-                       ? nullptr
-                       : rec["ENAM"]->GetData();
-            ENAM_size = (rec["ENAM"] == nullptr)
-                            ? 0
-                            : rec["ENAM"]->GetSize();
+            ENAM = rec.HasSubrecord("ENAM")
+                       ? rec["ENAM"].GetData()
+                       : nullptr;
+            ENAM_size = rec.HasSubrecord("ENAM")
+                            ? rec["ENAM"].GetSize()
+                            : 0;
         }
 
         private:
         void init_str(Record &r, std::string field, std::string &s)
         {
-            s = (r[field] == nullptr)
-                    ? ""
-                    : std::string((char *)r[field]->GetData());
+            s = r.HasSubrecord(field)
+                ? std::string((char *)r[field].GetData())
+                : "";
         }
     };
 
@@ -86,7 +86,7 @@ namespace Weapons
 
     bool is_artifact(Record &rec)
     {
-        std::string id = std::string((char*)rec["NAME"]->GetData());
+        std::string id = std::string((char*)rec["NAME"].GetData());
         return id == "cleaverstfelms" ||
                id == "mace of molag bal_unique" ||
                id == "daedric_scourge_unique" ||
@@ -173,7 +173,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         if (Weapons::is_artifact(*r) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        uint8_t *wpdt = (*r)["WPDT"]->GetData();
+        uint8_t *wpdt = (*r)["WPDT"].GetData();
         Weapons::set_min_max_values(weight_min, weight_max, weight_values, io::read_float(wpdt + offset_weight));
         Weapons::set_min_max_values(value_min, value_max, value_values, io::read_dword(wpdt + offset_value));
         Weapons::set_min_max_values(health_min, health_max, health_values, io::read_word(wpdt + offset_health));
@@ -216,7 +216,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     // Step 3: iteate over all records and put in shuffled values instead
     for (size_t i = 0; i < records.size(); i++)
     {
-        uint8_t *wpdt = (*records[i])["WPDT"]->GetData();
+        uint8_t *wpdt = (*records[i])["WPDT"].GetData();
         std::pair<int8_t, int8_t> minmax;
 
         Weapons::random(settings, settings.WeaponsWeight, i, offset_weight, wpdt, weight_min, weight_max, weight_values, io::write_float);
@@ -293,21 +293,21 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             Weapons::random(settings, settings.WeaponsResistance, i, offset_resistance_flag, wpdt, rmin, rmax, resistance_values, io::write_dword);
         }
 
-        (*records[i])["WPDT"]->SetData(wpdt, (*records[i])["WPDT"]->GetSize());
+        (*records[i])["WPDT"].SetData(wpdt, (*records[i])["WPDT"].GetSize());
         if (settings.WeaponsModels != ShuffleType::None)
         {
             // todo: clear all record's subrecords and put (deep-copy) the subrecords from model_values
 
             if (model_values[i].MODL != "")
-                (*records[i])["MODL"]->SetData((uint8_t *)model_values[i].MODL.c_str(), model_values[i].MODL.length() + 1);
+                (*records[i])["MODL"].SetData((uint8_t *)model_values[i].MODL.c_str(), model_values[i].MODL.length() + 1);
             if (model_values[i].FNAM != "")
-                (*records[i])["FNAM"]->SetData((uint8_t *)model_values[i].FNAM.c_str(), model_values[i].FNAM.length() + 1);
+                (*records[i])["FNAM"].SetData((uint8_t *)model_values[i].FNAM.c_str(), model_values[i].FNAM.length() + 1);
             if (model_values[i].ITEX != "")
-                (*records[i])["ITEX"]->SetData((uint8_t *)model_values[i].ITEX.c_str(), model_values[i].ITEX.length() + 1);
+                (*records[i])["ITEX"].SetData((uint8_t *)model_values[i].ITEX.c_str(), model_values[i].ITEX.length() + 1);
             if (model_values[i].ENAM != 0)
-                (*records[i])["ENAM"]->SetData(model_values[i].ENAM, model_values[i].ENAM_size);
+                (*records[i])["ENAM"].SetData(model_values[i].ENAM, model_values[i].ENAM_size);
             if (model_values[i].SCRI != "")
-                (*records[i])["SCRI"]->SetData((uint8_t *)model_values[i].SCRI.c_str(), model_values[i].SCRI.length() + 1);
+                (*records[i])["SCRI"].SetData((uint8_t *)model_values[i].SCRI.c_str(), model_values[i].SCRI.length() + 1);
         }
     }
 

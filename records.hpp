@@ -17,13 +17,17 @@ enum class RecordDataType {
 
 class Subrecord {
 public:
+    Subrecord();
     Subrecord(std::string record_id, std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read);
     ~Subrecord();
+    Subrecord(const Subrecord &other); // cc
+    Subrecord &operator=(const Subrecord rhs); // ac
+
     std::string GetID();
     RecordDataType GetType();
     // We have a getter+setter so that the ownership of the data is clear (it's this object!)
     uint8_t* GetData();
-    void SetData(uint8_t *data, size_t bytes);
+    void SetData(uint8_t *data, size_t bytes); // data will be memcpy'd in here, you can free() your copy
     size_t GetSize();
 
 private:
@@ -36,16 +40,16 @@ private:
 class Record {
 public:
     Record(std::string record_id);
-    ~Record();
-    void AddSubrecord(Subrecord *subrecord);
-    Subrecord *operator[](std::string srid);
+    void AddSubrecord(Subrecord subrecord);
+    Subrecord& operator[](std::string srid);
+    bool HasSubrecord(std::string srid);
     std::string GetID();
     bool Ignored;
     size_t Size;
 
 private:
     std::string m_id;
-    std::unordered_map<std::string, Subrecord*> *m_subrecords;
+    std::unordered_map<std::string, Subrecord> m_subrecords;
 };
 
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;

@@ -3,6 +3,10 @@
 #include "records.hpp"
 #include "iohelpers.hpp"
 
+Subrecord::Subrecord()
+{
+    throw "Fun fact: this never happens, yet GCC won't compile if this constructor doesn't exist";
+}
 
 Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read)
 {
@@ -51,6 +55,7 @@ Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordData
     case RecordDataType::String:
         str = io::read_string(f, bytes_read);
         m_data = (uint8_t*)calloc(str.length() + 1, sizeof(char));
+        m_data_size = str.length() + 1;
         strcpy((char*)m_data, str.c_str());
         break;
     default:
@@ -60,7 +65,37 @@ Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordData
 
 Subrecord::~Subrecord()
 {
+#ifdef DEBUG
+    printf("deleting \"%s\" (%d)...", GetID().c_str(), (int)GetType());
+#endif
+
     free(m_data);
+}
+
+Subrecord::Subrecord(const Subrecord &other)
+    : m_id(other.m_id), m_type(other.m_type), m_data_size(other.m_data_size)
+{
+#ifdef DEBUG
+    printf("CC'ing Subrecord \"%s\" (%d)...\n", GetID().c_str(), (int)GetType());
+#endif
+
+    uint8_t *data = (uint8_t *)malloc(m_data_size);
+    memcpy(data, other.m_data, m_data_size);
+    m_data = data;
+}
+
+Subrecord& Subrecord::operator=(const Subrecord rhs)
+{
+#ifdef DEBUG
+    printf("=ing Subrecord \"%s\" (%d)...\n", GetID().c_str(), (int)GetType());
+#endif
+
+    m_id = rhs.m_id;
+    m_type = rhs.m_type;
+    m_data_size = rhs.m_data_size;
+    m_data = rhs.m_data;
+
+    return *this;
 }
 
 std::string Subrecord::GetID()
@@ -93,29 +128,11 @@ size_t Subrecord::GetSize()
 Record::Record(std::string record_id)
 {
     m_id = record_id;
-    m_subrecords = new std::unordered_map<std::string, Subrecord*>();
 }
 
-Record::~Record()
+void Record::AddSubrecord(Subrecord subrecord)
 {
-    for (auto it = m_subrecords->begin(); it != m_subrecords->end(); it++)
-    {
-        Subrecord *sub = it->second;
-        printf("deleting \"%s\" (%d)...", sub->GetID().c_str(), (int)sub->GetType());
-        delete sub;
-    }
-
-    /*for (auto const &[id, sub] : *m_subrecords)
-    {
-        printf("deleting \"%s\" (%d)...", sub->GetID().c_str(), (int)sub->GetType());
-        delete sub;
-    }*/
-    delete m_subrecords;
-}
-
-void Record::AddSubrecord(Subrecord *subrecord)
-{
-    m_subrecords->insert({ subrecord->GetID(), subrecord });
+    m_subrecords.insert({ subrecord.GetID(), subrecord });
 }
 
 std::string Record::GetID()
@@ -123,10 +140,16 @@ std::string Record::GetID()
     return m_id;
 }
 
-Subrecord* Record::operator[](std::string srid)
+Subrecord& Record::operator[](std::string srid)
 {
-    bool unknown = m_subrecords->find(srid) == m_subrecords->end();
-    return unknown ? nullptr : (*m_subrecords)[srid];
+    if (!HasSubrecord(srid))
+        throw "Unknown subrecord " + srid + " in record " + GetID();
+    return m_subrecords[srid];
+}
+
+bool Record::HasSubrecord(std::string srid)
+{
+    return m_subrecords.find(srid) != m_subrecords.end();
 }
 
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>
