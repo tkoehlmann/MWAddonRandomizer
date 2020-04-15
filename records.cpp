@@ -83,20 +83,12 @@ Subrecord::Subrecord(std::string subrecord_id, std::string s)
 
 Subrecord::~Subrecord()
 {
-#ifdef DEBUG
-    printf("deleting \"%s\" (%d)...", GetID().c_str(), (int)GetType());
-#endif
-
     free(m_data);
 }
 
 Subrecord::Subrecord(const Subrecord &other)
     : m_id(other.m_id), m_type(other.m_type), m_data_size(other.m_data_size)
 {
-#ifdef DEBUG
-    printf("CC'ing Subrecord \"%s\" (%d)...\n", GetID().c_str(), (int)GetType());
-#endif
-
     uint8_t *data = (uint8_t *)malloc(m_data_size);
     memcpy(data, other.m_data, m_data_size);
     m_data = data;
@@ -104,10 +96,6 @@ Subrecord::Subrecord(const Subrecord &other)
 
 Subrecord& Subrecord::operator=(const Subrecord rhs)
 {
-#ifdef DEBUG
-    printf("=ing Subrecord \"%s\" (%d)...\n", GetID().c_str(), (int)GetType());
-#endif
-
     m_id = rhs.m_id;
     m_type = rhs.m_type;
     m_data_size = rhs.m_data_size;
