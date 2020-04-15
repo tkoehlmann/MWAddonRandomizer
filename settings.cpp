@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <filesystem>
 #include "settings.hpp"
 
 
@@ -8,6 +9,9 @@ Settings::Settings()
 {
     m_seed = time(nullptr);
     m_affected_records = new std::vector<std::string>();
+    MasterDataFilesDir = "/";
+    PluginOutputDir = "~";
+    PluginFileName = "MWAddonRandomizer_" + std::to_string(GetSeed()) + ".omwaddon";
     srand(m_seed);
 }
 
@@ -67,4 +71,14 @@ void Settings::UpdateAffectedRecords()
 bool Settings::IsRecordAffected(std::string id)
 {
     return std::find(m_affected_records->begin(), m_affected_records->end(), id) != m_affected_records->end();
+}
+
+std::string Settings::GetMasterFileFullPath(std::string file)
+{
+    return std::filesystem::path(MasterDataFilesDir) / file;
+}
+
+std::string Settings::GetPluginFullPath()
+{
+    return std::filesystem::path(PluginOutputDir) / PluginFileName;
 }

@@ -1,3 +1,4 @@
+#include <cstring>
 #include "iohelpers.hpp"
 
 int8_t io::read_byte(FILE *f, size_t *bytes_read)
@@ -75,6 +76,11 @@ size_t io::get_file_size(FILE *f)
     return res;
 }
 
+void io::write_bytes(FILE *f, uint8_t *data, size_t len)
+{
+    fwrite(data, 1, len, f);
+}
+
 float io::read_float(uint8_t *mem)
 {
     float f = (mem[3] << 24) |
@@ -120,4 +126,9 @@ void io::write_word(uint8_t *mem, int16_t i)
 {
     mem[1] = ((uint8_t *)&i)[1];
     mem[0] = ((uint8_t *)&i)[0];
+}
+
+void io::write_bytes(uint8_t *buf, uint8_t *data, size_t len)
+{
+    memcpy(buf, data, len);
 }

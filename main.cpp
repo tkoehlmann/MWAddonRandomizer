@@ -3,7 +3,8 @@
 #include <cstdio>
 #include <chrono>
 
-#include "esmloader.hpp"
+#include "esmtools/esmloader.hpp"
+#include "esmtools/esmwriter.hpp"
 //#include "iohelpers.hpp"
 //#include "records.hpp"
 #include "settings.hpp"
@@ -13,6 +14,8 @@
 int main(int argc, char **argv)
 {
     Settings settings;
+    settings.MasterDataFilesDir = "";
+    settings.PluginOutputDir = "/mnt/ramdisk";
     settings.WeaponsWeight = ShuffleType::Random;
     settings.WeaponsValue = ShuffleType::Random;
     settings.WeaponsHealth = ShuffleType::Random;
@@ -28,7 +31,11 @@ int main(int argc, char **argv)
     size_t total_file_size_bytes = 0;
     for (std::string file : files)
     {
-        std::unordered_map<std::string, std::vector<Record*>> *res = ReadESMFile(file, settings, &total_file_size_bytes);
+        std::vector<std::pair<std::string, size_t>> master_files_sizes;
+        size_t fsize;
+        std::unordered_map<std::string, std::vector<Record *>> *res = ReadESMFile(file, &fsize, settings, &total_file_size_bytes);
+        master_files_sizes.push_back(std::pair<std::string, size_t>(file, fsize));
+
         if (res == nullptr)
             printf("Error reading file: %s", file.c_str());
         else
@@ -43,6 +50,12 @@ int main(int argc, char **argv)
 
             for (auto element : *res)
                 printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
+
+            std::vector<Record*> records_to_write;
+            for (auto element : (*res)["WEAP"])
+                records_to_write.push_back(element);
+
+            WriteESMFile(settings, records_to_write, master_files_sizes);
         }
     }
     auto finish = std::chrono::high_resolution_clock::now();

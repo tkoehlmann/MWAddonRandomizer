@@ -8,7 +8,7 @@ Subrecord::Subrecord()
     throw "Fun fact: this never happens, yet GCC won't compile if this constructor doesn't exist";
 }
 
-Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read)
+Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read)
 {
     std::string str;
     size_t s;
@@ -61,6 +61,24 @@ Subrecord::Subrecord(std::string record_id, std::string subrecord_id, RecordData
     default:
         break;
     }
+}
+
+Subrecord::Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes)
+{
+    m_id = subrecord_id;
+    m_type = RecordDataType::Data;
+    m_data_size = len_bytes;
+    m_data = (uint8_t *)malloc(m_data_size);
+    memcpy(m_data, data, m_data_size);
+}
+
+Subrecord::Subrecord(std::string subrecord_id, std::string s)
+{
+    m_id = subrecord_id;
+    m_type = RecordDataType::String;
+    m_data = (uint8_t *)calloc(s.length() + 1, sizeof(char));
+    m_data_size = s.length() + 1;
+    strcpy((char *)m_data, s.c_str());
 }
 
 Subrecord::~Subrecord()
@@ -120,10 +138,33 @@ void Subrecord::SetData(uint8_t *data, size_t bytes)
     memcpy(m_data, data, bytes);
 }
 
-size_t Subrecord::GetSize()
+size_t Subrecord::GetDataSize()
 {
     return m_data_size;
 }
+
+size_t Subrecord::GetSubrecordSize()
+{
+    return 4 + 4 + m_data_size; // (char[4])ID + (long)size of data, data
+}
+
+void Subrecord::WriteSubrecord(uint8_t *buf, size_t *remaining_bytes)
+{
+    size_t sz = GetSubrecordSize();
+    if (*remaining_bytes < sz)
+        throw "Not enough free space to write " + GetID() + " data";
+
+    io::write_bytes(buf + 0, (uint8_t *)GetID().c_str(), 4);
+    io::write_dword(buf + 4, m_data_size);
+    io::write_bytes(buf + 8, m_data, m_data_size);
+
+    *remaining_bytes -= sz;
+}
+
+
+
+
+
 
 Record::Record(std::string record_id)
 {
@@ -133,6 +174,13 @@ Record::Record(std::string record_id)
 void Record::AddSubrecord(Subrecord subrecord)
 {
     m_subrecords.insert({ subrecord.GetID(), subrecord });
+}
+
+void Record::ClearNonIDSubrecords()
+{
+    Subrecord name = m_subrecords["NAME"];
+    m_subrecords.clear();
+    m_subrecords.insert(std::pair<std::string, Subrecord>("NAME", name));
 }
 
 std::string Record::GetID()
@@ -150,6 +198,35 @@ Subrecord& Record::operator[](std::string srid)
 bool Record::HasSubrecord(std::string srid)
 {
     return m_subrecords.find(srid) != m_subrecords.end();
+}
+
+size_t Record::GetRecordSize()
+{
+    size_t sz = 12;
+    for (auto subrecord : m_subrecords)
+        sz += subrecord.second.GetSubrecordSize();
+    return sz;
+}
+
+void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
+{
+    size_t sz = GetRecordSize();
+    if (*remaining_bytes < sz)
+        throw "Not enough free space to write " + GetID() + " data";
+
+    uint8_t tmp[4] = { 0, 0, 0, 0};
+    io::write_bytes(buf + 0, (uint8_t *)GetID().c_str(), 4);
+    io::write_dword(buf + 4, sz - 12); // Size is without header which is always 12 bytes
+    io::write_bytes(buf + 8, tmp, 4);
+    *remaining_bytes -= 12;
+
+    size_t offset = 12;
+    for (auto subrecord : m_subrecords)
+    {
+        size_t srsz = subrecord.second.GetSubrecordSize();
+        subrecord.second.WriteSubrecord(buf + offset, remaining_bytes);
+        offset += srsz;
+    }
 }
 
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>

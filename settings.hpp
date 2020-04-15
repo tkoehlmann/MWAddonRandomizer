@@ -29,19 +29,25 @@ public:
     void UpdateAffectedRecords();
     bool IsRecordAffected(std::string id);
 
+    std::string MasterDataFilesDir;
+    std::string PluginOutputDir;
+    std::string PluginFileName;
+    std::string GetMasterFileFullPath(std::string file);
+    std::string GetPluginFullPath();
+
     // Caution: Can only work by changing cells which is not implemented and won't be for some time!
-    ShuffleType Artifacts;
+    ShuffleType Artifacts = ShuffleType::None;
     bool ConsiderMasterPropylonIndexAsArtifact = false;
     bool ConsiderRegularPropylonIndicesAsArtifacts = false;
 
-    ShuffleType WeaponsWeight;      // Weight of weapons
-    ShuffleType WeaponsValue;       // Value of weapons
-    ShuffleType WeaponsHealth;      // Durability of weapons
-    ShuffleType WeaponsSpeed;       // Weight of weapons
-    ShuffleType WeaponsEnchantPts;  // Enchantablility of weapons
-    ShuffleType WeaponsDamage;      // Damage of weapons
-    ShuffleType WeaponsResistance;  // Whether weapons can ignore common weapon resistances
-    ShuffleType WeaponsModels;      // The visuals of weapons, model and inventory display name (not to be confused with locations!)
+    ShuffleType WeaponsWeight = ShuffleType::None;      // Weight of weapons
+    ShuffleType WeaponsValue = ShuffleType::None;       // Value of weapons
+    ShuffleType WeaponsHealth = ShuffleType::None;      // Durability of weapons
+    ShuffleType WeaponsSpeed = ShuffleType::None;       // Weight of weapons
+    ShuffleType WeaponsEnchantPts = ShuffleType::None;  // Enchantablility of weapons
+    ShuffleType WeaponsDamage = ShuffleType::None;      // Damage of weapons
+    ShuffleType WeaponsResistance = ShuffleType::None;  // Whether weapons can ignore common weapon resistances
+    ShuffleType WeaponsModels = ShuffleType::None;      // The visuals of weapons, model and inventory display name (not to be confused with locations!)
     bool WeaponShuffleAffectsArtifactWeapons = false;
 
     /* ShuffleType AlchemyEffects; */

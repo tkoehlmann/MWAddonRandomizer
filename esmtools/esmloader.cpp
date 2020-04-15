@@ -5,26 +5,26 @@
 #include <cassert>
 
 #include "esmloader.hpp"
-#include "iohelpers.hpp"
-#include "records.hpp"
+#include "../iohelpers.hpp"
+#include "../records.hpp"
 
 // Forward declarations
 Record* read_record(_IO_FILE *f, Settings& settings);
 bool read_header(Record *r, FILE *f);
 bool read_subrecords(Record *r, FILE *f);
 
-std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, Settings &settings, size_t *total_file_size_bytes)
+std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, size_t *f_size, Settings &settings, size_t *total_file_size_bytes)
 {
     FILE *f = fopen(filepath.c_str(), "rb");
-    size_t f_size = io::get_file_size(f);
-    *total_file_size_bytes += f_size;
+    *f_size = io::get_file_size(f);
+    *total_file_size_bytes += *f_size;
     auto result = new std::unordered_map<std::string, std::vector<Record *>>();
     if (f == nullptr)
         return nullptr;
 
     Record *r;
     while   (
-                (ftell(f) < f_size) &&
+                (ftell(f) < *f_size) &&
                 ((r = read_record(f, settings)) != nullptr)
             )
     {
@@ -106,7 +106,7 @@ bool read_subrecords(Record *r, FILE *f)
         while (bytecount < r->Size)
         {
             std::string srid = io::read_record_id(f, &bytecount);
-            auto sr = Subrecord(r->GetID(), srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
+            auto sr = Subrecord(srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
             r->AddSubrecord(sr);
         }
     }

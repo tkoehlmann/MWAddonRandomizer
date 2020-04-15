@@ -7,7 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
-add_executable(morrowindaddonrandomizercpp main.cpp esmloader.cpp records.cpp iohelpers.cpp settings.cpp randomizer.cpp)
+add_executable(morrowindaddonrandomizercpp
+    main.cpp
+    esmtools/esmloader.cpp
+    esmtools/esmwriter.cpp
+    records.cpp
+    iohelpers.cpp
+    settings.cpp
+    randomizer.cpp
+    randomizers/weapons.cpp
+)
 
 add_library(mwaddonrandomizer SHARED records.cpp iohelpers.cpp)
 set_target_properties(mwaddonrandomizer PROPERTIES VERSION ${PROJECT_VERSION})
