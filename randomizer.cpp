@@ -76,10 +76,13 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         // Subrecord sr = vec[0];
         // uint8_t *wpdt = sr.GetData();
 
-        std::vector<Subrecord> srs = r["WPDT"];
+        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT"); // r["WPDT"];
         uint8_t *wpdt = srs[0].GetData();
 
-        // doesn't work!
+        uint8_t *wpdt2 = records[i]->GetSubrecords("WPDT")[0].GetData();
+        uint8_t *wpdt3 = records[i]->GetSubrecords("WPDT").at(0).GetData();
+
+
         // uint8_t *wpdt2 = (((*(records[i]))["WPDT"])[0]).GetData();
         // uint8_t *wpdt3 = (((*records[i])["WPDT"])[0]).GetData();
         // uint8_t *wpdt4 = ((*records[i])["WPDT"][0]).GetData();
@@ -89,8 +92,8 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         // uint8_t *wpdt8 = ((r["WPDT"])[0]).GetData();
         // uint8_t *wpdt9 = ((*rec)["WPDT"])[0].GetData();
 
-        // int cmp2 = std::memcmp(wpdt, wpdt2, 32);
-        // int cmp3 = std::memcmp(wpdt, wpdt3, 32);
+        int cmp2 = std::memcmp(wpdt, wpdt2, 32);
+        int cmp3 = std::memcmp(wpdt, wpdt3, 32);
         // int cmp4 = std::memcmp(wpdt, wpdt4, 32);
         // int cmp5 = std::memcmp(wpdt, wpdt5, 32);
         // int cmp6 = std::memcmp(wpdt, wpdt6, 32);
@@ -162,7 +165,9 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         if (std::find(bad_ids.begin(), bad_ids.end(), i) != bad_ids.end())
             continue; // skip bad indices
 
-        uint8_t *wpdt = (*records[i])["WPDT"][0].GetData();
+        //uint8_t *wpdt = (*records[i])["WPDT"][0].GetData();
+        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT");
+        uint8_t *wpdt = srs[0].GetData();
         std::pair<int8_t, int8_t> minmax;
 
         Weapons::random(settings, settings.WeaponsWeight, i, offset_weight, wpdt, weight_min, weight_max, weight_values, io::write_float);
@@ -239,8 +244,8 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             Weapons::random(settings, settings.WeaponsResistance, i, offset_resistance_flag, wpdt, rmin, rmax, resistance_values, io::write_dword);
         }
 
-        Record &r = *records[i];
-        std::vector<Subrecord> srs = r["WPDT"];
+        //Record &r = *records[i];
+        srs = records[i]->GetSubrecords("WPDT"); //r["WPDT"];
         size_t sz = srs[0].GetDataSize();
         srs[0].SetData(wpdt, sz);
         //r["WPDT"][0].SetData(wpdt, (*records[i])["WPDT"][0].GetDataSize());

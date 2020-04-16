@@ -178,13 +178,13 @@ std::string Record::GetID()
     return m_id;
 }
 
-std::vector<Subrecord> Record::operator[](std::string srid)
+std::vector<Subrecord> Record::GetSubrecords(std::string srid)
 {
     if (!HasSubrecord(srid))
         throw "Unknown subrecord " + srid + " in record " + GetID();
 
     std::vector<Subrecord> result;
-    for(Subrecord sr : m_subrecords)
+    for (Subrecord sr : m_subrecords)
         if (sr.GetID() == srid)
             result.push_back(sr);
     return result;

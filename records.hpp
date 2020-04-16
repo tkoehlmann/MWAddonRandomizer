@@ -51,7 +51,7 @@ public:
     Record(std::string record_id);
     void AddSubrecord(Subrecord subrecord);
     void ClearNonIDSubrecords();
-    std::vector<Subrecord> operator[](std::string srid);
+    std::vector<Subrecord> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID();
     size_t GetRecordSize();

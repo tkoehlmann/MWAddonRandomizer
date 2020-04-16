@@ -7,7 +7,7 @@ void Weapons::AdditionalData::init_sr(Record *r, std::string field)
 {
     if (r->HasSubrecord(field))
     {
-        std::vector<Subrecord> srs = (*r)[field];
+        std::vector<Subrecord> srs = r->GetSubrecords(field); // (*r)[field];
         m_subrecords.insert(m_subrecords.end(), srs.begin(), srs.end());
     }
 }
@@ -29,7 +29,8 @@ std::vector<Subrecord> Weapons::AdditionalData::GetSubrecords()
 
 bool Weapons::is_artifact(Record &rec)
 {
-    std::string id = std::string((char *)rec["NAME"][0].GetData());
+    //std::string id = std::string((char *)rec["NAME"][0].GetData());
+    std::string id = std::string((char *)rec.GetSubrecords("NAME")[0].GetData());
     return id == "cleaverstfelms" ||
            id == "mace of molag bal_unique" ||
            id == "daedric_scourge_unique" ||
