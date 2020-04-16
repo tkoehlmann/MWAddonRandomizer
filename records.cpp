@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstring>
 
 #include "records.hpp"
@@ -161,14 +162,15 @@ Record::Record(std::string record_id)
 
 void Record::AddSubrecord(Subrecord subrecord)
 {
-    m_subrecords.insert({ subrecord.GetID(), subrecord });
+    m_subrecords.push_back(subrecord);
 }
 
 void Record::ClearNonIDSubrecords()
 {
-    Subrecord name = m_subrecords["NAME"];
-    m_subrecords.clear();
-    m_subrecords.insert(std::pair<std::string, Subrecord>("NAME", name));
+    std::remove_if(m_subrecords.begin(), m_subrecords.end(),
+                   [](Subrecord &sr) {
+                       return sr.GetID() != "NAME";
+                   });
 }
 
 std::string Record::GetID()
@@ -176,23 +178,33 @@ std::string Record::GetID()
     return m_id;
 }
 
-Subrecord& Record::operator[](std::string srid)
+std::vector<Subrecord> Record::operator[](std::string srid)
 {
     if (!HasSubrecord(srid))
         throw "Unknown subrecord " + srid + " in record " + GetID();
-    return m_subrecords[srid];
+
+    std::vector<Subrecord> result;
+    for(Subrecord sr : m_subrecords)
+        if (sr.GetID() == srid)
+            result.push_back(sr);
+    return result;
 }
 
 bool Record::HasSubrecord(std::string srid)
 {
-    return m_subrecords.find(srid) != m_subrecords.end();
+    return std::find_if(m_subrecords.begin(), m_subrecords.end(),
+                        [srid](Subrecord &sr)
+                        {
+                            return sr.GetID() == srid;
+                        })
+            != m_subrecords.end();
 }
 
 size_t Record::GetRecordSize()
 {
     size_t sz = 12;
     for (auto subrecord : m_subrecords)
-        sz += subrecord.second.GetSubrecordSize();
+        sz += subrecord.GetSubrecordSize();
     return sz;
 }
 
@@ -211,8 +223,8 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
     size_t offset = 12;
     for (auto subrecord : m_subrecords)
     {
-        size_t srsz = subrecord.second.GetSubrecordSize();
-        subrecord.second.WriteSubrecord(buf + offset, remaining_bytes);
+        size_t srsz = subrecord.GetSubrecordSize();
+        subrecord.WriteSubrecord(buf + offset, remaining_bytes);
         offset += srsz;
     }
 }

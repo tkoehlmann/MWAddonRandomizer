@@ -2,6 +2,7 @@
 #define __RECORDS_HPP_
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 enum class RecordDataType {
@@ -50,17 +51,17 @@ public:
     Record(std::string record_id);
     void AddSubrecord(Subrecord subrecord);
     void ClearNonIDSubrecords();
-    Subrecord &operator[](std::string srid);
+    std::vector<Subrecord> operator[](std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID();
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;
-    size_t Size; // Only used by the esmloader! Don't use anywhere else! Use GetRecordSize() instead!
+    //size_t Size; // Only used by the esmloader! Don't use anywhere else! Use GetRecordSize() instead!
 
 private:
     std::string m_id;
-    std::unordered_map<std::string, Subrecord> m_subrecords;
+    std::vector<Subrecord> m_subrecords;
 };
 
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;

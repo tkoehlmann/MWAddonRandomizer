@@ -6,11 +6,15 @@
 void Weapons::AdditionalData::init_sr(Record *r, std::string field)
 {
     if (r->HasSubrecord(field))
-        m_subrecords.insert(std::pair<std::string, Subrecord>(field, (*r)[field]));
+    {
+        std::vector<Subrecord> srs = (*r)[field];
+        m_subrecords.insert(m_subrecords.end(), srs.begin(), srs.end());
+    }
 }
 
 Weapons::AdditionalData::AdditionalData(Record *r)
 {
+    // Maybe just dump all subrecords that match these and be done with it?
     init_sr(r, "MODL");
     init_sr(r, "FNAM");
     init_sr(r, "ITEX");
@@ -18,14 +22,14 @@ Weapons::AdditionalData::AdditionalData(Record *r)
     init_sr(r, "SCRI");
 }
 
-std::unordered_map<std::string, Subrecord> Weapons::AdditionalData::GetSubrecords()
+std::vector<Subrecord> Weapons::AdditionalData::GetSubrecords()
 {
     return m_subrecords;
 }
 
 bool Weapons::is_artifact(Record &rec)
 {
-    std::string id = std::string((char *)rec["NAME"].GetData());
+    std::string id = std::string((char *)rec["NAME"][0].GetData());
     return id == "cleaverstfelms" ||
            id == "mace of molag bal_unique" ||
            id == "daedric_scourge_unique" ||

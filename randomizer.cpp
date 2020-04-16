@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <cfloat>
 #include "iohelpers.hpp"
 #include "randomizer.hpp"
@@ -62,26 +63,74 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     auto rng = [&settings](int i) { return settings.GetNext(i); };
 
     // Step 1: Fill min/max and value fields
-    for (Record *r : records)
+    std::vector<int> bad_ids;
+    for (int i = 0; i < records.size(); ++i)
     {
-        if (Weapons::is_artifact(*r) && !settings.WeaponShuffleAffectsArtifactWeapons)
+        Record &r = *records[i];
+        if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        uint8_t *wpdt = (*r)["WPDT"].GetData();
-        //Weapons::set_min_max_values(weight_min, weight_max, weight_values, io::read_float(wpdt + offset_weight));
-        Weapons::set_min_max_values(value_min, value_max, value_values, io::read_dword(wpdt + offset_value));
-        Weapons::set_min_max_values(health_min, health_max, health_values, io::read_word(wpdt + offset_health));
-        Weapons::set_min_max_values(speed_min, speed_max, speed_values, io::read_float(wpdt + offset_speed));
-        Weapons::set_min_max_values(enchant_min, enchant_max, enchant_values, io::read_word(wpdt + offset_enchant));
-        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, (int8_t)wpdt[offset_chop_min]);
-        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, (int8_t)wpdt[offset_chop_max]);
-        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, (int8_t)wpdt[offset_slash_min]);
-        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, (int8_t)wpdt[offset_slash_max]);
-        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, (int8_t)wpdt[offset_thrust_min]);
-        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, (int8_t)wpdt[offset_thrust_max]);
+        // works!
+        // Record *rec = records[i];
+        // std::vector<Subrecord> vec = (*rec)["WPDT"];
+        // Subrecord sr = vec[0];
+        // uint8_t *wpdt = sr.GetData();
+
+        std::vector<Subrecord> srs = r["WPDT"];
+        uint8_t *wpdt = srs[0].GetData();
+
+        // doesn't work!
+        // uint8_t *wpdt2 = (((*(records[i]))["WPDT"])[0]).GetData();
+        // uint8_t *wpdt3 = (((*records[i])["WPDT"])[0]).GetData();
+        // uint8_t *wpdt4 = ((*records[i])["WPDT"][0]).GetData();
+        // uint8_t *wpdt5 = (*records[i])["WPDT"][0].GetData();
+        // uint8_t *wpdt6 = r["WPDT"][0].GetData();
+        // uint8_t *wpdt7 = (r["WPDT"])[0].GetData();
+        // uint8_t *wpdt8 = ((r["WPDT"])[0]).GetData();
+        // uint8_t *wpdt9 = ((*rec)["WPDT"])[0].GetData();
+
+        // int cmp2 = std::memcmp(wpdt, wpdt2, 32);
+        // int cmp3 = std::memcmp(wpdt, wpdt3, 32);
+        // int cmp4 = std::memcmp(wpdt, wpdt4, 32);
+        // int cmp5 = std::memcmp(wpdt, wpdt5, 32);
+        // int cmp6 = std::memcmp(wpdt, wpdt6, 32);
+        // int cmp7 = std::memcmp(wpdt, wpdt7, 32);
+        // int cmp8 = std::memcmp(wpdt, wpdt8, 32);
+        // int cmp9 = std::memcmp(wpdt, wpdt9, 32);
+
+        float weight = io::read_float(wpdt + offset_weight);
+        int32_t value = io::read_dword(wpdt + offset_value);
+        int16_t health = io::read_dword(wpdt + offset_health);
+        float speed = io::read_float(wpdt + offset_speed);
+        int16_t enchant = io::read_word(wpdt + offset_enchant);
+        int8_t chop_min = wpdt[offset_chop_min];
+        int8_t chop_max = wpdt[offset_chop_max];
+        int8_t slash_min = wpdt[offset_slash_min];
+        int8_t slash_max = wpdt[offset_slash_max];
+        int8_t thrust_min = wpdt[offset_thrust_min];
+        int8_t thrust_max = wpdt[offset_thrust_max];
+
+        if (weight == 0)
+        {
+            // This will stop randomizing damage values onto and off VFX_DefaultBolt and other nonsense
+            bad_ids.push_back(i);
+            continue;
+        }
+
+        Weapons::set_min_max_values(weight_min, weight_max, weight_values, weight);
+        Weapons::set_min_max_values(value_min, value_max, value_values, value);
+        Weapons::set_min_max_values(health_min, health_max, health_values, health);
+        Weapons::set_min_max_values(speed_min, speed_max, speed_values, speed);
+        Weapons::set_min_max_values(enchant_min, enchant_max, enchant_values, enchant);
+        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, chop_min);
+        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, chop_max);
+        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, slash_min);
+        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, slash_max);
+        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, thrust_min);
+        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, thrust_max);
         resistance_values.push_back(io::read_dword(wpdt + offset_resistance_flag));
 
-        model_values.push_back(Weapons::AdditionalData(r));
+        model_values.push_back(Weapons::AdditionalData(records[i]));
     }
 
     // Step 2: Shuffle if necessary
@@ -110,7 +159,10 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     // Step 3: iteate over all records and put in shuffled values instead
     for (size_t i = 0; i < records.size(); i++)
     {
-        uint8_t *wpdt = (*records[i])["WPDT"].GetData();
+        if (std::find(bad_ids.begin(), bad_ids.end(), i) != bad_ids.end())
+            continue; // skip bad indices
+
+        uint8_t *wpdt = (*records[i])["WPDT"][0].GetData();
         std::pair<int8_t, int8_t> minmax;
 
         Weapons::random(settings, settings.WeaponsWeight, i, offset_weight, wpdt, weight_min, weight_max, weight_values, io::write_float);
@@ -187,12 +239,16 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             Weapons::random(settings, settings.WeaponsResistance, i, offset_resistance_flag, wpdt, rmin, rmax, resistance_values, io::write_dword);
         }
 
-        (*records[i])["WPDT"].SetData(wpdt, (*records[i])["WPDT"].GetDataSize());
+        Record &r = *records[i];
+        std::vector<Subrecord> srs = r["WPDT"];
+        size_t sz = srs[0].GetDataSize();
+        srs[0].SetData(wpdt, sz);
+        //r["WPDT"][0].SetData(wpdt, (*records[i])["WPDT"][0].GetDataSize());
         if (settings.WeaponsModels != ShuffleType::None)
         {
             records[i]->ClearNonIDSubrecords();
             for (auto field_sr : model_values[i].GetSubrecords())
-                records[i]->AddSubrecord(field_sr.second);
+                records[i]->AddSubrecord(field_sr);
         }
     }
 

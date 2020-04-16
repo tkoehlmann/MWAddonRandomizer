@@ -13,9 +13,9 @@ namespace Weapons
     {
     public:
         AdditionalData(Record *r);
-        std::unordered_map<std::string, Subrecord> GetSubrecords();
+        std::vector<Subrecord> GetSubrecords();
     private:
-        std::unordered_map<std::string, Subrecord> m_subrecords;
+        std::vector<Subrecord> m_subrecords;
         void init_sr(Record *r, std::string field);
     };
 

@@ -83,19 +83,16 @@ void io::write_bytes(FILE *f, uint8_t *data, size_t len)
 
 float io::read_float(uint8_t *mem)
 {
-    float f = (mem[3] << 24) |
-              (mem[2] << 16) |
-              (mem[1] << 8) |
-              (mem[0] << 0);
+    float f = *(float *)mem;
     return f;
 }
 
 void io::write_float(uint8_t *mem, float f)
 {
+    mem[0] = ((uint8_t *)&f)[0];
+    mem[1] = ((uint8_t *)&f)[1];
     mem[2] = ((uint8_t *)&f)[2];
     mem[3] = ((uint8_t *)&f)[3];
-    mem[1] = ((uint8_t *)&f)[1];
-    mem[0] = ((uint8_t *)&f)[0];
 }
 
 int32_t io::read_dword(uint8_t *mem)
@@ -109,10 +106,10 @@ int32_t io::read_dword(uint8_t *mem)
 
 void io::write_dword(uint8_t *mem, int32_t i)
 {
-    mem[3] = ((uint8_t*)&i)[3];
-    mem[2] = ((uint8_t*)&i)[2];
-    mem[1] = ((uint8_t*)&i)[1];
-    mem[0] = ((uint8_t*)&i)[0];
+    mem[0] = ((uint8_t *)&i)[0];
+    mem[1] = ((uint8_t *)&i)[1];
+    mem[2] = ((uint8_t *)&i)[2];
+    mem[3] = ((uint8_t *)&i)[3];
 }
 
 int16_t io::read_word(uint8_t *mem)
