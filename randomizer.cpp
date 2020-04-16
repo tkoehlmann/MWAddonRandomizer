@@ -66,14 +66,13 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     std::vector<int> bad_ids;
     for (int i = 0; i < records.size(); ++i)
     {
-        Record &r = *records[i];
         if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT"); // r["WPDT"];
+        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT");
         uint8_t *wpdt = srs[0].GetData();
 
-/*
+        /*
         DEBUG!
         This stuff doesn't work :(
 
@@ -82,7 +81,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
 
         int cmp2 = std::memcmp(wpdt, wpdt2, 32);
         int cmp3 = std::memcmp(wpdt, wpdt3, 32);
-*/
+        */
 
         float weight = io::read_float(wpdt + offset_weight);
         int32_t value = io::read_dword(wpdt + offset_value);
@@ -226,7 +225,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             Weapons::random(settings, settings.WeaponsResistance, i, offset_resistance_flag, wpdt, rmin, rmax, resistance_values, io::write_dword);
         }
 
-        srs = records[i]->GetSubrecords("WPDT"); //r["WPDT"];
+        srs = records[i]->GetSubrecords("WPDT");
         size_t sz = srs[0].GetDataSize();
         srs[0].SetData(wpdt, sz);
 
