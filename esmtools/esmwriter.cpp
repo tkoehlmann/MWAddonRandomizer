@@ -8,13 +8,15 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
 {
     FILE *f = fopen(settings.GetPluginFullPath().c_str(), "wb");
 
-    uint8_t *tes3_data;
-    size_t tes3_size;
+
 
     // Write TES3 record
-    Record tes3 = Record("TES3");
     {
+        Record tes3 = Record("TES3");
+        uint8_t *tes3_data;
+        size_t tes3_size;
         uint8_t HEDR[300] = {};
+
         io::write_float(HEDR + 0, 1.3f);
         io::write_dword(HEDR + 296, records.size());
         tes3.AddSubrecord(Subrecord("HEDR", HEDR, 300));
@@ -29,9 +31,20 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
         size_t remaining = tes3_size;
         tes3_data = (uint8_t *)malloc(tes3_size);
         tes3.WriteRecord(tes3_data, &remaining);
+        fwrite(tes3_data, 1, tes3_size, f);
     }
 
-    fwrite(tes3_data, 1, tes3_size, f);
+    // Write all other records
+    for (Record *r : records)
+    {
+        size_t sz = r->GetRecordSize();
+        uint8_t *data = (uint8_t *)malloc(sz);
+        size_t remaining = sz;
+        r->WriteRecord(data, &remaining);
+        fwrite(data, 1, sz, f);
+    }
+
+    // And we're done!
     fclose(f);
 
     return true;
