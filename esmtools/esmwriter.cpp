@@ -8,10 +8,13 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
 {
     FILE *f = fopen(settings.GetPluginFullPath().c_str(), "wb");
 
+    uint8_t *tes3_data;
+    size_t tes3_size;
+
     // Write TES3 record
     Record tes3 = Record("TES3");
     {
-        uint8_t HEDR[300];
+        uint8_t HEDR[300] = {};
         io::write_float(HEDR + 0, 1.3f);
         io::write_dword(HEDR + 296, records.size());
         tes3.AddSubrecord(Subrecord("HEDR", HEDR, 300));
@@ -22,9 +25,14 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
             tes3.AddSubrecord(Subrecord("DATA", (uint8_t*)&DATA, 8));
         }
 
-        size_t sz = tes3.GetRecordSize();
-        uint8_t tes3_data[sz];
-        tes3.WriteRecord(tes3_data, &sz); // Uh oh, the order of subrecords is important... HOW DO I DO THIS? FUCK.
+        tes3_size = tes3.GetRecordSize();
+        size_t remaining = tes3_size;
+        tes3_data = (uint8_t *)malloc(tes3_size);
+        tes3.WriteRecord(tes3_data, &remaining);
     }
-    return false;
+
+    fwrite(tes3_data, 1, tes3_size, f);
+    fclose(f);
+
+    return true;
 }
