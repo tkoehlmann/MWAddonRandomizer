@@ -11,7 +11,6 @@
  * TODO:
  * - Don't shuffle arrows and bolts together with other weapons as they can not be fired
  * - Try shuffling arrows and bolts among each other, test if bows can shoot bolts and crossbows can shoot arrows
- * - Don't bother randomizing range, OpenMW ignores it anyway
  */
 std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, Settings &settings)
 {
