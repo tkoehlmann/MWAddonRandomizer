@@ -5,8 +5,6 @@
 
 #include "esmtools/esmloader.hpp"
 #include "esmtools/esmwriter.hpp"
-//#include "iohelpers.hpp"
-//#include "records.hpp"
 #include "settings.hpp"
 #include "randomizer.hpp"
 
@@ -64,19 +62,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
-
-
-
-/*auto f = fopen("test.bin", "rb");
-    uint32_t dword = io::read_dword(f);
-    uint16_t word = io::read_word(f);
-    uint8_t byte = io::read_byte(f);
-    std::string hw = io::read_string(f);
-    float fl = io::read_float(f);
-
-    printf("dword  = 0x%8x\n", dword);
-    printf("word   = 0x%8x\n", word);
-    printf("byte   = 0x%8x\n", byte);
-    printf("string = %s\n", hw.c_str());
-    printf("float  = 0x%8x\n", fl);*/

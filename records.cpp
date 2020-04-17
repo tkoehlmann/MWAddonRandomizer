@@ -202,7 +202,7 @@ bool Record::HasSubrecord(std::string srid)
 
 size_t Record::GetRecordSize()
 {
-    size_t sz = 12;
+    size_t sz = 16;
     for (auto subrecord : m_subrecords)
         sz += subrecord.GetSubrecordSize();
     return sz;
@@ -215,12 +215,13 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
         throw "Not enough free space to write " + GetID() + " data";
 
     uint8_t tmp[4] = { 0, 0, 0, 0};
-    io::write_bytes(buf + 0, (uint8_t *)GetID().c_str(), 4);
-    io::write_dword(buf + 4, sz - 12); // Size is without header which is always 12 bytes
-    io::write_bytes(buf + 8, tmp, 4);
-    *remaining_bytes -= 12;
+    io::write_bytes(buf +  0, (uint8_t *)GetID().c_str(), 4);
+    io::write_dword(buf +  4, sz - 16); // Size is without header which is always 12 bytes
+    io::write_bytes(buf +  8, tmp, 4);
+    io::write_bytes(buf + 12, tmp, 4);
+    *remaining_bytes -= 16;
 
-    size_t offset = 12;
+    size_t offset = 16;
     for (auto subrecord : m_subrecords)
     {
         size_t srsz = subrecord.GetSubrecordSize();

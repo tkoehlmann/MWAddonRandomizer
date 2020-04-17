@@ -7,6 +7,12 @@
 #include "randomizers/weapons.hpp"
 
 
+/**
+ * TODO:
+ * - Don't shuffle arrows and bolts together with other weapons as they can not be fired
+ * - Try shuffling arrows and bolts among each other, test if bows can shoot bolts and crossbows can shoot arrows
+ * - Don't bother randomizing range, OpenMW ignores it anyway
+ */
 std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, Settings &settings)
 {
     const size_t offset_weight = 0;            // float
@@ -69,19 +75,8 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT");
-        uint8_t *wpdt = srs[0].GetData();
-
-        /*
-        DEBUG!
-        This stuff doesn't work :(
-
-        uint8_t *wpdt2 = records[i]->GetSubrecords("WPDT")[0].GetData();
-        uint8_t *wpdt3 = records[i]->GetSubrecords("WPDT").at(0).GetData();
-
-        int cmp2 = std::memcmp(wpdt, wpdt2, 32);
-        int cmp3 = std::memcmp(wpdt, wpdt3, 32);
-        */
+        Subrecord wpdt_sr = records[i]->GetSubrecords("WPDT")[0];
+        uint8_t *wpdt = wpdt_sr.GetData();
 
         float weight = io::read_float(wpdt + offset_weight);
         int32_t value = io::read_dword(wpdt + offset_value);
