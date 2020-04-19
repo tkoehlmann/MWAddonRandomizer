@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 enum class RecordDataType {
     String,
@@ -21,6 +22,7 @@ public:
     // General constructors
     Subrecord();
     Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read);
+    Subrecord(Subrecord *sr);
 
     // Constructors for manually creating subrecords
     Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes);
@@ -49,9 +51,9 @@ private:
 class Record {
 public:
     Record(std::string record_id);
-    void AddSubrecord(Subrecord subrecord);
+    void AddSubrecord(std::unique_ptr<Subrecord> subrecord);
     void ClearSubrecords(std::vector<std::string> ids);
-    std::vector<Subrecord> GetSubrecords(std::string srid);
+    std::vector<std::unique_ptr<Subrecord>> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID();
     size_t GetRecordSize();
@@ -60,7 +62,7 @@ public:
 
 private:
     std::string m_id;
-    std::vector<Subrecord> m_subrecords;
+    std::vector<std::unique_ptr<Subrecord>> m_subrecords;
 };
 
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;

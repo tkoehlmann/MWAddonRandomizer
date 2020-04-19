@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <vector>
 #include <filesystem>
 #include "settings.hpp"
@@ -7,7 +8,8 @@
 
 Settings::Settings()
 {
-    m_seed = time(nullptr);
+    m_seed = std::chrono::system_clock::now().time_since_epoch().count();
+    m_rng.seed(m_seed);
     m_affected_records = new std::vector<std::string>();
     MasterDataFilesDir = "/";
     PluginOutputDir = "~";
@@ -17,13 +19,13 @@ Settings::Settings()
 
 uint32_t Settings::GetNext()
 {
-    return rand();
+    return m_rng();
 }
 
 uint32_t Settings::GetNext(int i)
 {
 
-    return i == 0 ? 0 : rand() % i;
+    return i == 0 ? 0 : m_rng() % i;
 }
 
 float Settings::GetNext(double i)
@@ -34,8 +36,13 @@ float Settings::GetNext(double i)
 
     const double multiplier = 1000.0; // good enough
     int v = i * multiplier;
-    v = rand() % v;
+    v = m_rng() % v;
     return (double)v / multiplier;
+}
+
+float Settings::GetNext(std::normal_distribution<float> ndist)
+{
+    return ndist(m_rng);
 }
 
 uint32_t Settings::GetSeed()

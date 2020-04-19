@@ -2,6 +2,8 @@
 #define __RANDOMIZERS_WEAPONS_HPP_
 
 #include <algorithm>
+#include <numeric>
+#include <random>
 #include <unordered_map>
 #include <vector>
 #include "../records.hpp"
@@ -14,9 +16,9 @@ namespace Weapons
     {
     public:
         AdditionalData(Record *r);
-        std::vector<Subrecord> GetSubrecords();
+        std::vector<std::unique_ptr<Subrecord>> GetSubrecords();
     private:
-        std::vector<Subrecord> m_subrecords;
+        std::vector<std::unique_ptr<Subrecord>> m_subrecords;
         void init_sr(Record *r, std::string field);
     };
 
@@ -60,7 +62,27 @@ namespace Weapons
 
             void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i, const size_t offset_min, const size_t offset_max, uint8_t *wpdt, void (*f)(uint8_t *, T))
             {
+                bool use_global = is_weapon && GlobalMin != nullptr && GlobalMax != nullptr;
                 std::pair<int8_t, int8_t> minmax;
+
+                auto get_mean = [](std::vector<T> *vs) {
+                    return std::accumulate(vs->begin(), vs->end(), 0) / vs->size();
+                };
+                float mean = get_mean(use_global
+                                      ? GlobalValues
+                                      : &Values);
+
+                auto get_std_deviation = [](float mean, std::vector<T> *vs) {
+                    double sq_sum = std::inner_product(vs->begin(), vs->end(), vs->begin(), 0);
+                    return std::sqrt(sq_sum / vs->size() - mean * mean);
+                };
+                T std_deviation = get_std_deviation(mean, use_global
+                                                              ? GlobalValues
+                                                              : &Values);
+
+                std::normal_distribution<float> distribution(mean, std_deviation);
+
+
 
                 switch (type)
                 {
@@ -68,7 +90,7 @@ namespace Weapons
                     break;
 
                 case ShuffleType::Random:
-                    if (is_weapon && GlobalMin != nullptr && GlobalMax != nullptr)
+                    if (use_global)
                     {
                         minmax = std::minmax(
                             settings.GetNext(*GlobalMax - *GlobalMin) + *GlobalMin,
@@ -81,7 +103,7 @@ namespace Weapons
                     break;
 
                 case ShuffleType::Random_Chaos:
-                    if (is_weapon && GlobalMin != nullptr && GlobalMax != nullptr)
+                    if (use_global)
                     {
                         minmax = std::minmax(
                             settings.GetNext(*GlobalMax * 2) + *GlobalMin / 2,
@@ -118,32 +140,6 @@ namespace Weapons
                 }
             }
     };
-
-    // template <typename T>
-    // void random(Settings &settings, ShuffleType &type, int i, const size_t &offset, uint8_t *wpdt, T &min, T &max, std::vector<T> &values, void (*f)(uint8_t *, T))
-    // {
-    //     switch (type)
-    //     {
-    //     case ShuffleType::None:
-    //         break;
-
-    //     case ShuffleType::Random:
-    //         io::write_float(wpdt + offset, settings.GetNext((T)(max - min)) + min);
-    //         break;
-
-    //     case ShuffleType::Random_Chaos:
-    //         io::write_float(wpdt + offset, settings.GetNext((T)(max * 2)));
-    //         break;
-
-    //     case ShuffleType::Shuffled_Different:
-    //     case ShuffleType::Shuffled_Same:
-    //         io::write_float(wpdt + offset, values[i]);
-    //         break;
-
-    //     default:
-    //         break;
-    //     }
-    // }
 
     bool is_artifact(Record &rec);
 

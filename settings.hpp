@@ -1,6 +1,7 @@
 #ifndef __SETTINGS_HPP_
 #define __SETTINGS_HPP_
 
+#include <random>
 #include <string>
 #include <vector>
 
@@ -26,6 +27,7 @@ public:
     uint32_t GetNext(); // Retrieves the next random number
     uint32_t GetNext(int i); // Retrieves the next random number in the range 0 to i-1
     float GetNext(double i); // Retrieves the next random number in the range 0 to i-1
+    float GetNext(std::normal_distribution<float> ndist); // Retrieves the next number depending on the given normal distribution
     void UpdateAffectedRecords();
     bool IsRecordAffected(std::string id);
 
@@ -55,6 +57,7 @@ public:
 
 private:
     uint32_t m_seed;
+    std::default_random_engine m_rng;
     std::vector<std::string> *m_affected_records;
 };
 

@@ -78,6 +78,15 @@ Subrecord::Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes)
     memcpy(m_data, data, m_data_size);
 }
 
+Subrecord::Subrecord(Subrecord *sr)
+{
+    m_id = sr->GetID();
+    m_type = sr->GetType();
+    m_data_size = sr->GetDataSize();
+    m_data = (uint8_t *)malloc(m_data_size);
+    memcpy(m_data, sr->GetData(), m_data_size);
+}
+
 Subrecord::Subrecord(std::string subrecord_id, std::string s)
 {
     if (m_id == TARGET)
@@ -173,19 +182,20 @@ Record::Record(std::string record_id)
     m_id = record_id;
 }
 
-void Record::AddSubrecord(Subrecord subrecord)
+void Record::AddSubrecord(std::unique_ptr<Subrecord> subrecord)
 {
-    m_subrecords.push_back(subrecord);
+    m_subrecords.push_back(std::move(subrecord));
 }
 
 
 void Record::ClearSubrecords(std::vector<std::string> ids)
 {
-    std::vector<Subrecord> new_subs;
-    for (Subrecord sr : m_subrecords)
-        if (std::find(ids.begin(), ids.end(), sr.GetID()) == ids.end())
-            new_subs.push_back(sr);
-    m_subrecords = new_subs;
+    std::vector<std::unique_ptr<Subrecord>> new_subs;
+    for (std::unique_ptr<Subrecord> &sr : m_subrecords)
+        if (std::find(ids.begin(), ids.end(), sr->GetID()) == ids.end())
+            new_subs.push_back(std::move(sr));
+    m_subrecords.clear();
+    m_subrecords.insert(m_subrecords.end(), std::make_move_iterator(new_subs.begin()), std::make_move_iterator(new_subs.end()));
 }
 
 std::string Record::GetID()
@@ -193,24 +203,24 @@ std::string Record::GetID()
     return m_id;
 }
 
-std::vector<Subrecord> Record::GetSubrecords(std::string srid)
+std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
 {
     if (!HasSubrecord(srid))
         throw "Unknown subrecord " + srid + " in record " + GetID();
 
-    std::vector<Subrecord> result;
-    for (Subrecord sr : m_subrecords)
-        if (sr.GetID() == srid)
-            result.push_back(sr);
+    std::vector<std::unique_ptr<Subrecord>> result;
+    for (std::unique_ptr<Subrecord> &sr : m_subrecords)
+        if (sr->GetID() == srid)
+            result.push_back(std::make_unique<Subrecord>(new Subrecord(*sr)));
     return result;
 }
 
 bool Record::HasSubrecord(std::string srid)
 {
     return std::find_if(m_subrecords.begin(), m_subrecords.end(),
-                        [srid](Subrecord &sr)
+                        [srid](std::unique_ptr<Subrecord> &sr)
                         {
-                            return sr.GetID() == srid;
+                            return sr->GetID() == srid;
                         })
             != m_subrecords.end();
 }
@@ -218,8 +228,8 @@ bool Record::HasSubrecord(std::string srid)
 size_t Record::GetRecordSize()
 {
     size_t sz = 16;
-    for (auto subrecord : m_subrecords)
-        sz += subrecord.GetSubrecordSize();
+    for (auto &subrecord : m_subrecords)
+        sz += subrecord->GetSubrecordSize();
     return sz;
 }
 
@@ -237,10 +247,10 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
     *remaining_bytes -= 16;
 
     size_t offset = 16;
-    for (auto subrecord : m_subrecords)
+    for (auto &subrecord : m_subrecords)
     {
-        size_t srsz = subrecord.GetSubrecordSize();
-        subrecord.WriteSubrecord(buf + offset, remaining_bytes);
+        size_t srsz = subrecord->GetSubrecordSize();
+        subrecord->WriteSubrecord(buf + offset, remaining_bytes);
         offset += srsz;
     }
 }

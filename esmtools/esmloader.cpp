@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 #include <map>
+#include <memory>
 #include <cassert>
 
 #include "esmloader.hpp"
@@ -107,8 +108,8 @@ bool read_subrecords(Record *r, FILE *f, size_t record_size)
         while (bytecount < record_size)
         {
             std::string srid = io::read_record_id(f, &bytecount);
-            auto sr = Subrecord(srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount);
-            r->AddSubrecord(sr);
+            auto sr = std::make_unique<Subrecord>(new Subrecord(srid, RecordToSubrecordTypes[r->GetID()][srid], f, &bytecount));
+            r->AddSubrecord(std::move(sr));
         }
     }
     catch (...)

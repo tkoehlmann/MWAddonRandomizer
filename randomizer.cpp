@@ -95,8 +95,8 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        std::vector<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT");
-        uint8_t *wpdt = wpdt_srs[0].GetData();
+        std::vector<std::unique_ptr<Subrecord>> wpdt_srs = records[i]->GetSubrecords("WPDT");
+        uint8_t *wpdt = wpdt_srs[0]->GetData();
 
         uint16_t type = io::read_word(wpdt + offset_type);
         float weight = io::read_float(wpdt + offset_weight);
@@ -122,7 +122,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         case type_bow:
         case type_crossbow:
             weight_bows.Set(weight);
-            value_bows.Set(value);
+            value_bows.Set(value/*, 1000*/);
             health_bows.Set(health);
             speed_bows.Set(speed);
             enchant_bows.Set(enchant);
@@ -135,7 +135,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
 
         case type_thrown:
             weight_thrown.Set(weight);
-            value_thrown.Set(value);
+            value_thrown.Set(value/*, 100*/);
             health_thrown.Set(health);
             speed_thrown.Set(speed);
             enchant_thrown.Set(enchant);
@@ -149,7 +149,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         case type_arrow:
         case type_bolt:
             weight_ammo.Set(weight);
-            value_ammo.Set(value);
+            value_ammo.Set(value/*, 10*/);
             health_ammo.Set(health);
             speed_ammo.Set(speed);
             enchant_ammo.Set(enchant);
@@ -162,7 +162,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
 
         default:
             weight_melee.Set(weight);
-            value_melee.Set(value);
+            value_melee.Set(value/*, 10000*/);
             health_melee.Set(health);
             speed_melee.Set(speed);
             enchant_melee.Set(enchant);
@@ -247,8 +247,8 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             // std::vector<Subrecord> srs = (*weapon_type)[i]->GetSubrecords("WPDT");
             // uint8_t *wpdt = srs[0].GetData();
             Record *weap = (*weapon_type)[i];
-            std::vector<Subrecord> wpdt_srs = weap->GetSubrecords("WPDT");
-            uint8_t *wpdt = wpdt_srs[0].GetData();
+            std::vector<std::unique_ptr<Subrecord>> wpdt_srs = weap->GetSubrecords("WPDT");
+            uint8_t *wpdt = wpdt_srs[0]->GetData();
 
             std::string wt;
             if (weapon_type == &melee_weapons)
@@ -331,16 +331,16 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             damage_melee_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min, offset_thrust_max, wpdt, io::write_byte);
 
             weap->ClearSubrecords({"WPDT"});
-            wpdt_srs[0].SetData(wpdt, wpdt_srs[0].GetDataSize());
-            weap->AddSubrecord(wpdt_srs[0]);
+            wpdt_srs[0]->SetData(wpdt, wpdt_srs[0]->GetDataSize());
+            weap->AddSubrecord(std::move(wpdt_srs[0]));
 
 
             if (settings.WeaponsModels != ShuffleType::None)
             {
                 weap->ClearSubrecords({"MODL", "FNAM", "ITEX", "ENAM", "SCRI"});
-                std::vector<Subrecord> srs = (*model)[i].GetSubrecords();
-                for (auto field_sr : srs)
-                    weap->AddSubrecord(field_sr);
+                std::vector<std::unique_ptr<Subrecord>> srs = (*model)[i].GetSubrecords();
+                for (auto &field_sr : srs)
+                    weap->AddSubrecord(std::move(std::make_unique<Subrecord>(*field_sr)));
             }
         }
     }
