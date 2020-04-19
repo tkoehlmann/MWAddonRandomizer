@@ -50,14 +50,13 @@ class Record {
 public:
     Record(std::string record_id);
     void AddSubrecord(Subrecord subrecord);
-    void ClearNonIDSubrecords();
+    void ClearSubrecords(std::vector<std::string> ids);
     std::vector<Subrecord> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID();
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;
-    //size_t Size; // Only used by the esmloader! Don't use anywhere else! Use GetRecordSize() instead!
 
 private:
     std::string m_id;

@@ -7,7 +7,7 @@ void Weapons::AdditionalData::init_sr(Record *r, std::string field)
 {
     if (r->HasSubrecord(field))
     {
-        std::vector<Subrecord> srs = r->GetSubrecords(field); // (*r)[field];
+        std::vector<Subrecord> srs = r->GetSubrecords(field);
         m_subrecords.insert(m_subrecords.end(), srs.begin(), srs.end());
     }
 }

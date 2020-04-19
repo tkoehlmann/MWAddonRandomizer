@@ -1,6 +1,7 @@
 #include <algorithm>
-#include <cstdint>
 #include <cstring>
+#include <cinttypes>
+#include <cstdint>
 #include <cfloat>
 #include "iohelpers.hpp"
 #include "randomizer.hpp"
@@ -29,54 +30,75 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     const size_t offset_thrust_max = 27;       // byte
     const size_t offset_resistance_flag = 28;  // long
 
-    float weight_min = FLT_MAX;
-    float weight_max = FLT_MIN;
-    std::vector<float> weight_values;
+    const uint16_t type_bow = 9;
+    const uint16_t type_crossbow = 10;
+    const uint16_t type_thrown = 11;
+    const uint16_t type_arrow = 12;
+    const uint16_t type_bolt = 13;
 
-    int32_t value_min = INT32_MAX;
-    int32_t value_max = INT32_MIN;
-    std::vector<int32_t> value_values;
 
-    int16_t health_min = INT16_MAX;
-    int16_t health_max = INT16_MIN;
-    std::vector<int16_t> health_values;
+    Weapons::MinMaxData<float> weight_melee(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<float> weight_bows(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<float> weight_thrown(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<float> weight_ammo(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
 
-    float speed_min = FLT_MAX;
-    float speed_max = FLT_MIN;
-    std::vector<float> speed_values;
+    Weapons::MinMaxData<int32_t> value_melee(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int32_t> value_bows(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<int32_t> value_thrown(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int32_t> value_ammo(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
 
-    int16_t enchant_min = INT16_MAX;
-    int16_t enchant_max = INT16_MIN;
-    std::vector<int16_t> enchant_values;
+    Weapons::MinMaxData<int16_t> health_melee(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int16_t> health_bows(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<int16_t> health_thrown(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int16_t> health_ammo(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
 
-    int8_t damage_min = INT8_MAX;
-    int8_t damage_max = INT8_MIN;
-    int8_t damage_chop_min = INT8_MAX;
-    int8_t damage_chop_max = INT8_MIN;
-    int8_t damage_slash_min = INT8_MAX;
-    int8_t damage_slash_max = INT8_MIN;
-    int8_t damage_thrust_min = INT8_MAX;
-    int8_t damage_thrust_max = INT8_MIN;
-    std::vector<int8_t> damage_values;
-    std::vector<int8_t> chop_values;
-    std::vector<int8_t> slash_values;
-    std::vector<int8_t> thrust_values;
+    Weapons::MinMaxData<float> speed_melee(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<float> speed_bows(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<float> speed_thrown(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<float> speed_ammo(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
 
-    std::vector<int32_t> resistance_values; // resistance min/max is always 0/1
-    std::vector<Weapons::AdditionalData> model_values; // Those things will always stay together
+    Weapons::MinMaxData<int16_t> enchant_melee(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int16_t> enchant_bows(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<int16_t> enchant_thrown(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int16_t> enchant_ammo(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
+
+    int8_t damage_melee_global_min;
+    int8_t damage_melee_global_max;
+    std::vector<int8_t> damage_melee_global_values;
+    Weapons::MinMaxData<int8_t> damage_melee_chop(INT8_MAX, INT8_MIN, &damage_melee_global_min, &damage_melee_global_max, &damage_melee_global_values);
+    Weapons::MinMaxData<int8_t> damage_melee_slash(INT8_MAX, INT8_MIN, &damage_melee_global_min, &damage_melee_global_max, &damage_melee_global_values);
+    Weapons::MinMaxData<int8_t> damage_melee_thrust(INT8_MAX, INT8_MIN, &damage_melee_global_min, &damage_melee_global_max, &damage_melee_global_values);
+    Weapons::MinMaxData<int8_t> damage_bows(INT8_MAX, INT8_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<int8_t> damage_thrown(INT8_MAX, INT8_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int8_t> damage_ammo(INT8_MAX, INT8_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
+
+    Weapons::MinMaxData<int32_t> resistance_melee(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int32_t> resistance_bows(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::MinMaxData<int32_t> resistance_thrown(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr);
+    Weapons::MinMaxData<int32_t> resistance_ammo(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
+
+    std::vector<Weapons::AdditionalData> model_values_melee; // Those things will always stay together (at least for now)
+    std::vector<Weapons::AdditionalData> model_values_bows; // Those things will always stay together (at least for now)
+    std::vector<Weapons::AdditionalData> model_values_thrown; // Those things will always stay together (at least for now)
+    std::vector<Weapons::AdditionalData> model_values_ammo; // Those things will always stay together (at least for now)
 
     auto rng = [&settings](int i) { return settings.GetNext(i); };
 
     // Step 1: Fill min/max and value fields
-    std::vector<int> bad_ids;
+    std::vector<Record *> melee_weapons;
+    std::vector<Record *> marksman_weapons; // Currently bows and crossbows are treated equally, let's see how this works out
+    std::vector<Record *> marksman_throw;
+    std::vector<Record *> marksman_ammo; // Currently arrows and bolts are treated equally, let's see how this works out
+
     for (int i = 0; i < records.size(); ++i)
     {
         if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
-        Subrecord wpdt_sr = records[i]->GetSubrecords("WPDT")[0];
-        uint8_t *wpdt = wpdt_sr.GetData();
+        std::vector<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT");
+        uint8_t *wpdt = wpdt_srs[0].GetData();
 
+        uint16_t type = io::read_word(wpdt + offset_type);
         float weight = io::read_float(wpdt + offset_weight);
         int32_t value = io::read_dword(wpdt + offset_value);
         int16_t health = io::read_dword(wpdt + offset_health);
@@ -92,142 +114,234 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         if (weight == 0)
         {
             // This will stop randomizing damage values onto and off VFX_DefaultBolt and other nonsense
-            bad_ids.push_back(i);
             continue;
         }
 
-        Weapons::set_min_max_values(weight_min, weight_max, weight_values, weight);
-        Weapons::set_min_max_values(value_min, value_max, value_values, value);
-        Weapons::set_min_max_values(health_min, health_max, health_values, health);
-        Weapons::set_min_max_values(speed_min, speed_max, speed_values, speed);
-        Weapons::set_min_max_values(enchant_min, enchant_max, enchant_values, enchant);
-        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, chop_min);
-        Weapons::set_min_max_values(damage_chop_min, damage_chop_max, damage_min, damage_max, chop_values, damage_values, chop_max);
-        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, slash_min);
-        Weapons::set_min_max_values(damage_slash_min, damage_slash_max, damage_min, damage_max, slash_values, damage_values, slash_max);
-        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, thrust_min);
-        Weapons::set_min_max_values(damage_thrust_min, damage_thrust_max, damage_min, damage_max, thrust_values, damage_values, thrust_max);
-        resistance_values.push_back(io::read_dword(wpdt + offset_resistance_flag));
+        switch (type)
+        {
+        case type_bow:
+        case type_crossbow:
+            weight_bows.Set(weight);
+            value_bows.Set(value);
+            health_bows.Set(health);
+            speed_bows.Set(speed);
+            enchant_bows.Set(enchant);
+            damage_bows.Set(chop_min);
+            damage_bows.Set(chop_max);
+            resistance_bows.Set(io::read_dword(wpdt + offset_resistance_flag));
+            model_values_bows.push_back(Weapons::AdditionalData(records[i]));
+            marksman_weapons.push_back(records[i]);
+            break;
 
-        model_values.push_back(Weapons::AdditionalData(records[i]));
+        case type_thrown:
+            weight_thrown.Set(weight);
+            value_thrown.Set(value);
+            health_thrown.Set(health);
+            speed_thrown.Set(speed);
+            enchant_thrown.Set(enchant);
+            damage_thrown.Set(chop_min);
+            damage_thrown.Set(chop_max);
+            resistance_thrown.Set(io::read_dword(wpdt + offset_resistance_flag));
+            model_values_thrown.push_back(Weapons::AdditionalData(records[i]));
+            marksman_throw.push_back(records[i]);
+            break;
+
+        case type_arrow:
+        case type_bolt:
+            weight_ammo.Set(weight);
+            value_ammo.Set(value);
+            health_ammo.Set(health);
+            speed_ammo.Set(speed);
+            enchant_ammo.Set(enchant);
+            damage_ammo.Set(chop_min);
+            damage_ammo.Set(chop_max);
+            resistance_ammo.Set(io::read_dword(wpdt + offset_resistance_flag));
+            model_values_ammo.push_back(Weapons::AdditionalData(records[i]));
+            marksman_ammo.push_back(records[i]);
+            break;
+
+        default:
+            weight_melee.Set(weight);
+            value_melee.Set(value);
+            health_melee.Set(health);
+            speed_melee.Set(speed);
+            enchant_melee.Set(enchant);
+            damage_melee_chop.Set(chop_min);
+            damage_melee_chop.Set(chop_max);
+            damage_melee_slash.Set(chop_min);
+            damage_melee_slash.Set(chop_max);
+            damage_melee_thrust.Set(chop_min);
+            damage_melee_thrust.Set(chop_max);
+            resistance_melee.Set(io::read_dword(wpdt + offset_resistance_flag));
+            model_values_melee.push_back(Weapons::AdditionalData(records[i]));
+            melee_weapons.push_back(records[i]);
+            break;
+        }
     }
 
     // Step 2: Shuffle if necessary
     if (settings.WeaponsWeight != ShuffleType::None)
-        std::random_shuffle(weight_values.begin(), weight_values.end(), rng);
+    {
+        std::random_shuffle(weight_melee.Values.begin(), weight_melee.Values.end(), rng);
+        std::random_shuffle(weight_bows.Values.begin(), weight_bows.Values.end(), rng);
+        std::random_shuffle(weight_thrown.Values.begin(), weight_thrown.Values.end(), rng);
+        std::random_shuffle(weight_ammo.Values.begin(), weight_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsValue != ShuffleType::None)
-        std::random_shuffle(value_values.begin(), value_values.end(), rng);
+    {
+        std::random_shuffle(value_melee.Values.begin(), value_melee.Values.end(), rng);
+        std::random_shuffle(value_bows.Values.begin(), value_bows.Values.end(), rng);
+        std::random_shuffle(value_thrown.Values.begin(), value_thrown.Values.end(), rng);
+        std::random_shuffle(value_ammo.Values.begin(), value_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsHealth != ShuffleType::None)
-        std::random_shuffle(health_values.begin(), health_values.end(), rng);
+    {
+        std::random_shuffle(health_melee.Values.begin(), health_melee.Values.end(), rng);
+        std::random_shuffle(health_bows.Values.begin(), health_bows.Values.end(), rng);
+        std::random_shuffle(health_thrown.Values.begin(), health_thrown.Values.end(), rng);
+        std::random_shuffle(health_ammo.Values.begin(), health_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsSpeed != ShuffleType::None)
-        std::random_shuffle(speed_values.begin(), speed_values.end(), rng);
+    {
+        std::random_shuffle(speed_melee.Values.begin(), speed_melee.Values.end(), rng);
+        std::random_shuffle(speed_bows.Values.begin(), speed_bows.Values.end(), rng);
+        std::random_shuffle(speed_thrown.Values.begin(), speed_thrown.Values.end(), rng);
+        std::random_shuffle(speed_ammo.Values.begin(), speed_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsEnchantPts != ShuffleType::None)
-        std::random_shuffle(enchant_values.begin(), enchant_values.end(), rng);
+    {
+        std::random_shuffle(enchant_melee.Values.begin(), enchant_melee.Values.end(), rng);
+        std::random_shuffle(enchant_bows.Values.begin(), enchant_bows.Values.end(), rng);
+        std::random_shuffle(enchant_thrown.Values.begin(), enchant_thrown.Values.end(), rng);
+        std::random_shuffle(enchant_ammo.Values.begin(), enchant_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsDamage != ShuffleType::None)
     {
-        std::random_shuffle(damage_values.begin(), damage_values.end(), rng);
-        std::random_shuffle(chop_values.begin(), chop_values.end(), rng);
-        std::random_shuffle(slash_values.begin(), slash_values.end(), rng);
-        std::random_shuffle(thrust_values.begin(), thrust_values.end(), rng);
+        std::random_shuffle(damage_melee_chop.Values.begin(), damage_melee_chop.Values.end(), rng);
+        std::random_shuffle(damage_melee_slash.Values.begin(), damage_melee_slash.Values.end(), rng);
+        std::random_shuffle(damage_melee_thrust.Values.begin(), damage_melee_thrust.Values.end(), rng);
+        std::random_shuffle(damage_bows.Values.begin(), damage_bows.Values.end(), rng);
+        std::random_shuffle(damage_thrown.Values.begin(), damage_thrown.Values.end(), rng);
+        std::random_shuffle(damage_ammo.Values.begin(), damage_ammo.Values.end(), rng);
     }
     if (settings.WeaponsResistance != ShuffleType::None)
-        std::random_shuffle(resistance_values.begin(), resistance_values.end(), rng);
+    {
+        std::random_shuffle(resistance_melee.Values.begin(), resistance_melee.Values.end(), rng);
+        std::random_shuffle(resistance_bows.Values.begin(), resistance_bows.Values.end(), rng);
+        std::random_shuffle(resistance_thrown.Values.begin(), resistance_thrown.Values.end(), rng);
+        std::random_shuffle(resistance_ammo.Values.begin(), resistance_ammo.Values.end(), rng);
+    }
     if (settings.WeaponsModels != ShuffleType::None)
-        std::random_shuffle(model_values.begin(), model_values.end(), rng);
+    {
+        std::random_shuffle(model_values_melee.begin(), model_values_melee.end(), rng);
+        std::random_shuffle(model_values_bows.begin(), model_values_bows.end(), rng);
+        std::random_shuffle(model_values_thrown.begin(), model_values_thrown.end(), rng);
+        std::random_shuffle(model_values_ammo.begin(), model_values_ammo.end(), rng);
+    }
 
     // Step 3: iteate over all records and put in shuffled values instead
-    for (size_t i = 0; i < records.size(); i++)
+    for (auto weapon_type : { &melee_weapons, &marksman_weapons, &marksman_throw, &marksman_ammo })
     {
-        if (std::find(bad_ids.begin(), bad_ids.end(), i) != bad_ids.end())
-            continue; // skip bad indices
-
-        std::vector<Subrecord> srs = records[i]->GetSubrecords("WPDT");
-        uint8_t *wpdt = srs[0].GetData();
-        std::pair<int8_t, int8_t> minmax;
-
-        Weapons::random(settings, settings.WeaponsWeight, i, offset_weight, wpdt, weight_min, weight_max, weight_values, io::write_float);
-        Weapons::random(settings, settings.WeaponsValue, i, offset_value, wpdt, value_min, value_max, value_values, io::write_dword);
-        Weapons::random(settings, settings.WeaponsHealth, i, offset_health, wpdt, health_min, health_max, health_values, io::write_word);
-        Weapons::random(settings, settings.WeaponsSpeed, i, offset_speed, wpdt, speed_min, speed_max, speed_values, io::write_float);
-        Weapons::random(settings, settings.WeaponsEnchantPts, i, offset_enchant, wpdt, enchant_min, enchant_max, enchant_values, io::write_word);
-
-        switch (settings.WeaponsDamage)
+        for (size_t i = 0; i < weapon_type->size(); i++)
         {
-        case ShuffleType::None:
-            break;
+            // std::vector<Subrecord> srs = (*weapon_type)[i]->GetSubrecords("WPDT");
+            // uint8_t *wpdt = srs[0].GetData();
+            Record *weap = (*weapon_type)[i];
+            std::vector<Subrecord> wpdt_srs = weap->GetSubrecords("WPDT");
+            uint8_t *wpdt = wpdt_srs[0].GetData();
 
-        case ShuffleType::Random:
-            minmax = std::minmax(
-                settings.GetNext(damage_max - damage_min) + damage_min,
-                settings.GetNext(damage_max - damage_min) + damage_min);
-            wpdt[offset_chop_min] = minmax.first;
-            wpdt[offset_chop_max] = minmax.second;
-            minmax = std::minmax(
-                settings.GetNext(damage_max - damage_min) + damage_min,
-                settings.GetNext(damage_max - damage_min) + damage_min);
-            wpdt[offset_slash_min] =  minmax.first;
-            wpdt[offset_slash_max] =  minmax.second;
-            minmax = std::minmax(
-                settings.GetNext(damage_max - damage_min) + damage_min,
-                settings.GetNext(damage_max - damage_min) + damage_min);
-            wpdt[offset_thrust_min] = minmax.first;
-            wpdt[offset_thrust_max] = minmax.second;
-            break;
+            std::string wt;
+            if (weapon_type == &melee_weapons)
+                wt = "melee";
+            else if (weapon_type == &marksman_weapons)
+                wt = "bows";
+            else if (weapon_type == &marksman_throw)
+                wt = "throwing";
+            else if (weapon_type == &marksman_ammo)
+                wt = "ammo";
+            else
+                wt = "WHAT";
 
-        case ShuffleType::Random_Chaos:
-            minmax = std::minmax(
-                settings.GetNext(damage_max * 2) + damage_min / 2,
-                settings.GetNext(damage_max * 2) + damage_min / 2);
-            wpdt[offset_chop_min] = minmax.first;
-            wpdt[offset_chop_max] = minmax.second;
-            minmax = std::minmax(
-                settings.GetNext(damage_max * 2) + damage_min / 2,
-                settings.GetNext(damage_max * 2) + damage_min / 2);
-            wpdt[offset_slash_min] = minmax.first;
-            wpdt[offset_slash_max] = minmax.second;
-            minmax = std::minmax(
-                settings.GetNext(damage_max * 2) + damage_min / 2,
-                settings.GetNext(damage_max * 2) + damage_min / 2);
-            wpdt[offset_thrust_min] = minmax.first;
-            wpdt[offset_thrust_max] = minmax.second;
-            break;
+            printf("\n\n");
+            printf("type = %s - i = %3ld\n", wt.c_str(), i);
+            printf("&wpdt_srs[0] = 0x%" PRIxPTR "\n", (intptr_t)&wpdt_srs[0]);
 
-        case ShuffleType::Shuffled_Different:
-            wpdt[offset_chop_min] =   chop_values  [i * 6 + 0];
-            wpdt[offset_chop_max] =   chop_values  [i * 6 + 1];
-            wpdt[offset_slash_min] =  slash_values [i * 6 + 2];
-            wpdt[offset_slash_max] =  slash_values [i * 6 + 3];
-            wpdt[offset_thrust_min] = thrust_values[i * 6 + 4];
-            wpdt[offset_thrust_max] = thrust_values[i * 6 + 5];
-            break;
+            Weapons::MinMaxData<float> *weight;
+            Weapons::MinMaxData<int32_t> *value;
+            Weapons::MinMaxData<int16_t> *health;
+            Weapons::MinMaxData<float> *speed;
+            Weapons::MinMaxData<int16_t> *enchant;
+            Weapons::MinMaxData<int32_t> *resistance;
+            std::vector<Weapons::AdditionalData> *model;
 
-        case ShuffleType::Shuffled_Same:
-            wpdt[offset_chop_min] =   chop_values  [i * 2 + 0];
-            wpdt[offset_chop_max] =   chop_values  [i * 2 + 1];
-            wpdt[offset_slash_min] =  slash_values [i * 2 + 0];
-            wpdt[offset_slash_max] =  slash_values [i * 2 + 1];
-            wpdt[offset_thrust_min] = thrust_values[i * 2 + 0];
-            wpdt[offset_thrust_max] = thrust_values[i * 2 + 1];
-            break;
+            uint16_t type = io::read_word(wpdt + offset_type);
+            switch (type)
+            {
+            case type_bow:
+            case type_crossbow:
+                weight = &weight_bows;
+                value = &value_bows;
+                health = &health_bows;
+                speed = &speed_bows;
+                enchant = &enchant_bows;
+                model = &model_values_bows;
+                resistance = &resistance_bows;
+                break;
 
-        default:
-            break;
-        }
+            case type_thrown:
+                weight = &weight_thrown;
+                value = &value_thrown;
+                health = &health_thrown;
+                speed = &speed_thrown;
+                enchant = &enchant_thrown;
+                model = &model_values_thrown;
+                resistance = &resistance_thrown;
 
-        {
-            int32_t rmin = 0, rmax = 1;
-            Weapons::random(settings, settings.WeaponsResistance, i, offset_resistance_flag, wpdt, rmin, rmax, resistance_values, io::write_dword);
-        }
+            case type_arrow:
+            case type_bolt:
+                weight = &weight_ammo;
+                value = &value_ammo;
+                health = &health_ammo;
+                speed = &speed_ammo;
+                enchant = &enchant_ammo;
+                model = &model_values_ammo;
+                resistance = &resistance_ammo;
+                break;
 
-        srs = records[i]->GetSubrecords("WPDT");
-        size_t sz = srs[0].GetDataSize();
-        srs[0].SetData(wpdt, sz);
+            default:
+                weight = &weight_melee;
+                value = &value_melee;
+                health = &health_melee;
+                speed = &speed_melee;
+                enchant = &enchant_melee;
+                model = &model_values_melee;
+                resistance = &resistance_melee;
+                break;
+            }
 
-        if (settings.WeaponsModels != ShuffleType::None)
-        {
-            records[i]->ClearNonIDSubrecords();
-            for (auto field_sr : model_values[i].GetSubrecords())
-                records[i]->AddSubrecord(field_sr);
+            weight->Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt, io::write_float);
+            value->Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt, io::write_dword);
+            health->Randomize(false, settings, settings.WeaponsHealth, i, offset_health, 0, wpdt, io::write_word);
+            speed->Randomize(false, settings, settings.WeaponsSpeed, i, offset_speed, 0, wpdt, io::write_float);
+            enchant->Randomize(false, settings, settings.WeaponsEnchantPts, i, offset_enchant, 0, wpdt, io::write_word);
+            resistance->Randomize(false, settings, settings.WeaponsResistance, i, offset_resistance_flag, 0, wpdt, io::write_dword);
+
+            damage_melee_chop.Randomize(true, settings, settings.WeaponsDamage, i, offset_chop_min, offset_chop_max, wpdt, io::write_byte);
+            damage_melee_slash.Randomize(true, settings, settings.WeaponsDamage, i, offset_slash_min, offset_slash_max, wpdt, io::write_byte);
+            damage_melee_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min, offset_thrust_max, wpdt, io::write_byte);
+
+            weap->ClearSubrecords({"WPDT"});
+            wpdt_srs[0].SetData(wpdt, wpdt_srs[0].GetDataSize());
+            weap->AddSubrecord(wpdt_srs[0]);
+
+
+            if (settings.WeaponsModels != ShuffleType::None)
+            {
+                weap->ClearSubrecords({"MODL", "FNAM", "ITEX", "ENAM", "SCRI"});
+                std::vector<Subrecord> srs = (*model)[i].GetSubrecords();
+                for (auto field_sr : srs)
+                    weap->AddSubrecord(field_sr);
+            }
         }
     }
 

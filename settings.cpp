@@ -22,11 +22,16 @@ uint32_t Settings::GetNext()
 
 uint32_t Settings::GetNext(int i)
 {
-    return rand() % i;
+
+    return i == 0 ? 0 : rand() % i;
 }
 
 float Settings::GetNext(double i)
 {
+    const double epsilon = 1e-5;
+    if (std::abs(i) <= epsilon)
+        return 0.0f;
+
     const double multiplier = 1000.0; // good enough
     int v = i * multiplier;
     v = rand() % v;

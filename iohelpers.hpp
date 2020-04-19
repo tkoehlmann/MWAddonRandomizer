@@ -26,6 +26,7 @@ namespace io
     int16_t read_word(uint8_t *mem);
     void write_word(uint8_t *mem, int16_t i);
 
+    void write_byte(uint8_t *mem, int8_t byte); // To satisfy the randomizer parameter
     void write_bytes(uint8_t *buf, uint8_t *data, size_t len);
 
 } // namespace io
