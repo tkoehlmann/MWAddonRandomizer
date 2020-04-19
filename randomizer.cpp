@@ -10,8 +10,9 @@
 
 /**
  * TODO:
- * - Don't shuffle arrows and bolts together with other weapons as they can not be fired
- * - Try shuffling arrows and bolts among each other, test if bows can shoot bolts and crossbows can shoot arrows
+ * - Shuffling arrows and bolts among each other kind of works, bows used like crossbows have some weird
+ *   animation and the bolt/arrow is fired as if by some psychic force. Pretty funny. Not sure if this
+ *   needs to be changed or will stay in for the memes.
  */
 std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, Settings &settings)
 {
