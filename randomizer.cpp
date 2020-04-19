@@ -46,97 +46,31 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     const uint16_t type_Bolt = 13;
 
 
-
-    struct WeaponData
-    {
-        int8_t *damage_global_min;
-        int8_t *damage_global_max;
-        std::vector<int8_t> *damage_global_values;
-
-        Weapons::MinMaxData<float> weight;
-        Weapons::MinMaxData<int32_t> value;
-        Weapons::MinMaxData<int16_t> health;
-        Weapons::MinMaxData<float> speed;
-        Weapons::MinMaxData<int16_t> enchant;
-        Weapons::MinMaxData<int8_t> damage_chop;
-        Weapons::MinMaxData<int8_t> damage_slash;
-        Weapons::MinMaxData<int8_t> damage_thrust;
-        Weapons::MinMaxData<int32_t> resistance;
-        std::vector<Weapons::AdditionalData> model_values;  // Those things will always stay together (at least for now)
-        std::vector<Record *> records;
-        Settings &settings;
-        std::function<uint32_t(int)> rng;
-
-        WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values) :
-            settings(s),
-            damage_global_min(global_min),
-            damage_global_max(global_max),
-            damage_global_values(global_values),
-            damage_chop(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-            damage_slash(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-            damage_thrust(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-            weight(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-            value(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
-            health(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-            speed(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-            enchant(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-            resistance(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr)
-        {
-            rng = [this](int i) { return settings.GetNext(i); };
-        }
-
-        void Shuffle(Settings &settings)
-        {
-            if (settings.WeaponsWeight != ShuffleType::None)
-                std::random_shuffle(weight.Values.begin(), weight.Values.end(), rng);
-            if (settings.WeaponsValue != ShuffleType::None)
-                std::random_shuffle(value.Values.begin(), value.Values.end(), rng);
-            if (settings.WeaponsHealth != ShuffleType::None)
-                std::random_shuffle(health.Values.begin(), health.Values.end(), rng);
-            if (settings.WeaponsSpeed != ShuffleType::None)
-                std::random_shuffle(speed.Values.begin(), speed.Values.end(), rng);
-            if (settings.WeaponsEnchantPts != ShuffleType::None)
-                std::random_shuffle(enchant.Values.begin(), enchant.Values.end(), rng);
-            if (settings.WeaponsDamage != ShuffleType::None)
-            {
-                std::random_shuffle(damage_chop.Values.begin(), damage_chop.Values.end(), rng);
-                std::random_shuffle(damage_slash.Values.begin(), damage_slash.Values.end(), rng);
-                std::random_shuffle(damage_thrust.Values.begin(), damage_thrust.Values.end(), rng);
-            }
-            if (settings.WeaponsResistance != ShuffleType::None)
-                std::random_shuffle(resistance.Values.begin(), resistance.Values.end(), rng);
-            if (settings.WeaponsModels != ShuffleType::None)
-                std::random_shuffle(model_values.begin(), model_values.end(), rng);
-        }
-    };
-
     int8_t damage_melee_global_min;
     int8_t damage_melee_global_max;
     std::vector<int8_t> damage_melee_global_values;
-    WeaponData melee(settings, &damage_melee_global_min, &damage_melee_global_max, &damage_melee_global_values);
-    WeaponData bows(settings, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
-    WeaponData ammo(settings, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
-    WeaponData thrown(settings, nullptr, nullptr, nullptr);
+    Weapons::WeaponData melee(settings, &damage_melee_global_min, &damage_melee_global_max, &damage_melee_global_values);
+    Weapons::WeaponData bows(settings, nullptr, nullptr, nullptr); // Bows and crossbows are the same for now
+    Weapons::WeaponData ammo(settings, nullptr, nullptr, nullptr); // Arrows and bolts are the same for now
+    Weapons::WeaponData thrown(settings, nullptr, nullptr, nullptr);
 
-    std::unordered_map<uint16_t, WeaponData*> weapons =
+    std::unordered_map<uint16_t, Weapons::WeaponData *> weapons =
     {
-        { type_ShortBladeOneHand, &melee },
-        { type_LongBladeOneHand, &melee },
-        { type_LongBladeTwoClose, &melee },
-        { type_BluntOneHand, &melee },
-        { type_BluntTwoClose, &melee },
-        { type_BluntTwoWide, &melee },
-        { type_SpearTwoWide, &melee },
-        { type_AxeOneHand, &melee },
-        { type_AxeTwoHand, &melee },
-        { type_MarksmanBow, &bows },
-        { type_MarksmanCrossbow, &bows },
-        { type_MarksmanThrown, &thrown },
-        { type_Arrow, &ammo },
-        { type_Bolt, &ammo }
+        {type_ShortBladeOneHand, &melee},
+        {type_LongBladeOneHand, &melee},
+        {type_LongBladeTwoClose, &melee},
+        {type_BluntOneHand, &melee},
+        {type_BluntTwoClose, &melee},
+        {type_BluntTwoWide, &melee},
+        {type_SpearTwoWide, &melee},
+        {type_AxeOneHand, &melee},
+        {type_AxeTwoHand, &melee},
+        {type_MarksmanBow, &bows},
+        {type_MarksmanCrossbow, &bows},
+        {type_MarksmanThrown, &thrown},
+        {type_Arrow, &ammo},
+        {type_Bolt, &ammo}
     };
-
-
 
     // Step 1: Fill min/max and value fields
     for (int i = 0; i < records.size(); ++i)

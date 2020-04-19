@@ -153,6 +153,30 @@ namespace Weapons
             }
     };
 
+    struct WeaponData
+    {
+        int8_t *damage_global_min;
+        int8_t *damage_global_max;
+        std::vector<int8_t> *damage_global_values;
+
+        Weapons::MinMaxData<float> weight;
+        Weapons::MinMaxData<int32_t> value;
+        Weapons::MinMaxData<int16_t> health;
+        Weapons::MinMaxData<float> speed;
+        Weapons::MinMaxData<int16_t> enchant;
+        Weapons::MinMaxData<int8_t> damage_chop;
+        Weapons::MinMaxData<int8_t> damage_slash;
+        Weapons::MinMaxData<int8_t> damage_thrust;
+        Weapons::MinMaxData<int32_t> resistance;
+        std::vector<Weapons::AdditionalData> model_values; // Those things will always stay together (at least for now)
+        std::vector<Record *> records;
+        Settings &settings;
+        std::function<uint32_t(int)> rng;
+
+        WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values);
+        void Shuffle(Settings &settings);
+    };
+
     bool is_artifact(Record &rec);
 
 } // namespace Weapons
