@@ -80,6 +80,8 @@ Subrecord::Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes)
 
 Subrecord::Subrecord(Subrecord *sr)
 {
+    // if (m_id == TARGET)
+    //     printf("Constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)sr, (intptr_t)this);
     m_id = sr->GetID();
     m_type = sr->GetType();
     m_data_size = sr->GetDataSize();
@@ -89,8 +91,8 @@ Subrecord::Subrecord(Subrecord *sr)
 
 Subrecord::Subrecord(std::string subrecord_id, std::string s)
 {
-    if (m_id == TARGET)
-        printf("Constructor of 0x%" PRIxPTR "\n",(intptr_t)this);
+    // if (m_id == TARGET)
+    //     printf("Constructor of 0x%" PRIxPTR "\n",(intptr_t)this);
     m_id = subrecord_id;
     m_type = RecordDataType::String;
     m_data = (uint8_t *)calloc(s.length() + 1, sizeof(char));
@@ -100,16 +102,16 @@ Subrecord::Subrecord(std::string subrecord_id, std::string s)
 
 Subrecord::~Subrecord()
 {
-    if (m_id == TARGET)
-        printf("Destructor of 0x%" PRIxPTR "\n", (intptr_t)this);
+    // if (m_id == TARGET)
+    //     printf("Destructor of 0x%" PRIxPTR "\n", (intptr_t)this);
     free(m_data);
 }
 
 Subrecord::Subrecord(const Subrecord &other)
     : m_id(other.m_id), m_type(other.m_type), m_data_size(other.m_data_size)
 {
-    if (m_id == TARGET)
-        printf("Copy-constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&other, (intptr_t) this);
+    // if (m_id == TARGET)
+    //     printf("Copy-constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&other, (intptr_t) this);
     uint8_t *data = (uint8_t *)malloc(m_data_size);
     memcpy(data, other.m_data, m_data_size);
     m_data = data;
@@ -117,8 +119,8 @@ Subrecord::Subrecord(const Subrecord &other)
 
 Subrecord& Subrecord::operator=(const Subrecord rhs)
 {
-    if (m_id == TARGET)
-        printf("operator=  0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&rhs, (intptr_t) this);
+    // if (m_id == TARGET)
+    //     printf("operator=  0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&rhs, (intptr_t) this);
     m_id = rhs.m_id;
     m_type = rhs.m_type;
     m_data_size = rhs.m_data_size;

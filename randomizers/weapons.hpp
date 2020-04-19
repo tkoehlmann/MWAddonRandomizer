@@ -68,21 +68,23 @@ namespace Weapons
                 auto get_mean = [](std::vector<T> *vs) {
                     return std::accumulate(vs->begin(), vs->end(), 0) / vs->size();
                 };
-                float mean = get_mean(use_global
+                T mean = get_mean(use_global
                                       ? GlobalValues
                                       : &Values);
 
-                auto get_std_deviation = [](float mean, std::vector<T> *vs) {
-                    double sq_sum = std::inner_product(vs->begin(), vs->end(), vs->begin(), 0);
-                    return std::sqrt(sq_sum / vs->size() - mean * mean);
+                auto get_std_deviation = [](T mean, std::vector<T> *vs) {
+                    T standardDeviation = 0;
+                    for (T v : *vs)
+                        standardDeviation += std::pow(v - mean, 2);
+                    return std::sqrt(standardDeviation / vs->size());
                 };
                 T std_deviation = get_std_deviation(mean, use_global
                                                               ? GlobalValues
                                                               : &Values);
 
                 std::normal_distribution<float> distribution(mean, std_deviation);
-
-
+                if (type == ShuffleType::Random_Chaos)
+                    distribution = std::normal_distribution<float>(mean, std_deviation * 2);
 
                 switch (type)
                 {
@@ -90,29 +92,20 @@ namespace Weapons
                     break;
 
                 case ShuffleType::Random:
-                    if (use_global)
-                    {
-                        minmax = std::minmax(
-                            settings.GetNext(*GlobalMax - *GlobalMin) + *GlobalMin,
-                            settings.GetNext(*GlobalMax - *GlobalMin) + *GlobalMin);
-                        wpdt[offset_min] = minmax.first;
-                        wpdt[offset_max] = minmax.second;
-                    }
-                    else
-                        f(wpdt + offset_min, settings.GetNext((T)(Max - Min)) + Min);
-                    break;
-
                 case ShuffleType::Random_Chaos:
                     if (use_global)
                     {
                         minmax = std::minmax(
-                            settings.GetNext(*GlobalMax * 2) + *GlobalMin / 2,
-                            settings.GetNext(*GlobalMax * 2) + *GlobalMin / 2);
+                            (T)settings.GetNext(distribution),
+                            (T)settings.GetNext(distribution));
                         wpdt[offset_min] = minmax.first;
                         wpdt[offset_max] = minmax.second;
                     }
                     else
-                        f(wpdt + offset_min, settings.GetNext((T)(Max * 2)));
+                    {
+                        float next = settings.GetNext(distribution);
+                        f(wpdt + offset_min, next);
+                    }
                     break;
 
                 case ShuffleType::Shuffled_Different:
