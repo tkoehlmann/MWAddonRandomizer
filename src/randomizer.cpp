@@ -76,7 +76,9 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     // Step 1: Fill min/max and value fields
     for (int i = 0; i < records.size(); ++i)
     {
-        if (Weapons::is_artifact(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
+        if (Weapons::prevent_shuffle(*records[i]))
+            continue;
+        if (Weapons::is_artifact_or_unique(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
             continue;
 
         std::vector<std::unique_ptr<Subrecord>> wpdt_srs = records[i]->GetSubrecords("WPDT");
@@ -95,11 +97,20 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
         int8_t thrust_min = wpdt[offset_thrust_min];
         int8_t thrust_max = wpdt[offset_thrust_max];
 
-        if (weight == 0)
+
         {
-            // This will stop randomizing damage values onto and off VFX_DefaultBolt and other nonsense
-            continue;
+            bool ignore = weight == 0;
+
+            std::vector<std::unique_ptr<Subrecord>> fnam_srs = records[i]->GetSubrecords("FNAM");
+            if (fnam_srs.size() > 0 && fnam_srs[0]->GetType() == RecordDataType::String && std::string((char*)fnam_srs[0]->GetData()) == "FOR SPELL CASTING")
+                ignore = true;
+            if (ignore)
+            {
+                // This will stop randomizing damage values onto and off VFX_DefaultBolt and other nonsense
+                continue;
+            }
         }
+
         weapons[type]->weight.Set(weight);
         weapons[type]->value.Set(value);
         weapons[type]->health.Set(health);

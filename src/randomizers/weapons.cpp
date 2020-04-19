@@ -78,31 +78,65 @@ void Weapons::WeaponData::Shuffle(Settings &settings)
         std::random_shuffle(model_values.begin(), model_values.end(), rng);
 }
 
-bool Weapons::is_artifact(Record &rec)
+bool Weapons::is_artifact_or_unique(Record &rec)
 {
-    //std::string id = std::string((char *)rec["NAME"][0].GetData());
     std::string id = std::string((char *)rec.GetSubrecords("NAME")[0]->GetData());
-    return id == "cleaverstfelms" ||
-           id == "mace of molag bal_unique" ||
-           id == "daedric_scourge_unique" ||
-           id == "warhammer_crusher_unique" ||
-           //id == "sunder" ||                     -- do we REALLY want to do this?
-           id == "crosierstllothis" ||
-           id == "staff_hasedoki_unique" ||
-           id == "staff_magnus_unique" ||
-           id == "dwarven_hammer_volendrung" ||
-           id == "ebony_bow_auriel" ||
-           id == "longbow_shadows_unique" ||
-           id == "katana_bluebrand_unique" ||
-           id == "katana_goldbrand_unique" ||
-           id == "claymore_chrysamere_unique" ||
-           id == "daedric_crescent_unique" ||
-           id == "claymore_iceblade_unique" ||
-           id == "longsword_umbra_unique" ||
-           id == "dagger_fang_unique" ||
-           // id == "fork_horripilation_unique" || -- do we REALLY want to do this?
-           // id == "keening" ||                   -- do we REALLY want to do this?
-           id == "mehrunes'_razor_unique" ||
-           id == "spear_mercy_unique";
+    // Artifacts and unique weapons (incomplete!)
+    for (std::string artuniq_id : {
+            "cleaverstfelms",
+            "mace of molag bal_unique",
+            "daedric_scourge_unique",
+            "warhammer_crusher_unique",
+            "sunder",
+            "crosierstllothis",
+            "staff_hasedoki_unique",
+            "staff_magnus_unique",
+            "dwarven_hammer_volendrung",
+            "ebony_bow_auriel",
+            "longbow_shadows_unique",
+            "katana_bluebrand_unique",
+            "katana_goldbrand_unique",
+            "claymore_chrysamere_unique",
+            "daedric_crescent_unique" ,
+            "claymore_iceblade_unique",
+            "longsword_umbra_unique",
+            "dagger_fang_unique",
+            "bonebiter_bow_unique",
+            "shortbow of sanguine sureflight",
+            "iron_arrow_uniq_judgement",
+            "fork_horripilation_unique",
+            "keening",
+            "mehrunes'_razor_unique",
+            "spear_mercy_unique",
+        })
+    {
+        if (id == artuniq_id)
+            return true;
+    }
+    return false;
 }
 
+bool Weapons::prevent_shuffle(Record &rec)
+{
+    // Things that aren't weapons (!string("name", ".*cast.*") and !string("id", ".*bolt.*"))
+    std::string id = std::string((char *)rec.GetSubrecords("NAME")[0]->GetData());
+    for (std::string prevent_id : {
+                "magic_bolt",
+                "shield_bolt",
+                "shock_bolt",
+                "VFX_AlterationBolt",
+                "VFX_ConjureBolt",
+                "VFX_DefaultBolt",
+                "VFX_DestructBolt",
+                "VFX_FrostBolt",
+                "VFX_IllusionBolt",
+                "VFX_MysticismBolt",
+                "VFX_PoisonBolt",
+                "VFX_RestoreBolt"})
+    {
+        if (id == prevent_id)
+            return true;
+    }
+
+    return false;
+}

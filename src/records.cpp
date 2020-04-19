@@ -207,9 +207,6 @@ std::string Record::GetID()
 
 std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
 {
-    if (!HasSubrecord(srid))
-        throw "Unknown subrecord " + srid + " in record " + GetID();
-
     std::vector<std::unique_ptr<Subrecord>> result;
     for (std::unique_ptr<Subrecord> &sr : m_subrecords)
         if (sr->GetID() == srid)
