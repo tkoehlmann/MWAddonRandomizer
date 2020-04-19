@@ -15,12 +15,12 @@ int main(int argc, char **argv)
     settings.MasterDataFilesDir = "";
     settings.PluginOutputDir = "/mnt/ramdisk";
     settings.WeaponsWeight = ShuffleType::Random;
-    settings.WeaponsValue = ShuffleType::Random;
+    settings.WeaponsValue = ShuffleType::Shuffled_Same;
     settings.WeaponsHealth = ShuffleType::Random;
     settings.WeaponsSpeed = ShuffleType::Random;
     settings.WeaponsEnchantPts = ShuffleType::Random;
-    settings.WeaponsDamage = ShuffleType::Random;
-    settings.WeaponsResistance = ShuffleType::Random;
+    settings.WeaponsDamage = ShuffleType::Shuffled_Same;
+    settings.WeaponsResistance = ShuffleType::Shuffled_Same;
     settings.WeaponsModels = ShuffleType::Random;
     settings.UpdateAffectedRecords();
 

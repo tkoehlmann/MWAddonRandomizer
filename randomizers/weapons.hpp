@@ -60,29 +60,42 @@ namespace Weapons
                     GlobalValues->push_back(value);
             }
 
-            void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i, const size_t offset_min, const size_t offset_max, uint8_t *wpdt, void (*f)(uint8_t *, T))
+            void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i, const size_t offset_min, const size_t offset_max, uint8_t *wpdt, void (*f)(uint8_t *, T), T ignore_numbers_higher_than = 20001)
             {
                 bool use_global = is_weapon && GlobalMin != nullptr && GlobalMax != nullptr;
                 std::pair<int8_t, int8_t> minmax;
 
-                auto get_mean = [](std::vector<T> *vs) {
-                    return std::accumulate(vs->begin(), vs->end(), 0) / vs->size();
+                auto get_mean = [ignore_numbers_higher_than](std::vector<T> *vs) -> T {
+                    T sum = 0;
+                    size_t ignored = 0;
+                    for (T n : *vs)
+                    {
+                        if (n > ignore_numbers_higher_than)
+                            ignored++;
+                        else
+                            sum += n;
+                    }
+                    return sum / (vs->size() - ignored);
                 };
                 T mean = get_mean(use_global
                                       ? GlobalValues
                                       : &Values);
 
-                auto get_std_deviation = [](T mean, std::vector<T> *vs) {
+                auto get_std_deviation = [ignore_numbers_higher_than](T mean, std::vector<T> *vs) {
                     T standardDeviation = 0;
+                    size_t ignored = 0;
                     for (T v : *vs)
-                        standardDeviation += std::pow(v - mean, 2);
-                    return std::sqrt(standardDeviation / vs->size());
+                        if (v > ignore_numbers_higher_than)
+                            ignored++;
+                        else
+                            standardDeviation += std::pow(v - mean, 2);
+                    return std::sqrt(standardDeviation / (vs->size() - ignored));
                 };
                 T std_deviation = get_std_deviation(mean, use_global
                                                               ? GlobalValues
                                                               : &Values);
 
-                std::normal_distribution<float> distribution(mean, std_deviation);
+                    std::normal_distribution<float> distribution(mean, std_deviation);
                 if (type == ShuffleType::Random_Chaos)
                     distribution = std::normal_distribution<float>(mean, std_deviation * 2);
 
@@ -96,14 +109,14 @@ namespace Weapons
                     if (use_global)
                     {
                         minmax = std::minmax(
-                            (T)settings.GetNext(distribution),
-                            (T)settings.GetNext(distribution));
+                            (T)settings.GetNext(distribution, Min, Max),
+                            (T)settings.GetNext(distribution, Min, Max));
                         wpdt[offset_min] = minmax.first;
                         wpdt[offset_max] = minmax.second;
                     }
                     else
                     {
-                        float next = settings.GetNext(distribution);
+                        float next = settings.GetNext(distribution, Min, Max);
                         f(wpdt + offset_min, next);
                     }
                     break;
@@ -111,8 +124,11 @@ namespace Weapons
                 case ShuffleType::Shuffled_Different:
                     if (GlobalValues != nullptr)
                     {
-                        f(wpdt + offset_min, (*GlobalValues)[i * 2 + 0]);
-                        f(wpdt + offset_max, (*GlobalValues)[i * 2 + 1]);
+                        minmax = std::minmax(
+                            (*GlobalValues)[i * 2 + 0],
+                            (*GlobalValues)[i * 2 + 1]);
+                        f(wpdt + offset_min, minmax.first);
+                        f(wpdt + offset_max, minmax.second);
                     }
                     else
                         f(wpdt + offset_min, Values[i]);
@@ -121,8 +137,11 @@ namespace Weapons
                 case ShuffleType::Shuffled_Same:
                     if (is_weapon)
                     {
-                        f(wpdt + offset_min, Values[i * 2 + 0]);
-                        f(wpdt + offset_max, Values[i * 2 + 1]);
+                        minmax = std::minmax(
+                            Values[i * 2 + 0],
+                            Values[i * 2 + 1]);
+                        f(wpdt + offset_min, minmax.first);
+                        f(wpdt + offset_max, minmax.second);
                     }
                     else
                         f(wpdt + offset_min, Values[i]);

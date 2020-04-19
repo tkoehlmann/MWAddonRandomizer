@@ -27,7 +27,15 @@ public:
     uint32_t GetNext(); // Retrieves the next random number
     uint32_t GetNext(int i); // Retrieves the next random number in the range 0 to i-1
     float GetNext(double i); // Retrieves the next random number in the range 0 to i-1
-    float GetNext(std::normal_distribution<float> ndist); // Retrieves the next number depending on the given normal distribution
+    template <typename T> float GetNext(std::normal_distribution<float> ndist, T min, T max) // Retrieves the next number depending on the given normal distribution
+    {
+        while (true)
+        {
+            float res = ndist(m_rng);
+            if (res >= min && res <= max)
+                return res;
+        }
+    }
     void UpdateAffectedRecords();
     bool IsRecordAffected(std::string id);
 

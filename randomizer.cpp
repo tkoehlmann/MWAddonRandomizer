@@ -250,22 +250,6 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             std::vector<std::unique_ptr<Subrecord>> wpdt_srs = weap->GetSubrecords("WPDT");
             uint8_t *wpdt = wpdt_srs[0]->GetData();
 
-            std::string wt;
-            if (weapon_type == &melee_weapons)
-                wt = "melee";
-            else if (weapon_type == &marksman_weapons)
-                wt = "bows";
-            else if (weapon_type == &marksman_throw)
-                wt = "throwing";
-            else if (weapon_type == &marksman_ammo)
-                wt = "ammo";
-            else
-                wt = "WHAT";
-
-            printf("\n\n");
-            printf("type = %s - i = %3ld\n", wt.c_str(), i);
-            printf("&wpdt_srs[0] = 0x%" PRIxPTR "\n", (intptr_t)&wpdt_srs[0]);
-
             Weapons::MinMaxData<float> *weight;
             Weapons::MinMaxData<int32_t> *value;
             Weapons::MinMaxData<int16_t> *health;
@@ -320,15 +304,15 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             }
 
             weight->Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt, io::write_float);
-            value->Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt, io::write_dword);
+            value->Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt, io::write_dword, 5000);
             health->Randomize(false, settings, settings.WeaponsHealth, i, offset_health, 0, wpdt, io::write_word);
             speed->Randomize(false, settings, settings.WeaponsSpeed, i, offset_speed, 0, wpdt, io::write_float);
             enchant->Randomize(false, settings, settings.WeaponsEnchantPts, i, offset_enchant, 0, wpdt, io::write_word);
             resistance->Randomize(false, settings, settings.WeaponsResistance, i, offset_resistance_flag, 0, wpdt, io::write_dword);
 
-            damage_melee_chop.Randomize(true, settings, settings.WeaponsDamage, i, offset_chop_min, offset_chop_max, wpdt, io::write_byte);
-            damage_melee_slash.Randomize(true, settings, settings.WeaponsDamage, i, offset_slash_min, offset_slash_max, wpdt, io::write_byte);
-            damage_melee_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min, offset_thrust_max, wpdt, io::write_byte);
+            damage_melee_chop.Randomize(true, settings, settings.WeaponsDamage, i, offset_chop_min, offset_chop_max, wpdt, io::write_byte, 127);
+            damage_melee_slash.Randomize(true, settings, settings.WeaponsDamage, i, offset_slash_min, offset_slash_max, wpdt, io::write_byte, 127);
+            damage_melee_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min, offset_thrust_max, wpdt, io::write_byte, 127);
 
             weap->ClearSubrecords({"WPDT"});
             wpdt_srs[0]->SetData(wpdt, wpdt_srs[0]->GetDataSize());

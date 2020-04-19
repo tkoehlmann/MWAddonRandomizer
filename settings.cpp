@@ -40,11 +40,6 @@ float Settings::GetNext(double i)
     return (double)v / multiplier;
 }
 
-float Settings::GetNext(std::normal_distribution<float> ndist)
-{
-    return ndist(m_rng);
-}
-
 uint32_t Settings::GetSeed()
 {
     return m_seed;
