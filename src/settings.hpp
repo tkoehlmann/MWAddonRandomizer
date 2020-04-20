@@ -46,9 +46,11 @@ public:
     std::string GetPluginFullPath();
 
     // Caution: Can only work by changing cells which is not implemented and won't be for some time!
-    ShuffleType Artifacts = ShuffleType::None;
-    bool ConsiderMasterPropylonIndexAsArtifact = false;
-    bool ConsiderRegularPropylonIndicesAsArtifacts = false;
+    ShuffleType Artifacts = ShuffleType::None;              // Shuffle artifacts?
+    ShuffleType Uniques = ShuffleType::None;                // Shuffle unique items?
+    bool ConsiderUniquesEqualToArtifacts;                   // Put artifacts and uniques into the same shuffle pool?
+    bool ShuffleQuestRequirementArtifactsOrUniques;         // To defeat Dagoth Ur you need Keening and Sunder, with this enabled those may be shuffled somewhere else
+    bool ShufflePropylonIndices;                            // If left off the Propylon Indices and the Master Index can be acquired from the usual locations
 
     ShuffleType WeaponsWeight = ShuffleType::None;      // Weight of weapons
     ShuffleType WeaponsValue = ShuffleType::None;       // Value of weapons
@@ -58,7 +60,6 @@ public:
     ShuffleType WeaponsDamage = ShuffleType::None;      // Damage of weapons
     ShuffleType WeaponsResistance = ShuffleType::None;  // Whether weapons can ignore common weapon resistances
     ShuffleType WeaponsModels = ShuffleType::None;      // The visuals of weapons, model and inventory display name (not to be confused with locations!)
-    bool WeaponShuffleAffectsArtifactWeapons = false;
 
     /* ShuffleType AlchemyEffects; */
     /* etc. */

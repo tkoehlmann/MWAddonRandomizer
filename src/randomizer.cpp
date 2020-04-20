@@ -78,8 +78,6 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     {
         if (Weapons::prevent_shuffle(*records[i]))
             continue;
-        if (Weapons::is_artifact_or_unique(*records[i]) && !settings.WeaponShuffleAffectsArtifactWeapons)
-            continue;
 
         std::vector<std::unique_ptr<Subrecord>> wpdt_srs = records[i]->GetSubrecords("WPDT");
         uint8_t *wpdt = wpdt_srs[0]->GetData();

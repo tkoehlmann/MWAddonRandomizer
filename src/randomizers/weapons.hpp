@@ -177,7 +177,6 @@ namespace Weapons
         void Shuffle(Settings &settings);
     };
 
-    bool is_artifact_or_unique(Record &rec);
     bool prevent_shuffle(Record &rec);
 
 } // namespace Weapons

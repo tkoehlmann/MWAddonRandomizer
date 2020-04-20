@@ -78,13 +78,12 @@ void Weapons::WeaponData::Shuffle(Settings &settings)
         std::random_shuffle(model_values.begin(), model_values.end(), rng);
 }
 
-bool Weapons::is_artifact_or_unique(Record &rec)
+bool Weapons::prevent_shuffle(Record &rec)
 {
+    // Things that aren't weapons (!string("name", ".*cast.*") and !string("id", ".*bolt.*"))
     std::string id = std::string((char *)rec.GetSubrecords("NAME")[0]->GetData());
-
-    // Artifacts and unique weapons (hopefully complete for Morrowind.esm!)
-    for (std::string artuniq_id : {
-            // Artifacts
+    for (std::string prevent_id : {
+             // Artifacts
              "cleaverstfelms",
              "mace of molag bal_unique",
              "daedric_scourge_unique",
@@ -155,31 +154,20 @@ bool Weapons::is_artifact_or_unique(Record &rec)
              "Greed",
              "we_illkurok",
              "we_stormforge",
-         })
-    {
-        if (id == artuniq_id)
-            return true;
-    }
-    return false;
-}
-
-bool Weapons::prevent_shuffle(Record &rec)
-{
-    // Things that aren't weapons (!string("name", ".*cast.*") and !string("id", ".*bolt.*"))
-    std::string id = std::string((char *)rec.GetSubrecords("NAME")[0]->GetData());
-    for (std::string prevent_id : {
-                "magic_bolt",
-                "shield_bolt",
-                "shock_bolt",
-                "VFX_AlterationBolt",
-                "VFX_ConjureBolt",
-                "VFX_DefaultBolt",
-                "VFX_DestructBolt",
-                "VFX_FrostBolt",
-                "VFX_IllusionBolt",
-                "VFX_MysticismBolt",
-                "VFX_PoisonBolt",
-                "VFX_RestoreBolt"})
+             // Random stuff that is bad to shuffle
+             "magic_bolt",
+             "shield_bolt",
+             "shock_bolt",
+             "VFX_AlterationBolt",
+             "VFX_ConjureBolt",
+             "VFX_DefaultBolt",
+             "VFX_DestructBolt",
+             "VFX_FrostBolt",
+             "VFX_IllusionBolt",
+             "VFX_MysticismBolt",
+             "VFX_PoisonBolt",
+             "VFX_RestoreBolt"
+        })
     {
         if (id == prevent_id)
             return true;
