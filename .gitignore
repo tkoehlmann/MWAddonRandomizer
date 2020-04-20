@@ -2,3 +2,4 @@
 build/*
 .vscode/*
 MorrowindAddonRandomizerCpp.kdev4
+.VSCodeCounter/*
