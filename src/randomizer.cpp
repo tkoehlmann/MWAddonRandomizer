@@ -14,7 +14,7 @@
  *   animation and the bolt/arrow is fired as if by some psychic force. Pretty funny. Not sure if this
  *   needs to be changed or will stay in for the memes.
  */
-std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, Settings &settings)
+std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records, Settings &settings, MaxWeaponValues &maxweaponvalues)
 {
     const size_t offset_weight = 0;            // float
     const size_t offset_value = 4;             // long
@@ -132,8 +132,20 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
     ammo.Shuffle(settings);
 
     // Step 3: iteate over all records and put in shuffled values instead
-    for (auto weapon_type : { &melee, &bows, &thrown, &ammo })
+
+    std::vector<std::pair<Weapons::WeaponData *, int32_t>> weapon_type_values =
+        {
+            {&melee, maxweaponvalues.melee},
+            {&bows, maxweaponvalues.bows},
+            {&thrown, maxweaponvalues.thrown},
+            {&ammo, maxweaponvalues.ammo},
+        };
+
+    for (auto wtvs : weapon_type_values)
     {
+        Weapons::WeaponData *weapon_type = wtvs.first;
+        int32_t weapon_value = wtvs.second;
+
         for (size_t i = 0; i < weapon_type->records.size(); i++)
         {
             Record *weap = weapon_type->records[i];
@@ -141,7 +153,7 @@ std::vector<Record*> Randomizer::RandomizeWeapons(std::vector<Record*> records, 
             uint8_t *wpdt = wpdt_srs[0]->GetData();
 
             weapon_type->weight.Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt, io::write_float);
-            weapon_type->value.Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt, io::write_dword, 5000);
+            weapon_type->value.Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt, io::write_dword, weapon_value);
             weapon_type->health.Randomize(false, settings, settings.WeaponsHealth, i, offset_health, 0, wpdt, io::write_word);
             weapon_type->speed.Randomize(false, settings, settings.WeaponsSpeed, i, offset_speed, 0, wpdt, io::write_float);
             weapon_type->enchant.Randomize(false, settings, settings.WeaponsEnchantPts, i, offset_enchant, 0, wpdt, io::write_word);

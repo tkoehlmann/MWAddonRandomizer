@@ -621,4 +621,8 @@ std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>
                          {"FLTV", RecordDataType::Int64},
                          {"BNAM", RecordDataType::String},
                      }},
-};
+            /* Tribunal */
+            {"SSCR", {
+                         {"NAME", RecordDataType::String},
+                         {"DATA", RecordDataType::String}, // Some non-NULL-terminated string
+                     }}};

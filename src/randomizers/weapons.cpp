@@ -83,7 +83,7 @@ bool Weapons::prevent_shuffle(Record &rec)
     // Things that aren't weapons (!string("name", ".*cast.*") and !string("id", ".*bolt.*"))
     std::string id = std::string((char *)rec.GetSubrecords("NAME")[0]->GetData());
     for (std::string prevent_id : {
-             // Artifacts
+             // Morrowind.esm artifacts
              "cleaverstfelms",
              "mace of molag bal_unique",
              "daedric_scourge_unique",
@@ -109,7 +109,7 @@ bool Weapons::prevent_shuffle(Record &rec)
              "keening",
              "mehrunes'_razor_unique",
              "spear_mercy_unique",
-             // Uniques
+             // Morrowind.esm uniques
              "conoon_chodala_axe_unique",
              "Karpal's Friend",
              "war_axe_airan_ammu",
@@ -154,7 +154,7 @@ bool Weapons::prevent_shuffle(Record &rec)
              "Greed",
              "we_illkurok",
              "we_stormforge",
-             // Random stuff that is bad to shuffle
+             // Morrowind.esm random stuff that is bad to shuffle
              "magic_bolt",
              "shield_bolt",
              "shock_bolt",
@@ -166,8 +166,30 @@ bool Weapons::prevent_shuffle(Record &rec)
              "VFX_IllusionBolt",
              "VFX_MysticismBolt",
              "VFX_PoisonBolt",
-             "VFX_RestoreBolt"
-        })
+             "VFX_RestoreBolt",
+             // Tribunal.esm artifacts
+             "Mace of Slurring",
+             "stendar_hammer_unique",
+             "Sword of Almalexia",
+             "bladepiece_01",
+             "nerevarblade_01",
+             "nerevarblade_01_flame",
+             "Bipolar Blade",
+             // Tribunal.esm uniques
+             "Gravedigger",
+             "King's_Oath_pc",
+             "daedric dagger_bar",
+             "glass dagger_symmachus_unique",
+             "silver dagger_iryon_unique",
+             "silver dagger_othril_unique",
+             "silver dagger_rathalas_unique",
+             "ebony war axe_elanande",
+             "dwarven mace_salandas",
+             "silver dagger_droth_unique",
+             "silver dagger_droth_unique_a",
+             "ebony shortsword_soscean",
+             "silver spear_uvenim",
+         })
     {
         if (id == prevent_id)
             return true;

@@ -11,31 +11,41 @@
 
 int main(int argc, char **argv)
 {
-    Settings settings;
-    settings.MasterDataFilesDir = "";
-    settings.PluginOutputDir = "/mnt/ramdisk";
-    settings.WeaponsWeight = ShuffleType::Random;
-    settings.WeaponsValue = ShuffleType::Shuffled_Same;
-    settings.WeaponsHealth = ShuffleType::Random;
-    settings.WeaponsSpeed = ShuffleType::Random;
-    settings.WeaponsEnchantPts = ShuffleType::Random;
-    settings.WeaponsDamage = ShuffleType::Shuffled_Same;
-    settings.WeaponsResistance = ShuffleType::Shuffled_Same;
-    settings.WeaponsModels = ShuffleType::Random;
-    settings.UpdateAffectedRecords();
 
-    std::string files[] = {"Morrowind.esm" /*, "Tribunal.esm", "Bloodmoon.esm"*/};
+    std::vector<std::pair<std::string, Randomizer::MaxWeaponValues>> files =
+    {
+        {"Morrowind.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000)},
+        {"Tribunal.esm", Randomizer::MaxWeaponValues(20000, 50000, 20000, 20000)},
+        //{"Bloodmoon.esm", Randomizer::MaxWeaponValues(?????, ?????, ?????, ?????)},
+    };
+    std::vector<std::pair<std::string, size_t>> master_files_sizes;
+
     auto start = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
-    for (std::string file : files)
+    for (auto file : files)
     {
-        std::vector<std::pair<std::string, size_t>> master_files_sizes;
+        std::string fname = file.first;
+        Randomizer::MaxWeaponValues weapon_values = file.second;
+
+        Settings settings;
+        settings.MasterDataFilesDir = "";
+        settings.PluginOutputDir = "/mnt/ramdisk";
+        settings.WeaponsWeight = ShuffleType::Random;
+        settings.WeaponsValue = ShuffleType::Shuffled_Same;
+        settings.WeaponsHealth = ShuffleType::Random;
+        settings.WeaponsSpeed = ShuffleType::Random;
+        settings.WeaponsEnchantPts = ShuffleType::Random;
+        settings.WeaponsDamage = ShuffleType::Shuffled_Same;
+        settings.WeaponsResistance = ShuffleType::Shuffled_Same;
+        settings.WeaponsModels = ShuffleType::Random;
+        settings.UpdateAffectedRecords();
+
         size_t fsize;
-        std::unordered_map<std::string, std::vector<Record *>> *res = ReadESMFile(file, &fsize, settings, &total_file_size_bytes);
-        master_files_sizes.push_back(std::pair<std::string, size_t>(file, fsize));
+        std::unordered_map<std::string, std::vector<Record *>> *res = ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
+        master_files_sizes.push_back(std::pair<std::string, size_t>(fname, fsize));
 
         if (res == nullptr)
-            printf("Error reading file: %s", file.c_str());
+            printf("Error reading file: %s", fname.c_str());
         else
         {
             for (auto element : *res)
@@ -44,10 +54,11 @@ int main(int argc, char **argv)
             }
 
             // Not correct, just for testing! This should be done with the merged data!
-            (*res)["WEAP"] = Randomizer::RandomizeWeapons((*res)["WEAP"], settings);
+            (*res)["WEAP"] = Randomizer::RandomizeWeapons((*res)["WEAP"], settings, weapon_values);
 
+            printf("In file: %s\n", fname.c_str());
             for (auto element : *res)
-                printf("Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
+                printf("  Record: %s, count: %ld\n", element.first.c_str(), element.second.size());
 
             std::vector<Record*> records_to_write;
             for (auto element : (*res)["WEAP"])

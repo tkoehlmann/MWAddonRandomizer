@@ -66,36 +66,37 @@ namespace Weapons
                 std::pair<int8_t, int8_t> minmax;
 
                 auto get_mean = [ignore_numbers_higher_than](std::vector<T> *vs) -> T {
-                    T sum = 0;
+                    int64_t sum = 0;
                     size_t ignored = 0;
                     for (T n : *vs)
                     {
                         if (n > ignore_numbers_higher_than)
                             ignored++;
                         else
-                            sum += n;
+                            sum += n * 1000;
                     }
-                    return sum / (vs->size() - ignored);
+                    return (double)((sum / 1000.0d) / (double)(vs->size() - ignored));
                 };
-                T mean = get_mean(use_global
+
+                double mean = get_mean(use_global
                                       ? GlobalValues
                                       : &Values);
 
-                auto get_std_deviation = [ignore_numbers_higher_than](T mean, std::vector<T> *vs) {
-                    T standardDeviation = 0;
+                auto get_std_deviation = [ignore_numbers_higher_than](int64_t mean, std::vector<T> *vs) {
+                    double standardDeviation = 0;
                     size_t ignored = 0;
-                    for (T v : *vs)
+                    for (int64_t v : *vs)
                         if (v > ignore_numbers_higher_than)
                             ignored++;
                         else
                             standardDeviation += std::pow(v - mean, 2);
                     return std::sqrt(standardDeviation / (vs->size() - ignored));
                 };
-                T std_deviation = get_std_deviation(mean, use_global
+                double std_deviation = get_std_deviation(mean, use_global
                                                               ? GlobalValues
                                                               : &Values);
 
-                    std::normal_distribution<float> distribution(mean, std_deviation);
+                std::normal_distribution<float> distribution(mean, std_deviation);
                 if (type == ShuffleType::Random_Chaos)
                     distribution = std::normal_distribution<float>(mean, std_deviation * 2);
 
