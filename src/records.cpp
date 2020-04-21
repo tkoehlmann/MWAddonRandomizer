@@ -205,6 +205,15 @@ std::string Record::GetID()
     return m_id;
 }
 
+std::string Record::GetName()
+{
+    if (HasSubrecord("NAME"))
+    {
+        auto srs = GetSubrecords("NAME");
+        return std::string((char *)srs[0]->GetData());
+    }
+}
+
 std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
 {
     std::vector<std::unique_ptr<Subrecord>> result;
@@ -232,6 +241,7 @@ size_t Record::GetRecordSize()
     return sz;
 }
 
+
 void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
 {
     size_t sz = GetRecordSize();
@@ -252,6 +262,18 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
         subrecord->WriteSubrecord(buf + offset, remaining_bytes);
         offset += srsz;
     }
+}
+
+int64_t HasRecordWithName(std::vector<Record *> &records, std::string id)
+{
+    int64_t i = 0;
+    for (auto r : records)
+    {
+        if (r->GetName() == id)
+            return i;
+        ++i;
+    }
+    return -1;
 }
 
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>

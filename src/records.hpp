@@ -56,6 +56,7 @@ public:
     std::vector<std::unique_ptr<Subrecord>> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID();
+    std::string GetName();
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;
@@ -64,6 +65,8 @@ private:
     std::string m_id;
     std::vector<std::unique_ptr<Subrecord>> m_subrecords;
 };
+
+int64_t HasRecordWithName(std::vector<Record*> &records, std::string id);
 
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;
 
