@@ -42,8 +42,6 @@ int main(int argc, char **argv)
         std::string fname = file.first;
         Randomizer::MaxWeaponValues weapon_values = file.second;
 
-
-
         size_t fsize;
         std::unordered_map<std::string, std::vector<Record *>> *res = ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
         master_files_sizes.push_back(std::pair<std::string, size_t>(fname, fsize));
@@ -94,16 +92,13 @@ int main(int argc, char **argv)
     std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
 
     for (auto wrec : weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not
-    {
-        printf("%s\n", wrec->GetName().c_str());
         records_to_write.push_back(wrec);
-    }
 
     WriteESMFile(settings, records_to_write, master_files_sizes);
 
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    printf("Finished reading files, total size: %0.1f MiB, time: %f seconds\n", (double)total_file_size_bytes / (1024L*1024L), elapsed.count());
+    printf("Finished reading and writing files, total size read: %0.1f MiB, total time: %f seconds\n", (double)total_file_size_bytes / (1024L*1024L), elapsed.count());
 
     return 0;
 }

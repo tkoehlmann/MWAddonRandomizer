@@ -212,6 +212,8 @@ std::string Record::GetName()
         auto srs = GetSubrecords("NAME");
         return std::string((char *)srs[0]->GetData());
     }
+
+    return "";
 }
 
 std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
