@@ -9,7 +9,8 @@
  * To note: Shuffled options will lead to a somewhat more consistent gameplay experience
  * while the Random options might make the game significantly more.
  *
- * For some things (i.e. alchemical effects) there are no differences between the two shuffle types and the two random types.
+ * For some things (i.e. alchemical effects) there are no differences between the two shuffle types and the two random
+ * types.
  */
 enum class ShuffleType
 {
@@ -20,14 +21,17 @@ enum class ShuffleType
     Random_Chaos,       // The values are entirely random (use with caution!)
 };
 
-class Settings {
-public:
+class Settings
+{
+    public:
     Settings();
-    uint32_t GetSeed(); // Returns the seed ID
-    uint32_t GetNext(); // Retrieves the next random number
+    uint32_t GetSeed();      // Returns the seed ID
+    uint32_t GetNext();      // Retrieves the next random number
     uint32_t GetNext(int i); // Retrieves the next random number in the range 0 to i-1
     float GetNext(double i); // Retrieves the next random number in the range 0 to i-1
-    template <typename T> float GetNext(std::normal_distribution<float> ndist, T min, T max) // Retrieves the next number depending on the given normal distribution
+    template<typename T>
+    float GetNext(std::normal_distribution<float> ndist, T min,
+                  T max) // Retrieves the next number depending on the given normal distribution
     {
         while (true)
         {
@@ -46,25 +50,28 @@ public:
     std::string GetPluginFullPath();
 
     // Caution: Can only work by changing cells which is not implemented and won't be for some time!
-    ShuffleType Artifacts = ShuffleType::None;              // Shuffle artifacts?
-    ShuffleType Uniques = ShuffleType::None;                // Shuffle unique items?
-    bool ConsiderUniquesEqualToArtifacts;                   // Put artifacts and uniques into the same shuffle pool?
-    bool ShuffleQuestRequirementArtifactsOrUniques;         // To defeat Dagoth Ur you need Keening and Sunder, with this enabled those may be shuffled somewhere else
-    bool ShufflePropylonIndices;                            // If left off the Propylon Indices and the Master Index can be acquired from the usual locations
+    ShuffleType Artifacts = ShuffleType::None;      // Shuffle artifacts?
+    ShuffleType Uniques   = ShuffleType::None;      // Shuffle unique items?
+    bool ConsiderUniquesEqualToArtifacts;           // Put artifacts and uniques into the same shuffle pool?
+    bool ShuffleQuestRequirementArtifactsOrUniques; // To defeat Dagoth Ur you need Keening and Sunder, with this
+                                                    // enabled those may be shuffled somewhere else
+    bool ShufflePropylonIndices; // If left off the Propylon Indices and the Master Index can be acquired from the usual
+                                 // locations
 
-    ShuffleType WeaponsWeight = ShuffleType::None;      // Weight of weapons
-    ShuffleType WeaponsValue = ShuffleType::None;       // Value of weapons
-    ShuffleType WeaponsHealth = ShuffleType::None;      // Durability of weapons
-    ShuffleType WeaponsSpeed = ShuffleType::None;       // Weight of weapons
-    ShuffleType WeaponsEnchantPts = ShuffleType::None;  // Enchantablility of weapons
-    ShuffleType WeaponsDamage = ShuffleType::None;      // Damage of weapons
-    ShuffleType WeaponsResistance = ShuffleType::None;  // Whether weapons can ignore common weapon resistances
-    ShuffleType WeaponsModels = ShuffleType::None;      // The visuals of weapons, model and inventory display name (not to be confused with locations!)
+    ShuffleType WeaponsWeight     = ShuffleType::None; // Weight of weapons
+    ShuffleType WeaponsValue      = ShuffleType::None; // Value of weapons
+    ShuffleType WeaponsHealth     = ShuffleType::None; // Durability of weapons
+    ShuffleType WeaponsSpeed      = ShuffleType::None; // Weight of weapons
+    ShuffleType WeaponsEnchantPts = ShuffleType::None; // Enchantablility of weapons
+    ShuffleType WeaponsDamage     = ShuffleType::None; // Damage of weapons
+    ShuffleType WeaponsResistance = ShuffleType::None; // Whether weapons can ignore common weapon resistances
+    ShuffleType WeaponsModels = ShuffleType::None; // The visuals of weapons, model and inventory display name (not to
+                                                   // be confused with locations!)
 
     /* ShuffleType AlchemyEffects; */
     /* etc. */
 
-private:
+    private:
     uint32_t m_seed;
     std::default_random_engine m_rng;
     std::vector<std::string> *m_affected_records;

@@ -1,12 +1,13 @@
 #ifndef __RECORDS_HPP_
 #define __RECORDS_HPP_
 
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-enum class RecordDataType {
+enum class RecordDataType
+{
     String,
     Float,
     Int8,
@@ -17,8 +18,9 @@ enum class RecordDataType {
 };
 
 
-class Subrecord {
-public:
+class Subrecord
+{
+    public:
     // General constructors
     Subrecord();
     Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read);
@@ -29,27 +31,28 @@ public:
     Subrecord(std::string subrecord_id, std::string s);
 
     ~Subrecord();
-    Subrecord(const Subrecord &other); // cc
+    Subrecord(const Subrecord &other);         // cc
     Subrecord &operator=(const Subrecord rhs); // ac
 
     std::string GetID();
     RecordDataType GetType();
     // We have a getter+setter so that the ownership of the data is clear (it's this object!)
-    uint8_t* GetData();
+    uint8_t *GetData();
     void SetData(uint8_t *data, size_t bytes); // data will be memcpy'd in here, you can free() your copy
     size_t GetDataSize();
     size_t GetSubrecordSize();
     void WriteSubrecord(uint8_t *buf, size_t *remaining_bytes);
 
-private:
+    private:
     std::string m_id;
     RecordDataType m_type;
     uint8_t *m_data;
     size_t m_data_size;
 };
 
-class Record {
-public:
+class Record
+{
+    public:
     Record(std::string record_id);
     void AddSubrecord(std::unique_ptr<Subrecord> subrecord);
     void ClearSubrecords(std::vector<std::string> ids);
@@ -61,12 +64,12 @@ public:
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;
 
-private:
+    private:
     std::string m_id;
     std::vector<std::unique_ptr<Subrecord>> m_subrecords;
 };
 
-int64_t HasRecordWithName(std::vector<Record*> &records, std::string id);
+int64_t HasRecordWithName(std::vector<Record *> &records, std::string id);
 
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;
 

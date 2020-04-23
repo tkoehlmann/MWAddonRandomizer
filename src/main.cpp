@@ -1,49 +1,48 @@
-#include <string>
-#include <cstdint>
-#include <cstdio>
-#include <chrono>
-
 #include "esmtools/esmloader.hpp"
 #include "esmtools/esmwriter.hpp"
-#include "settings.hpp"
 #include "randomizer.hpp"
+#include "settings.hpp"
+
+#include <chrono>
+#include <cstdint>
+#include <cstdio>
+#include <string>
 
 
 int main(int argc, char **argv)
 {
-
-    std::vector<std::pair<std::string, Randomizer::MaxWeaponValues>> files =
-    {
-        {"Morrowind.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000)},
-        {"Tribunal.esm", Randomizer::MaxWeaponValues(20000, 50000, 20000, 20000)},
-        {"Bloodmoon.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000)},
+    std::vector<std::pair<std::string, Randomizer::MaxWeaponValues>> files = {
+        { "Morrowind.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000) },
+        { "Tribunal.esm", Randomizer::MaxWeaponValues(20000, 50000, 20000, 20000) },
+        { "Bloodmoon.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000) },
     };
     std::vector<std::pair<std::string, size_t>> master_files_sizes;
     std::unordered_map<std::string, std::vector<Record *>> file_records;
 
     Settings settings;
     settings.MasterDataFilesDir = "";
-    settings.PluginOutputDir = "/mnt/ramdisk";
-    settings.WeaponsWeight = ShuffleType::Random;
-    settings.WeaponsValue = ShuffleType::Shuffled_Same;
-    settings.WeaponsHealth = ShuffleType::Random;
-    settings.WeaponsSpeed = ShuffleType::Random;
-    settings.WeaponsEnchantPts = ShuffleType::Random;
-    settings.WeaponsDamage = ShuffleType::Shuffled_Same;
-    settings.WeaponsResistance = ShuffleType::Shuffled_Same;
-    settings.WeaponsModels = ShuffleType::Random;
+    settings.PluginOutputDir    = "/mnt/ramdisk";
+    settings.WeaponsWeight      = ShuffleType::Random;
+    settings.WeaponsValue       = ShuffleType::Shuffled_Same;
+    settings.WeaponsHealth      = ShuffleType::Random;
+    settings.WeaponsSpeed       = ShuffleType::Random;
+    settings.WeaponsEnchantPts  = ShuffleType::Random;
+    settings.WeaponsDamage      = ShuffleType::Shuffled_Same;
+    settings.WeaponsResistance  = ShuffleType::Shuffled_Same;
+    settings.WeaponsModels      = ShuffleType::Random;
     settings.UpdateAffectedRecords();
 
 
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start                   = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
     for (auto file : files)
     {
-        std::string fname = file.first;
+        std::string fname                         = file.first;
         Randomizer::MaxWeaponValues weapon_values = file.second;
 
         size_t fsize;
-        std::unordered_map<std::string, std::vector<Record *>> *res = ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
+        std::unordered_map<std::string, std::vector<Record *>> *res =
+            ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
         master_files_sizes.push_back(std::pair<std::string, size_t>(fname, fsize));
 
         if (res == nullptr)
@@ -52,7 +51,7 @@ int main(int argc, char **argv)
         {
             for (auto element : *res)
             {
-                std::string type = element.first;
+                std::string type            = element.first;
                 std::vector<Record *> &recs = element.second;
 
                 if (file_records.find(type) == file_records.end())
@@ -66,8 +65,8 @@ int main(int argc, char **argv)
                             continue; // There's a reason we ignore records (hint: they are not adequately implemented)
 
                         std::string name = r->GetName();
-                        int64_t pos = -1;
-                        if (name != "" )
+                        int64_t pos      = -1;
+                        if (name != "")
                             pos = HasRecordWithName(file_records[type], r->GetName());
 
                         // if the record doesn't have a name or can't be found then we can just add it
@@ -91,14 +90,16 @@ int main(int argc, char **argv)
     // Care must be taken that two different randomize functions can't modify the same records!
     std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
 
-    for (auto wrec : weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not
+    for (auto wrec :
+         weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not
         records_to_write.push_back(wrec);
 
     WriteESMFile(settings, records_to_write, master_files_sizes);
 
-    auto finish = std::chrono::high_resolution_clock::now();
+    auto finish                           = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
-    printf("Finished reading and writing files, total size read: %0.1f MiB, total time: %f seconds\n", (double)total_file_size_bytes / (1024L*1024L), elapsed.count());
+    printf("Finished reading and writing files, total size read: %0.1f MiB, total time: %f seconds\n",
+           (double)total_file_size_bytes / (1024L * 1024L), elapsed.count());
 
     return 0;
 }

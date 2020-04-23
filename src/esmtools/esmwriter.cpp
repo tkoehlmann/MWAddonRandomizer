@@ -1,14 +1,16 @@
+#include "esmwriter.hpp"
+
+#include "../iohelpers.hpp"
+#include "../records.hpp"
+#include "../settings.hpp"
+
 #include <memory>
 #include <vector>
-#include "esmwriter.hpp"
-#include "../settings.hpp"
-#include "../records.hpp"
-#include "../iohelpers.hpp"
 
-bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector<std::pair<std::string, size_t>> master_files_size)
+bool WriteESMFile(Settings &settings, std::vector<Record *> records,
+                  std::vector<std::pair<std::string, size_t>> master_files_size)
 {
     FILE *f = fopen(settings.GetPluginFullPath().c_str(), "wb");
-
 
 
     // Write TES3 record
@@ -25,12 +27,12 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
         {
             tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("MAST", file_size.first))));
             uint64_t DATA = file_size.second;
-            tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("DATA", (uint8_t*)&DATA, 8))));
+            tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("DATA", (uint8_t *)&DATA, 8))));
         }
 
-        tes3_size = tes3.GetRecordSize();
+        tes3_size        = tes3.GetRecordSize();
         size_t remaining = tes3_size;
-        tes3_data = (uint8_t *)malloc(tes3_size);
+        tes3_data        = (uint8_t *)malloc(tes3_size);
         tes3.WriteRecord(tes3_data, &remaining);
         fwrite(tes3_data, 1, tes3_size, f);
     }
@@ -38,8 +40,8 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records, std::vector
     // Write all other records
     for (Record *r : records)
     {
-        size_t sz = r->GetRecordSize();
-        uint8_t *data = (uint8_t *)malloc(sz);
+        size_t sz        = r->GetRecordSize();
+        uint8_t *data    = (uint8_t *)malloc(sz);
         size_t remaining = sz;
         r->WriteRecord(data, &remaining);
         fwrite(data, 1, sz, f);

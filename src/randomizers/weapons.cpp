@@ -1,20 +1,20 @@
-#include <cinttypes>
+#include "weapons.hpp"
+
+#include "../records.hpp"
+
 #include <cfloat>
+#include <cinttypes>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
-#include "weapons.hpp"
-#include "../records.hpp"
 
 void Weapons::AdditionalData::init_sr(Record *r, std::string field)
 {
     if (r->HasSubrecord(field))
     {
         std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords(field);
-        m_subrecords.insert(
-            m_subrecords.end(),
-            std::make_move_iterator(srs.begin()),
-            std::make_move_iterator(srs.end()));
+        m_subrecords.insert(m_subrecords.end(), std::make_move_iterator(srs.begin()),
+                            std::make_move_iterator(srs.end()));
     }
 }
 
@@ -36,20 +36,23 @@ std::vector<std::unique_ptr<Subrecord>> Weapons::AdditionalData::GetSubrecords()
     return result;
 }
 
-Weapons::WeaponData::WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values) :
-    settings(s),
-    damage_global_min(global_min),
-    damage_global_max(global_max),
-    damage_global_values(global_values),
-    damage_chop(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-    damage_slash(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-    damage_thrust(Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-    weight(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-    value(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
-    health(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-    speed(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-    enchant(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-    resistance(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr)
+Weapons::WeaponData::WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values)
+    : settings(s),
+      damage_global_min(global_min),
+      damage_global_max(global_max),
+      damage_global_values(global_values),
+      damage_chop(
+          Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
+      damage_slash(
+          Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
+      damage_thrust(
+          Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
+      weight(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
+      value(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
+      health(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
+      speed(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
+      enchant(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
+      resistance(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr)
 {
     rng = [this](int i) { return settings.GetNext(i); };
 }
@@ -78,8 +81,7 @@ void Weapons::WeaponData::Shuffle(Settings &settings)
         std::random_shuffle(model_values.begin(), model_values.end(), rng);
 }
 
-static std::vector<std::string> prevent_shuffle_ids =
-{
+static std::vector<std::string> prevent_shuffle_ids = {
     // Morrowind.esm artifacts
     "cleaverstfelms",
     "mace of molag bal_unique",
@@ -272,6 +274,6 @@ bool Weapons::prevent_shuffle(Record &rec)
 {
     // Things that aren't weapons or are uniques or artifacts
     std::string id = rec.GetName();
-    bool found = std::find(prevent_shuffle_ids.begin(), prevent_shuffle_ids.end(), id) != prevent_shuffle_ids.end();
+    bool found     = std::find(prevent_shuffle_ids.begin(), prevent_shuffle_ids.end(), id) != prevent_shuffle_ids.end();
     return found;
 }

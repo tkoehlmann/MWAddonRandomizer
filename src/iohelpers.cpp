@@ -1,5 +1,6 @@
-#include <cstring>
 #include "iohelpers.hpp"
+
+#include <cstring>
 
 int8_t io::read_byte(FILE *f, size_t *bytes_read)
 {
@@ -17,8 +18,7 @@ int16_t io::read_word(FILE *f, size_t *bytes_read)
     if (fread(mem, 1, 2, f) < 2)
         throw "Error in io::read_word";
     *bytes_read += 2;
-    res = (mem[1] <<  8) |
-          (mem[0] <<  0) ;
+    res = (mem[1] << 8) | (mem[0] << 0);
     return res;
 }
 
@@ -29,10 +29,7 @@ int32_t io::read_dword(FILE *f, size_t *bytes_read)
     if (fread(mem, 1, 4, f) < 4)
         throw "Error in io::read_word";
     *bytes_read += 4;
-    res = (mem[3] << 24) |
-          (mem[2] << 16) |
-          (mem[1] <<  8) |
-          (mem[0] <<  0) ;
+    res = (mem[3] << 24) | (mem[2] << 16) | (mem[1] << 8) | (mem[0] << 0);
     return res;
 }
 
@@ -49,7 +46,7 @@ std::string io::read_string(FILE *f, size_t *bytes_read)
 
 std::string io::read_record_id(FILE *f, size_t *bytes_read)
 {
-    char name[5] = {'\0', '\0', '\0', '\0', '\0'};
+    char name[5] = { '\0', '\0', '\0', '\0', '\0' };
     if (fread(name, 1, 4, f) < 4)
         throw "Error in io::read_record_id";
     *bytes_read += 4;
@@ -97,10 +94,7 @@ void io::write_float(uint8_t *mem, float f)
 
 int32_t io::read_dword(uint8_t *mem)
 {
-    int32_t i = (mem[3] << 24) |
-                (mem[2] << 16) |
-                (mem[1] << 8) |
-                (mem[0] << 0);
+    int32_t i = (mem[3] << 24) | (mem[2] << 16) | (mem[1] << 8) | (mem[0] << 0);
     return i;
 }
 
@@ -114,8 +108,7 @@ void io::write_dword(uint8_t *mem, int32_t i)
 
 int16_t io::read_word(uint8_t *mem)
 {
-    int32_t i = (mem[1] << 8) |
-                (mem[0] << 0);
+    int32_t i = (mem[1] << 8) | (mem[0] << 0);
     return i;
 }
 

@@ -1,9 +1,9 @@
-#include <algorithm>
-#include <chrono>
-#include <vector>
-#include <filesystem>
 #include "settings.hpp"
 
+#include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <vector>
 
 
 Settings::Settings()
@@ -12,8 +12,8 @@ Settings::Settings()
     m_rng.seed(m_seed);
     m_affected_records = new std::vector<std::string>();
     MasterDataFilesDir = "/";
-    PluginOutputDir = "~";
-    PluginFileName = "MWAddonRandomizer_" + std::to_string(GetSeed()) + ".omwaddon";
+    PluginOutputDir    = "~";
+    PluginFileName     = "MWAddonRandomizer_" + std::to_string(GetSeed()) + ".omwaddon";
     srand(m_seed);
 }
 
@@ -24,7 +24,6 @@ uint32_t Settings::GetNext()
 
 uint32_t Settings::GetNext(int i)
 {
-
     return i == 0 ? 0 : m_rng() % i;
 }
 
@@ -35,8 +34,8 @@ float Settings::GetNext(double i)
         return 0.0f;
 
     const double multiplier = 1000.0; // good enough
-    int v = i * multiplier;
-    v = m_rng() % v;
+    int v                   = i * multiplier;
+    v                       = m_rng() % v;
     return (double)v / multiplier;
 }
 
@@ -47,18 +46,12 @@ uint32_t Settings::GetSeed()
 
 void Settings::UpdateAffectedRecords()
 {
-    #define ISRANDOM(x) ((x) != ShuffleType::None)
+#define ISRANDOM(x) ((x) != ShuffleType::None)
     m_affected_records->clear();
 
-    bool weapons_affected =
-        ISRANDOM(WeaponsWeight) ||
-        ISRANDOM(WeaponsValue) ||
-        ISRANDOM(WeaponsHealth) ||
-        ISRANDOM(WeaponsSpeed) ||
-        ISRANDOM(WeaponsEnchantPts) ||
-        ISRANDOM(WeaponsDamage) ||
-        ISRANDOM(WeaponsResistance) ||
-        ISRANDOM(WeaponsModels);
+    bool weapons_affected = ISRANDOM(WeaponsWeight) || ISRANDOM(WeaponsValue) || ISRANDOM(WeaponsHealth) ||
+                            ISRANDOM(WeaponsSpeed) || ISRANDOM(WeaponsEnchantPts) || ISRANDOM(WeaponsDamage) ||
+                            ISRANDOM(WeaponsResistance) || ISRANDOM(WeaponsModels);
 
     if (weapons_affected)
         m_affected_records->push_back("WEAP");
