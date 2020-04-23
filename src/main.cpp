@@ -30,6 +30,8 @@ int main(int argc, char **argv)
     settings.WeaponsDamage      = ShuffleType::Shuffled_Same;
     settings.WeaponsResistance  = ShuffleType::Shuffled_Same;
     settings.WeaponsModels      = ShuffleType::Random;
+    settings.AlchemyEffects     = ShuffleType::Shuffled_Same;
+    settings.AlchemyEffectCount = ShuffleType::Random;
     settings.UpdateAffectedRecords();
 
 
@@ -89,6 +91,7 @@ int main(int argc, char **argv)
     std::vector<Record *> records_to_write;
     // Care must be taken that two different randomize functions can't modify the same records!
     std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
+    Randomizer::RandomizeAlchemy(file_records["INGR"], settings);
 
     for (auto wrec :
          weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not

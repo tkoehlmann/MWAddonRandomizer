@@ -66,6 +66,11 @@ void Settings::UpdateAffectedRecords()
         m_affected_records->push_back("MISC"); // Azura's Star, Bittercup, Propylon Indices
         m_affected_records->push_back("LOCK"); // Skeleton Key
     }
+
+    if (AlchemyEffects != ShuffleType::None)
+    {
+        m_affected_records->push_back("INGR");
+    }
 }
 
 bool Settings::IsRecordAffected(std::string id)

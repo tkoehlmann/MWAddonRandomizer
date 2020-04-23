@@ -19,4 +19,5 @@ struct MaxWeaponValues
 
 std::vector<Record *> RandomizeWeapons(std::vector<Record *> records, Settings &settings,
                                        MaxWeaponValues &maxweaponvalues);
+std::vector<Record *> RandomizeAlchemy(std::vector<Record *> records, Settings &settings);
 } // namespace Randomizer

@@ -70,6 +70,13 @@ class Settings
 
     /* ShuffleType AlchemyEffects; */
     /* etc. */
+    ShuffleType AlchemyEffects = ShuffleType::None; // What ingredients do (Shuffle: Same amount of each effect type,
+                                                    // Random: completely random effects)
+    ShuffleType AlchemyEffectCount =
+        ShuffleType::None; // Ingredients have a defined amount of effects: With this they can have more or
+                           // less (up to four, obviously), valid settings are None to not change that number
+                           // or any other option to enable.
+
 
     private:
     uint32_t m_seed;

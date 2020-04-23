@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -ggdb")
 add_executable(morrowindaddonrandomizercpp
     src/main.cpp
     src/esmtools/esmloader.cpp
@@ -16,6 +16,7 @@ add_executable(morrowindaddonrandomizercpp
     src/settings.cpp
     src/randomizer.cpp
     src/randomizers/weapons.cpp
+    src/randomizers/alchemy.cpp
 )
 
 add_library(mwaddonrandomizer SHARED src/records.cpp src/iohelpers.cpp)

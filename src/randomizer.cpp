@@ -2,6 +2,7 @@
 
 #include "iohelpers.hpp"
 #include "randomizers/weapons.hpp"
+#include "randomizers/alchemy.hpp"
 
 #include <algorithm>
 #include <cfloat>
@@ -177,4 +178,9 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
             result.push_back(rec);
 
     return result;
+}
+
+std::vector<Record *> Randomizer::RandomizeAlchemy(std::vector<Record *> records, Settings &settings)
+{
+    return Alchemy::RandomizeAlchemy(records, settings);
 }

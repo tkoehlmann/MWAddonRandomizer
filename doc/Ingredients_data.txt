@@ -1,0 +1,758 @@
+ID: ingred_dreugh_wax_01:-----------------------
+    weight : 0.200000
+    value  : 100
+    effects:  79,  74,  17,  17
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   7,   2
+ID: food_kwama_egg_01:-----------------------
+    weight : 0.500000
+    value  : 1
+    effects:  77,  -1,  -1,  -1
+    skills :  -1,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: food_kwama_egg_02:-----------------------
+    weight : 2.000000
+    value  : 2
+    effects:  77,  45,   6,  80
+    skills :  -1,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_kwama_cuttle_01:-----------------------
+    weight : 0.100000
+    value  : 2
+    effects:  97,  20,   2,   0
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_marshmerrow_01:-----------------------
+    weight : 0.100000
+    value  : 1
+    effects:  75,  65,  17,  20
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   2,   0
+ID: ingred_saltrice_01:-----------------------
+    weight : 0.100000
+    value  : 1
+    effects:  77,  81,  17,  75
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_diamond_01:-----------------------
+    weight : 0.200000
+    value  : 250
+    effects:  17,  39,  68,  66
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   0
+ID: ingred_emerald_01:-----------------------
+    weight : 0.200000
+    value  : 150
+    effects:  81,  75,  17,  17
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   3,   5
+ID: ingred_pearl_01:-----------------------
+    weight : 0.200000
+    value  : 100
+    effects:  17,  57,   0,  94
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   0
+ID: ingred_raw_ebony_01:-----------------------
+    weight : 10.000000
+    value  : 200
+    effects:  17,  72,   6,  74
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   4
+ID: ingred_ruby_01:-----------------------
+    weight : 0.200000
+    value  : 200
+    effects:  18,   8,  74,  17
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   1,   3
+ID: ingred_ash_salts_01:-----------------------
+    weight : 0.100000
+    value  : 25
+    effects:  17,  93,  70,  93
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   0
+ID: ingred_corprus_weepings_01:-----------------------
+    weight : 0.100000
+    value  : 50
+    effects:  20,  79,  17,  75
+    skills :   0,   0,   0,   0
+    attribs:   0,   7,   2,   0
+ID: ingred_crab_meat_01:-----------------------
+    weight : 0.500000
+    value  : 1
+    effects:  77,  92,   5,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   7
+ID: ingred_daedras_heart_01:-----------------------
+    weight : 1.000000
+    value  : 200
+    effects:  76,  79,  17,  43
+    skills :   0,   0,   0,   0
+    attribs:   0,   5,   3,   0
+ID: ingred_daedra_skin_01:-----------------------
+    weight : 0.200000
+    value  : 200
+    effects:  79,  69,  45,   1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_resin_01:-----------------------
+    weight : 0.100000
+    value  : 10
+    effects:  75,  74,   7,  94
+    skills :   0,   0,   0,   0
+    attribs:   0,   4,   0,   4
+ID: ingred_alit_hide_01:-----------------------
+    weight : 1.000000
+    value  : 5
+    effects:  17,  97,  59,  64
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   0,   0
+ID: ingred_ash_yam_01:-----------------------
+    weight : 0.500000
+    value  : 1
+    effects:  79,  79,  94,  66
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   0,   0
+ID: ingred_bittergreen_petals_01:-----------------------
+    weight : 0.100000
+    value  : 5
+    effects:  74,  39,  17,  19
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   5,   0
+ID: ingred_black_anther_01:-----------------------
+    weight : 0.100000
+    value  : 2
+    effects:  17,  90,  17,  41
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   5,   0
+ID: ingred_black_lichen_01:-----------------------
+    weight : 0.100000
+    value  : 2
+    effects:  17,  91,  17,  72
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   4,   0
+ID: ingred_bloat_01:-----------------------
+    weight : 0.100000
+    value  : 5
+    effects:  19,  79,  79,  64
+    skills :   0,   0,   0,   0
+    attribs:   0,   1,   2,   0
+ID: ingred_bonemeal_01:-----------------------
+    weight : 0.200000
+    value  : 2
+    effects:  74,  59,  20,  17
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   6
+ID: ingred_comberry_01:-----------------------
+    weight : 0.100000
+    value  : 2
+    effects:  20,  76,   4,  68
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_chokeweed_01:-----------------------
+    weight : 0.100000
+    value  : 1
+    effects:  17,  77,  69,  17
+    skills :   0,   0,   0,   0
+    attribs:   7,   0,   0,   2
+ID: ingred_corkbulb_root_01:-----------------------
+    weight : 0.100000
+    value  : 5
+    effects:  73,  75,   5,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   7
+ID: ingred_ectoplasm_01:-----------------------
+    weight : 0.100000
+    value  : 10
+    effects:  79,  64,  17,  18
+    skills :   0,   0,   0,   0
+    attribs:   3,   0,   0,   0
+ID: ingred_fire_salts_01:-----------------------
+    weight : 0.100000
+    value  : 100
+    effects:  18,  79,  91,   4
+    skills :   0,   0,   0,   0
+    attribs:   0,   3,   0,   0
+ID: ingred_frost_salts_01:-----------------------
+    weight : 0.100000
+    value  : 75
+    effects:  17,  76,   6,  90
+    skills :   0,   0,   0,   0
+    attribs:   4,   0,   7,   0
+ID: ingred_ghoul_heart_01:
+    weight : 0.500000
+    value  : 150
+    effects:  45,  72, 117,  -1
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   0,   0
+ID: ingred_gold_kanet_01:
+    weight : 0.100000
+    value  : 5
+    effects:  18,   7,  17,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   7,   0
+ID: ingred_gravedust_01:
+    weight : 0.100000
+    value  : 1
+    effects:  17,  69,  19,  74
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   0,   5
+ID: ingred_green_lichen_01:
+    weight : 0.100000
+    value  : 1
+    effects:  79,  69,  17,  18
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   0,   0
+ID: ingred_guar_hide_01:
+    weight : 1.000000
+    value  : 5
+    effects:  20,  79,  74,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   5,   6,   7
+ID: ingred_hackle-lo_leaf_01:
+    weight : 0.100000
+    value  : 30
+    effects:  77,  45,   0,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   7
+ID: ingred_heather_01:
+    weight : 0.100000
+    value  : 1
+    effects:  74,   8,  17,  17
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   4,   6
+ID: ingred_hound_meat_01:
+    weight : 1.000000
+    value  : 2
+    effects:  77,  82,  68,  65
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_kagouti_hide_01:
+    weight : 1.000000
+    value  : 2
+    effects:  20,  79,  94,  43
+    skills :   0,   0,   0,   0
+    attribs:   0,   4,   0,   0
+ID: ingred_kresh_fiber_01:
+    weight : 0.100000
+    value  : 1
+    effects:  74,  79,  19,  17
+    skills :   0,   0,   0,   0
+    attribs:   7,   6,   0,   4
+ID: ingred_moon_sugar_01:
+    weight : 0.100000
+    value  : 50
+    effects:  79,  57,  17,  17
+    skills :   0,   0,   0,   0
+    attribs:   4,   0,   5,   7
+ID: ingred_muck_01:
+    weight : 0.100000
+    value  : 1
+    effects:  17,  66,  17,  69
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   6,   0
+ID: ingred_netch_leather_01:
+    weight : 1.000000
+    value  : 1
+    effects:  79,  79,  17,  73
+    skills :   0,   0,   0,   0
+    attribs:   5,   1,   6,   0
+ID: ingred_racer_plumes_01:
+    weight : 0.100000
+    value  : 20
+    effects:  17,  10,  -1,  -1
+    skills :   0,   0,   0,   0
+    attribs:   2,   0,   0,   0
+ID: ingred_rat_meat_01:
+    weight : 1.000000
+    value  : 1
+    effects:  19,  45,  72,  97
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_raw_glass_01:
+    weight : 2.000000
+    value  : 200
+    effects:  17,  17,  17,   4
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   4,   0
+ID: ingred_red_lichen_01:
+    weight : 0.100000
+    value  : 25
+    effects:  17,  41,  69,  19
+    skills :   0,   0,   0,   0
+    attribs:   4,   0,   0,   0
+ID: ingred_roobrush_01:
+    weight : 0.100000
+    value  : 1
+    effects:  17,  79,  18,  72
+    skills :   0,   0,   0,   0
+    attribs:   2,   3,   0,   0
+ID: ingred_scales_01:
+    weight : 0.200000
+    value  : 2
+    effects:  17,   2,  74,   1
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   5,   0
+ID: ingred_scamp_skin_01:
+    weight : 0.100000
+    value  : 10
+    effects:  19,  73,  74,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   6,   0
+ID: ingred_scathecraw_01:
+    weight : 0.100000
+    value  : 2
+    effects:  17,  72,  18,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   2
+ID: ingred_scrap_metal_01:
+    weight : 10.000000
+    value  : 20
+    effects:  18,   5,  92,  74
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   1
+ID: ingred_scrib_jelly_01:
+    weight : 0.100000
+    value  : 10
+    effects:  79,  72,  70,  74
+    skills :   0,   0,   0,   0
+    attribs:   2,   0,   0,   2
+ID: ingred_scuttle_01:
+    weight : 0.100000
+    value  : 10
+    effects:  77,  82,   8,  59
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_shalk_resin_01:
+    weight : 0.100000
+    value  : 50
+    effects:  20,  80,  17,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   6,   4
+ID: ingred_sload_soap_01:
+    weight : 0.100000
+    value  : 50
+    effects:  17,  79,   4,  74
+    skills :   0,   0,   0,   0
+    attribs:   6,   3,   0,   3
+ID: ingred_stoneflower_petals_01:
+    weight : 0.100000
+    value  : 1
+    effects:  74,  81,  17,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   7,   6
+ID: ingred_trama_root_01:
+    weight : 0.100000
+    value  : 10
+    effects:  74,  10,  19,  17
+    skills :   0,   0,   0,   0
+    attribs:   2,   0,   0,   4
+ID: ingred_vampire_dust_01:
+    weight : 0.100000
+    value  : 500
+    effects:  80,  79,  67, 133
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   6
+ID: ingred_void_salts_01:
+    weight : 0.100000
+    value  : 100
+    effects:  76,  67,  45,  17
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   5
+ID: ingred_wickwheat_01:
+    weight : 0.100000
+    value  : 1
+    effects:  75,  79,  45,  22
+    skills :   0,   0,   0,   0
+    attribs:   3,   2,   0,   1
+ID: ingred_willow_anther_01:
+    weight : 0.100000
+    value  : 10
+    effects:  17,   6,  69,  73
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   0,   0
+ID: ingred_scrib_jerky_01:
+    weight : 0.200000
+    value  : 5
+    effects:  77,  82,   7,   1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_fire_petal_01:
+    weight : 0.100000
+    value  : 2
+    effects:  90,  18,  67,  45
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_bread_01:
+    weight : 0.200000
+    value  : 1
+    effects:  77,  -1,  -1,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_coprinus_01:
+    weight : 0.500000
+    value  : 1
+    effects:   2,  20,  27,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_russula_01:
+    weight : 0.200000
+    value  : 1
+    effects:   0,  20,  27,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_bc_ampoule_pod:
+    weight : 0.100000
+    value  : 2
+    effects:   2,  45,  64,  17
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   2
+ID: ingred_bc_bungler's_bane:
+    weight : 0.500000
+    value  : 1
+    effects:  17,  17,  57,  17
+    skills :   0,   0,   0,   0
+    attribs:   4,   5,   0,   0
+ID: ingred_bc_hypha_facia:
+    weight : 0.100000
+    value  : 1
+    effects:  17,  17,  20,  65
+    skills :   0,   0,   0,   0
+    attribs:   7,   3,   0,   0
+ID: ingred_bc_spore_pod:
+    weight : 0.100000
+    value  : 1
+    effects:  17,  20,  66,  45
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_bc_coda_flower:
+    weight : 0.100000
+    value  : 23
+    effects:  17,  10,  17,  18
+    skills :   0,   0,   0,   0
+    attribs:   6,   0,   1,   0
+ID: ingred_guar_hide_girith:
+    weight : 1.000000
+    value  : 5
+    effects:  20,  79,  74,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   5,   6,   7
+ID: ingred_guar_hide_marsus:
+    weight : 1.000000
+    value  : 5
+    effects:  20,  79,  74,  79
+    skills :   0,   0,   0,   0
+    attribs:   0,   5,   6,   7
+ID: ingred_raw_glass_tinos:
+    weight : 2.000000
+    value  : 200
+    effects:  17,  17,  17,   4
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   4,   0
+ID: ingred_treated_bittergreen_uniq:
+    weight : 0.100000
+    value  : 10
+    effects:  74,  19,  17,  39
+    skills :   0,   0,   0,   0
+    attribs:   1,   0,   5,   0
+ID: ingred_gold_kanet_unique:
+    weight : 0.100000
+    value  : 5
+    effects:  18,   7,  17,  74
+    skills :  -1,  -1,   0,   0
+    attribs:  -1,  -1,   7,   0
+ID: ingred_bread_01_UNI2:
+    weight : 0.200000
+    value  : 1
+    effects:  77,  -1,  -1,  -1
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: poison_goop00:
+    weight : 0.100000
+    value  : 0
+    effects:  35,  23,  25,  27
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_Dae_cursed_emerald_01:
+    weight : 0.200000
+    value  : 150
+    effects:  81,  75,  17,  17
+    skills :  -1,  -1,   0,   0
+    attribs:  -1,  -1,   3,   5
+ID: ingred_Dae_cursed_pearl_01:
+    weight : 0.200000
+    value  : 100
+    effects:  17,  57,   0,  94
+    skills :   0,  -1,  -1,  -1
+    attribs:   3,  -1,  -1,  -1
+ID: ingred_cursed_daedras_heart_01:
+    weight : 1.000000
+    value  : 200
+    effects:  76,  79,  17,  43
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   5,   3,  -1
+ID: ingred_Dae_cursed_diamond_01:
+    weight : 0.200000
+    value  : 250
+    effects:  17,  39,  68,  66
+    skills :   0,  -1,  -1,  -1
+    attribs:   3,  -1,  -1,  -1
+ID: ingred_Dae_cursed_ruby_01:
+    weight : 0.200000
+    value  : 200
+    effects:  18,   8,  74,  17
+    skills :  -1,  -1,   0,   0
+    attribs:  -1,  -1,   1,   3
+ID: ingred_Dae_cursed_raw_ebony_01:
+    weight : 10.000000
+    value  : 200
+    effects:  17,  72,   6,  74
+    skills :   0,  -1,  -1,   0
+    attribs:   3,  -1,  -1,   4
+ID: ingred_human_meat_01:
+    weight : 1.000000
+    value  : 1
+    effects:  80,  17,  17,  -1
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   1,   6,  -1
+ID: ingred_6th_corprusmeat_01:
+    weight : 1.000000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_02:
+    weight : 0.200000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_03:
+    weight : 0.500000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_04:
+    weight : 0.000000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_05:
+    weight : 1.000000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_06:
+    weight : 0.500000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_6th_corprusmeat_07:
+    weight : 0.200000
+    value  : 0
+    effects:  20,  18,  19,  -1
+    skills :   0,   0,   0,   0
+    attribs:   0,   0,   0,   0
+ID: ingred_scrib_jelly_02:
+    weight : 0.100000
+    value  : 10
+    effects:  79,  72,  70,  74
+    skills :   0,  -1,  -1,   0
+    attribs:   2,  -1,  -1,   2
+ID: ingred_bread_01_UNI3:
+    weight : 0.200000
+    value  : 1
+    effects:  77,  -1,  -1,  -1
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: Ingred_horn_lily_bulb_01:
+    weight : 1.000000
+    value  : 1
+    effects:  99,  18,  74,  74
+    skills :  -1,  -1,   0,   0
+    attribs:  -1,  -1,   0,   5
+ID: Ingred_nirthfly_stalks_01:
+    weight : 1.000000
+    value  : 1
+    effects:  23,  79,  74,  17
+    skills :  -1,   0,   0,   0
+    attribs:  -1,   4,   4,   4
+ID: Ingred_timsa-come-by_01:
+    weight : 1.000000
+    value  : 1
+    effects:  57,  99,  19,  74
+    skills :  -1,  -1,  -1,   0
+    attribs:  -1,  -1,  -1,   5
+ID: Ingred_meadow_rye_01:
+    weight : 1.000000
+    value  : 1
+    effects:  79,  23,  74,  17
+    skills :   0,  -1,   0,   0
+    attribs:   4,  -1,   4,   4
+ID: Ingred_sweetpulp_01:
+    weight : 1.000000
+    value  : 1
+    effects:  45,  10,  99,  75
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: Ingred_scrib_cabbage_01:
+    weight : 1.000000
+    value  : 1
+    effects:  17,  23,  74,  79
+    skills :   0,  -1,   0,   0
+    attribs:   1,  -1,   3,   3
+ID: Ingred_lloramor_spines_01:
+    weight : 1.000000
+    value  : 1
+    effects:  67,  39,  27,  65
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: Ingred_golden_sedge_01:
+    weight : 1.000000
+    value  : 1
+    effects:  19,  79, 117,   1
+    skills :  -1,   0,  -1,  -1
+    attribs:  -1,   0,  -1,  -1
+ID: Ingred_noble_sedge_01:
+    weight : 1.000000
+    value  : 1
+    effects:  23,  74,  27,  79
+    skills :  -1,   0,  -1,   0
+    attribs:  -1,   3,  -1,   3
+ID: ingred_adamantium_ore_01:
+    weight : 50.000000
+    value  : 300
+    effects:   7,  76,  27,  68
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_durzog_meat_01:
+    weight : 2.000000
+    value  : 7
+    effects:  79,  79,  47,  24
+    skills :   0,   0,  -1,  -1
+    attribs:   3,   0,  -1,  -1
+ID: ingred_emerald_pinetear:
+    weight : 0.200000
+    value  : 50
+    effects:  81,  75,  17,  17
+    skills :  -1,  -1,   0,   0
+    attribs:  -1,  -1,   3,   5
+ID: ingred_raw_Stalhrim_01:
+    weight : 5.000000
+    value  : 300
+    effects:  91,  16,  45,  75
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_blood_innocent_unique:
+    weight : 0.100000
+    value  : 25
+    effects:  17,  41,  69,  19
+    skills :   0,  -1,  -1,  -1
+    attribs:   4,  -1,  -1,  -1
+ID: ingred_snowwolf_pelt_unique:
+    weight : 1.000000
+    value  : 2
+    effects:  20,  79,  94,  43
+    skills :  -1,   0,  -1,  -1
+    attribs:  -1,   4,  -1,  -1
+ID: ingred_snowbear_pelt_unique:
+    weight : 1.000000
+    value  : 2
+    effects:  20,  79,  94,  43
+    skills :  -1,   0,  -1,  -1
+    attribs:  -1,   4,  -1,  -1
+ID: ingred_udyrfrykte_heart:
+    weight : 5.000000
+    value  : 300
+    effects:  76,  79,  17,  43
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   5,   3,  -1
+ID: ingred_belladonna_01:
+    weight : 0.100000
+    value  : 5
+    effects:  93,  76,  81,  19
+    skills :   0,  -1,   0,  -1
+    attribs:   1,  -1,   5,  -1
+ID: ingred_wolfsbane_01:
+    weight : 0.100000
+    value  : 5
+    effects:  74,  39,  17,  19
+    skills :   0,  -1,   0,  -1
+    attribs:   1,  -1,   5,  -1
+ID: ingred_holly_01:
+    weight : 0.100000
+    value  : 5
+    effects:  91,   6,  16,  28
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_belladonna_02:
+    weight : 0.100000
+    value  : 5
+    effects:  93,  76,  81,  19
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_bear_pelt:
+    weight : 1.000000
+    value  : 2
+    effects:  20,  79,  94,  43
+    skills :  -1,   0,  -1,  -1
+    attribs:  -1,   0,  -1,  -1
+ID: ingred_wolf_pelt:
+    weight : 1.000000
+    value  : 2
+    effects:  20,  79,  94,  43
+    skills :  -1,   0,  -1,  -1
+    attribs:  -1,   4,  -1,  -1
+ID: ingred_innocent_heart:
+    weight : 1.000000
+    value  : 10
+    effects:  76,  79,  17,  43
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   5,   3,  -1
+ID: ingred_wolf_heart:
+    weight : 1.000000
+    value  : 100
+    effects:  76,  79,  17,  43
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   5,   3,  -1
+ID: ingred_heartwood_01:
+    weight : 1.000000
+    value  : 200
+    effects:  76,  79,  17,  28
+    skills :  -1,   0,   0,  -1
+    attribs:  -1,   3,   0,  -1
+ID: ingred_boar_leather:
+    weight : 1.000000
+    value  : 2
+    effects:  47,  16,  91,  61
+    skills :  -1,  -1,  -1,  -1
+    attribs:  -1,  -1,  -1,  -1
+ID: ingred_horker_tusk_01:
+    weight : 0.100000
+    value  : 5
+    effects:  21,  79,  84,  64
+    skills :  11,   0,  -1,  -1
+    attribs:   0,   1,  -1,  -1
+ID: ingred_gravetar_01:
+    weight : 0.100000
+    value  : 5
+    effects:  91,  18,  82,  17
+    skills :  -1,  -1,  -1,   0
+    attribs:  -1,  -1,  -1,   7
+ID: ingred_eyeball:
+    weight : 1.000000
+    value  : 15
+    effects:  91,  43,  19,  79
+    skills :  -1,  -1,  -1,   0
+    attribs:  -1,  -1,  -1,   0
+ID: ingred_eyeball_unique:
+    weight : 1.000000
+    value  : 15
+    effects:  91,  43,  19,  79
+    skills :  -1,  -1,  -1,   0
+    attribs:  -1,  -1,  -1,   0
+Finished reading and writing files, total size read: 89.7 MiB, total time: 4.387276 seconds
+tim@Yomi ~/Projects/MorrowindAddonRandomizer/build $
