@@ -2,10 +2,8 @@ Conclusion: The number is the ID of the regular magic effects (see openmw-cs).
 As such, modifying the magic effects would be another possible randomization
 option, but it's unrelated to alchemical ingredients which only use those IDs.
 Possible randomization options:
-    Shuffle:            Ingredient effects are switched around but they keep
-                        their magic type (even if magic types happen to get
-                        shuffled as well).
-    ShuffleDifferent:   Ingredients get random effects from the pool of effects.
+    Shuffle:            Ingredient effects are switched around.
+    ShuffleDifferent:   Ingredient effects are switched around.
     Random:             Ingredients get random effects from the pool of effects,
                         meaning that things that are marked with ??? can not
                         appear on ingredients.

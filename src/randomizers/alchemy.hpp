@@ -8,7 +8,19 @@
 
 namespace Alchemy
 {
-std::vector<Record *> RandomizeAlchemy(std::vector<Record *> records, Settings &settings);
+    struct EffectData
+    {
+        int32_t effect_id;
+        int32_t skill;
+        int32_t attrib_id;
+        size_t effect_count;
+
+        EffectData(int32_t e, int32_t s, int32_t a, size_t c)
+        : effect_id(e), skill(s), attrib_id(a), effect_count(c)
+        { }
+    };
+
+    std::vector<Record *> RandomizeAlchemy(std::vector<Record *> records, Settings &settings);
 }
 
 #endif /* _ALCHEMY_HPP */

@@ -3,6 +3,9 @@
 
 #include <vector>
 
+// TODO: Make this file into a library interface and move the Randomize* functions and other data into files in the
+// randomizers subdirectory!
+
 namespace Randomizer
 {
 // Maximum amount of item value to consider for calculating average values (since there are

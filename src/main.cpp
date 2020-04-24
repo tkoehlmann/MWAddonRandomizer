@@ -2,6 +2,7 @@
 #include "esmtools/esmwriter.hpp"
 #include "randomizer.hpp"
 #include "settings.hpp"
+#include "globals/attributes.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -31,9 +32,14 @@ int main(int argc, char **argv)
     settings.WeaponsResistance  = ShuffleType::Shuffled_Same;
     settings.WeaponsModels      = ShuffleType::Random;
     settings.AlchemyEffects     = ShuffleType::Shuffled_Same;
-    settings.AlchemyEffectCount = ShuffleType::Random;
     settings.UpdateAffectedRecords();
 
+    int8_t intelligence_id;
+    std::string strength_str;
+    Attributes::GetID("Intelligence", &intelligence_id);
+    Attributes::GetID(0, strength_str);
+    printf("Intelligence: %d\n", intelligence_id);
+    printf("ID 0: %s\n", strength_str.c_str());
 
     auto start                   = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
