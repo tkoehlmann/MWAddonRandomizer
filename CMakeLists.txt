@@ -16,6 +16,7 @@ add_executable(morrowindaddonrandomizercpp
     src/settings.cpp
     src/randomizer.cpp
     src/globals/attributes.cpp
+    src/globals/magiceffects.cpp
     src/randomizers/weapons.cpp
     src/randomizers/alchemy.cpp
 )

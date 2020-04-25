@@ -3,6 +3,7 @@
 #include "randomizer.hpp"
 #include "settings.hpp"
 #include "globals/attributes.hpp"
+#include "globals/magiceffects.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -97,7 +98,8 @@ int main(int argc, char **argv)
     std::vector<Record *> records_to_write;
     // Care must be taken that two different randomize functions can't modify the same records!
     std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
-    Randomizer::RandomizeAlchemy(file_records["INGR"], settings);
+    auto magic_effects                   = ReadMagicEffects(file_records["MGEF"]);
+    Randomizer::RandomizeAlchemy(file_records["INGR"], settings, magic_effects);
 
     for (auto wrec :
          weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not

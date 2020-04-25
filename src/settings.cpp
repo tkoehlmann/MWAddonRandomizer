@@ -69,6 +69,7 @@ void Settings::UpdateAffectedRecords()
 
     if (AlchemyEffects != ShuffleType::None)
     {
+        m_affected_records->push_back("MGEF");
         m_affected_records->push_back("INGR");
     }
 }

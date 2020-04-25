@@ -180,7 +180,9 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
     return result;
 }
 
-std::vector<Record *> Randomizer::RandomizeAlchemy(std::vector<Record *> records, Settings &settings)
+std::vector<Record *>
+    Randomizer::RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
+                                 std::unique_ptr<std::unordered_map<int32_t, Record *>> &magic_effects)
 {
-    return Alchemy::RandomizeAlchemy(records, settings);
+    return Alchemy::RandomizeAlchemy(records, settings, magic_effects);
 }

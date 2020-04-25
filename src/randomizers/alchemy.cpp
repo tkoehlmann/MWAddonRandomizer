@@ -82,7 +82,8 @@ void minmax(T &min, T &max)
         std::swap(min, max);
 }
 
-std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, Settings &settings)
+std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
+                                                std::unique_ptr<std::unordered_map<int32_t, Record *>> &magic_effects)
 {
     std::set<int32_t> available_effect_ids;
     std::vector<float> ingredient_weights;
