@@ -218,11 +218,46 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
             break;
 
             case ShuffleType::Random:
-                // TODO: we need to identify spells requiring attributes so read spell effects from esm and shuffle them
-                // before calling this function!
+                {
+                    size_t effect_count = settings.GetNext(4) + 1;
+                    for (size_t n = 0; n < effect_count; ++n)
+                    {
+                        uint32_t eid = settings.GetNext((int)available_effect_ids.size() + 1);
+                        std::set<int32_t>::iterator setit = available_effect_ids.begin();
+                        std::advance(setit, eid);
+                        eid = *setit;
+                        uint32_t aid = 0;
+                        // TODO: This is nice and all, but there's also the option of Drain Skill etc. which also have their IDs.
+                        if (eid == 17 || eid == 22 || eid == 74 || eid == 79)
+                            aid = settings.GetNext((int)Attributes::Attributes.size());
+
+                        Alchemy::EffectData e(eid, 0, aid, effect_count);
+
+                        effect(irdt, n, *effect_it);
+                        effect_it++;
+                        --effect_count_sum;
+                    }
+                }
                 break;
 
             case ShuffleType::Random_Chaos:
+                {
+                    size_t effect_count = settings.GetNext(4) + 1;
+                    for (size_t n = 0; n < effect_count; ++n)
+                    {
+                        auto srs     = magic_effects->at(settings.GetNext((int)magic_effects->size() + 1))->GetSubrecords("INDX");
+                        int32_t eid = *(int32_t*)srs[0]->GetData().get();
+                        uint32_t aid = 0;
+                        if (eid == 17 || eid == 22 || eid == 74 || eid == 79)
+                            aid = settings.GetNext((int)Attributes::Attributes.size());
+
+                        Alchemy::EffectData e(eid, 0, aid, effect_count);
+
+                        effect(irdt, n, *effect_it);
+                        effect_it++;
+                        --effect_count_sum;
+                    }
+                }
                 break;
 
             case ShuffleType::None:
