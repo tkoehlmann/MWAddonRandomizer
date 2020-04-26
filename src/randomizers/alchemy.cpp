@@ -11,29 +11,29 @@
 #include <set>
 
 
-float weight(uint8_t *irdt)
+float weight(std::unique_ptr<uint8_t[]> &irdt)
 {
-    return io::read_float(irdt + 0);
+    return io::read_float(irdt);
 }
-void weight(uint8_t *irdt, float v)
+void weight(std::unique_ptr<uint8_t[]> &irdt, float v)
 {
-    io::write_float(irdt + 0, v);
+    io::write_float(irdt, v);
 }
-int32_t value(uint8_t *irdt)
+int32_t value(std::unique_ptr<uint8_t[]> &irdt)
 {
-    return io::read_dword(irdt + 4);
+    return io::read_dword(irdt, 4);
 }
-void value(uint8_t *irdt, int32_t v)
+void value(std::unique_ptr<uint8_t[]> &irdt, int32_t v)
 {
-    io::write_dword(irdt + 4, v);
+    io::write_dword(irdt, v, 4);
 }
-Alchemy::EffectData effect(uint8_t *irdt, size_t id)
+Alchemy::EffectData effect(std::unique_ptr<uint8_t[]> &irdt, size_t id)
 {
     int32_t e, s, a;
     size_t c;
-    e = io::read_dword(irdt + 8 + id * 4);
-    s = io::read_dword(irdt + 24 + id * 4);
-    a = io::read_dword(irdt + 40 + id * 4);
+    e = io::read_dword(irdt,  8 + id * 4);
+    s = io::read_dword(irdt, 24 + id * 4);
+    a = io::read_dword(irdt, 40 + id * 4);
     c = 0;
     for (int32_t n : { e, s, a })
         if (n >= 0)
@@ -41,11 +41,11 @@ Alchemy::EffectData effect(uint8_t *irdt, size_t id)
 
     return Alchemy::EffectData(e, s, a, c);
 }
-void effect(uint8_t *irdt, size_t id, Alchemy::EffectData &data)
+void effect(std::unique_ptr<uint8_t[]> &irdt, size_t id, Alchemy::EffectData &data)
 {
-    io::write_dword(irdt + 8 + id * 4, data.effect_id);
-    io::write_dword(irdt + 24 + id * 4, data.skill_id);
-    io::write_dword(irdt + 40 + id * 4, data.attrib_id);
+    io::write_dword(irdt, data.effect_id,  8 + id * 4);
+    io::write_dword(irdt, data.skill_id, 24 + id * 4);
+    io::write_dword(irdt, data.attrib_id, 40 + id * 4);
 }
 
 template<typename T>
@@ -98,16 +98,16 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
     // Step 1: Collect data
     for (Record *r : records)
     {
-        std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords("IRDT");
-        uint8_t *irdt                               = srs[0]->GetData().get();
+        std::unique_ptr<Subrecord> irdt = std::move(r->GetSubrecords("IRDT")[0]);
+        auto irdt_data                  = irdt->GetData();
 
-        float ingr_weight                    = weight(irdt);
-        int32_t ingr_value                   = value(irdt);
+        float ingr_weight                    = weight(irdt_data);
+        int32_t ingr_value                   = value(irdt_data);
         std::vector<EffectData> ingr_effects = {
-            effect(irdt, 0),
-            effect(irdt, 1),
-            effect(irdt, 2),
-            effect(irdt, 3),
+            effect(irdt_data, 0),
+            effect(irdt_data, 1),
+            effect(irdt_data, 2),
+            effect(irdt_data, 3),
         };
 
         ingredient_weights.push_back(ingr_weight);
@@ -150,20 +150,20 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
 
     for (int i = 0; i < records.size(); ++i)
     {
-        std::vector<std::unique_ptr<Subrecord>> srs = records[i]->GetSubrecords("IRDT");
-        uint8_t *irdt                               = srs[0]->GetData().get();
+        std::unique_ptr<Subrecord> irdt = std::move(records[i]->GetSubrecords("IRDT")[0]);
+        auto irdt_data                  = irdt->GetData();
 
         std::normal_distribution<float> dist = get_distribution(ingredient_weights, settings.AlchemyWeight);
         switch (settings.AlchemyWeight)
         {
             case ShuffleType::Shuffled_Same:
             case ShuffleType::Shuffled_Different:
-                weight(irdt, ingredient_weights[i]);
+                weight(irdt_data, ingredient_weights[i]);
                 break;
 
             case ShuffleType::Random:
             case ShuffleType::Random_Chaos:
-                weight(irdt, settings.GetNext(dist, weight_min, weight_max));
+                weight(irdt_data, settings.GetNext(dist, weight_min, weight_max));
                 break;
 
             case ShuffleType::None:
@@ -178,12 +178,12 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
         {
             case ShuffleType::Shuffled_Same:
             case ShuffleType::Shuffled_Different:
-                value(irdt, ingredient_values[i]);
+                value(irdt_data, ingredient_values[i]);
                 break;
 
             case ShuffleType::Random:
             case ShuffleType::Random_Chaos:
-                value(irdt, settings.GetNext(dist, values_min, values_max));
+                value(irdt_data, settings.GetNext(dist, values_min, values_max));
                 break;
 
             case ShuffleType::None:
@@ -198,7 +198,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
             case ShuffleType::Shuffled_Same:
                 for (size_t n = 0; n < ingredient_effect_count[i]; ++n)
                 {
-                    effect(irdt, n, *effect_it);
+                    effect(irdt_data, n, *effect_it);
                     effect_it++;
                 }
                 break;
@@ -215,7 +215,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
 
                 for (size_t n = 0; n < effect_count; ++n)
                 {
-                    effect(irdt, n, *effect_it);
+                    effect(irdt_data, n, *effect_it);
                     effect_it++;
                     --effect_count_sum;
                 }
@@ -236,7 +236,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
 
                         Alchemy::EffectData e(eid, sid, aid, effect_count);
 
-                        effect(irdt, n, *effect_it);
+                        effect(irdt_data, n, *effect_it);
                         effect_it++;
                         --effect_count_sum;
                     }
@@ -258,7 +258,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
 
                         Alchemy::EffectData e(eid, sid, aid, effect_count);
 
-                        effect(irdt, n, *effect_it);
+                        effect(irdt_data, n, *effect_it);
                         effect_it++;
                         --effect_count_sum;
                     }
@@ -271,6 +271,11 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
             default:
                 break;
         }
+
+        irdt->SetData(std::move(irdt_data), irdt->GetDataSize());
+        records[i]->ClearSubrecords({ "IRDT" });
+        records[i]->AddSubrecord(std::move(irdt));
+        result.push_back(records[i]);
     }
 
     return result;
