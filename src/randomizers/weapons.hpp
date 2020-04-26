@@ -117,7 +117,7 @@ struct MinMaxData
                 else
                 {
                     float next = settings.GetNext(distribution, Min, Max);
-                    f(wpdt, offset_min, next);
+                    f(wpdt, next, offset_min);
                 }
                 break;
 
@@ -125,22 +125,22 @@ struct MinMaxData
                 if (GlobalValues != nullptr)
                 {
                     minmax = std::minmax((*GlobalValues)[i * 2 + 0], (*GlobalValues)[i * 2 + 1]);
-                    f(wpdt, offset_min, minmax.first);
-                    f(wpdt, offset_max, minmax.second);
+                    f(wpdt, minmax.first, offset_min);
+                    f(wpdt, minmax.second, offset_max);
                 }
                 else
-                    f(wpdt, offset_min, Values[i]);
+                    f(wpdt, Values[i], offset_min);
                 break;
 
             case ShuffleType::Shuffled_Same:
                 if (is_weapon)
                 {
                     minmax = std::minmax(Values[i * 2 + 0], Values[i * 2 + 1]);
-                    f(wpdt, offset_min, minmax.first);
-                    f(wpdt, offset_max, minmax.second);
+                    f(wpdt, minmax.first, offset_min);
+                    f(wpdt, minmax.second, offset_max);
                 }
                 else
-                    f(wpdt, offset_min, Values[i]);
+                    f(wpdt, Values[i], offset_min);
                 break;
 
             default:
