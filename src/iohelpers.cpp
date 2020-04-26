@@ -84,7 +84,21 @@ float io::read_float(uint8_t *mem)
     return f;
 }
 
+float io::read_float(std::unique_ptr<uint8_t[]> &mem, size_t offset)
+{
+    uint8_t data[4] = { mem[0 + offset], mem[1 + offset], mem[2 + offset], mem[2 + offset] };
+    return *(float *)data;
+}
+
 void io::write_float(uint8_t *mem, float f)
+{
+    mem[0] = ((uint8_t *)&f)[0];
+    mem[1] = ((uint8_t *)&f)[1];
+    mem[2] = ((uint8_t *)&f)[2];
+    mem[3] = ((uint8_t *)&f)[3];
+}
+
+void io::write_float(std::unique_ptr<uint8_t[]> &mem, float f, size_t offset)
 {
     mem[0] = ((uint8_t *)&f)[0];
     mem[1] = ((uint8_t *)&f)[1];
@@ -98,7 +112,21 @@ int32_t io::read_dword(uint8_t *mem)
     return i;
 }
 
+int32_t io::read_dword(std::unique_ptr<uint8_t[]> &mem, size_t offset)
+{
+    int32_t i = (mem[3 + offset] << 24) | (mem[2 + offset] << 16) | (mem[1 + offset] << 8) | (mem[0 + offset] << 0);
+    return i;
+}
+
 void io::write_dword(uint8_t *mem, int32_t i)
+{
+    mem[0] = ((uint8_t *)&i)[0];
+    mem[1] = ((uint8_t *)&i)[1];
+    mem[2] = ((uint8_t *)&i)[2];
+    mem[3] = ((uint8_t *)&i)[3];
+}
+
+void io::write_dword(std::unique_ptr<uint8_t[]> &mem, int32_t i, size_t offset)
 {
     mem[0] = ((uint8_t *)&i)[0];
     mem[1] = ((uint8_t *)&i)[1];
@@ -112,7 +140,19 @@ int16_t io::read_word(uint8_t *mem)
     return i;
 }
 
+int16_t io::read_word(std::unique_ptr<uint8_t[]> &mem, size_t offset)
+{
+    int32_t i = (mem[1 + offset] << 8) | (mem[0 + offset] << 0);
+    return i;
+}
+
 void io::write_word(uint8_t *mem, int16_t i)
+{
+    mem[1] = ((uint8_t *)&i)[1];
+    mem[0] = ((uint8_t *)&i)[0];
+}
+
+void io::write_word(std::unique_ptr<uint8_t[]> &mem, int16_t i, size_t offset)
 {
     mem[1] = ((uint8_t *)&i)[1];
     mem[0] = ((uint8_t *)&i)[0];
@@ -121,6 +161,11 @@ void io::write_word(uint8_t *mem, int16_t i)
 void io::write_byte(uint8_t *mem, int8_t byte)
 {
     *mem = byte;
+}
+
+void io::write_byte(std::unique_ptr<uint8_t[]> &mem, int8_t byte, size_t offset)
+{
+    mem[0] = byte;
 }
 
 void io::write_bytes(uint8_t *buf, uint8_t *data, size_t len)

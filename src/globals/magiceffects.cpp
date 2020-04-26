@@ -10,7 +10,8 @@ std::unique_ptr<std::unordered_map<int32_t, Record*>> ReadMagicEffects(std::vect
     for (Record *r : records)
     {
         std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords("INDX");
-        auto id                                     = io::read_dword(srs[0]->GetData());
+        auto data                                   = srs[0]->GetData();
+        auto id                                     = io::read_dword(data);
         result->insert(std::pair(id, r));
     }
 

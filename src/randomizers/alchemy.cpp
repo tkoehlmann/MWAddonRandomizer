@@ -98,7 +98,7 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
     {
         printf("ID: %s:\n", r->GetName().c_str());
         std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords("IRDT");
-        uint8_t *irdt                               = srs[0]->GetData();
+        uint8_t *irdt                               = srs[0]->GetData().get();
 
         float ingr_weight                    = weight(irdt);
         int32_t ingr_value                   = value(irdt);
@@ -146,7 +146,7 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
     for (int i = 0; i < records.size(); ++i)
     {
         std::vector<std::unique_ptr<Subrecord>> srs = records[i]->GetSubrecords("IRDT");
-        uint8_t *irdt                               = srs[0]->GetData();
+        uint8_t *irdt                               = srs[0]->GetData().get();
 
         std::normal_distribution<float> dist = get_distribution(ingredient_weights, settings.AlchemyWeight);
         switch (settings.AlchemyWeight)

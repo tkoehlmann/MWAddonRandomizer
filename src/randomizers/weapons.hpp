@@ -63,8 +63,8 @@ struct MinMaxData
     }
 
     void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i,
-                   const size_t offset_min, const size_t offset_max, uint8_t *wpdt, void (*f)(uint8_t *, T),
-                   T ignore_numbers_higher_than = 20001)
+                   const size_t offset_min, const size_t offset_max, std::unique_ptr<uint8_t[]> &wpdt,
+                   void (*f)(std::unique_ptr<uint8_t[]> &, T, size_t), T ignore_numbers_higher_than = 20001)
     {
         bool use_global = is_weapon && GlobalMin != nullptr && GlobalMax != nullptr;
         std::pair<int8_t, int8_t> minmax;
@@ -117,7 +117,7 @@ struct MinMaxData
                 else
                 {
                     float next = settings.GetNext(distribution, Min, Max);
-                    f(wpdt + offset_min, next);
+                    f(wpdt, offset_min, next);
                 }
                 break;
 
@@ -125,22 +125,22 @@ struct MinMaxData
                 if (GlobalValues != nullptr)
                 {
                     minmax = std::minmax((*GlobalValues)[i * 2 + 0], (*GlobalValues)[i * 2 + 1]);
-                    f(wpdt + offset_min, minmax.first);
-                    f(wpdt + offset_max, minmax.second);
+                    f(wpdt, offset_min, minmax.first);
+                    f(wpdt, offset_max, minmax.second);
                 }
                 else
-                    f(wpdt + offset_min, Values[i]);
+                    f(wpdt, offset_min, Values[i]);
                 break;
 
             case ShuffleType::Shuffled_Same:
                 if (is_weapon)
                 {
                     minmax = std::minmax(Values[i * 2 + 0], Values[i * 2 + 1]);
-                    f(wpdt + offset_min, minmax.first);
-                    f(wpdt + offset_max, minmax.second);
+                    f(wpdt, offset_min, minmax.first);
+                    f(wpdt, offset_max, minmax.second);
                 }
                 else
-                    f(wpdt + offset_min, Values[i]);
+                    f(wpdt, offset_min, Values[i]);
                 break;
 
             default:

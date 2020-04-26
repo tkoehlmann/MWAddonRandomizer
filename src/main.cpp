@@ -35,13 +35,6 @@ int main(int argc, char **argv)
     settings.AlchemyEffects     = ShuffleType::Shuffled_Same;
     settings.UpdateAffectedRecords();
 
-    int8_t intelligence_id;
-    std::string strength_str;
-    Attributes::GetID("Intelligence", &intelligence_id);
-    Attributes::GetID(0, strength_str);
-    printf("Intelligence: %d\n", intelligence_id);
-    printf("ID 0: %s\n", strength_str.c_str());
-
     auto start                   = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
     for (auto file : files)
@@ -98,8 +91,8 @@ int main(int argc, char **argv)
     std::vector<Record *> records_to_write;
     // Care must be taken that two different randomize functions can't modify the same records!
     std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
-    auto magic_effects                   = ReadMagicEffects(file_records["MGEF"]);
-    Randomizer::RandomizeAlchemy(file_records["INGR"], settings, magic_effects);
+    std::unique_ptr<std::unordered_map<int32_t, Record *>> magic_effects = ReadMagicEffects(file_records["MGEF"]);
+    // Randomizer::RandomizeAlchemy(file_records["INGR"], settings, magic_effects);
 
     for (auto wrec :
          weapon_records) // TODO: the same for other randomizers - maybe abstract this in the future, maybe not

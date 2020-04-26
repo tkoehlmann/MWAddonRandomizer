@@ -22,48 +22,53 @@ Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, siz
 
     m_id   = subrecord_id;
     m_type = type;
+    if (m_type != RecordDataType::String)
+        m_data_size = io::read_dword(f, bytes_read); // Subrecord length, reading
+
 
     switch (m_type)
     {
         case RecordDataType::Data:
-            s           = io::read_dword(f, bytes_read);
-            m_data      = (uint8_t *)malloc(s);
-            m_data_size = s;
-            if (!fread(m_data, 1, s, f))
+            // s           = io::read_dword(f, bytes_read);
+            // m_data_size = s;
+            m_data      = std::make_unique<uint8_t[]>(m_data_size);
+            if (!fread(m_data.get(), 1, m_data_size, f))
                 throw "Error in Subrecord::Subrecord";
-            *bytes_read += s;
+            *bytes_read += m_data_size;
             break;
         case RecordDataType::Float:
-            m_data           = (uint8_t *)malloc(sizeof(float));
-            m_data_size      = sizeof(float);
-            *(float *)m_data = io::read_float(f, bytes_read);
+            //m_data_size            = sizeof(float);
+            m_data                 = std::make_unique<uint8_t[]>(m_data_size);
+            *(float *)m_data.get() = io::read_float(f, bytes_read);
             break;
         case RecordDataType::Int8:
-            m_data            = (uint8_t *)malloc(sizeof(int8_t));
-            m_data_size       = sizeof(uint8_t);
-            *(int8_t *)m_data = io::read_byte(f, bytes_read);
+            //m_data_size             = sizeof(uint8_t);
+            m_data                  = std::make_unique<uint8_t[]>(m_data_size);
+            *(int8_t *)m_data.get() = io::read_byte(f, bytes_read);
             break;
         case RecordDataType::Int16:
-            m_data             = (uint8_t *)malloc(sizeof(int16_t));
-            m_data_size        = sizeof(uint16_t);
-            *(int16_t *)m_data = io::read_word(f, bytes_read);
+            //m_data_size              = sizeof(uint16_t);
+            m_data                   = std::make_unique<uint8_t[]>(m_data_size);
+            *(int16_t *)m_data.get() = io::read_word(f, bytes_read);
             break;
         case RecordDataType::Int32:
-            m_data             = (uint8_t *)malloc(sizeof(int32_t));
-            m_data_size        = sizeof(int32_t);
-            *(int32_t *)m_data = io::read_dword(f, bytes_read);
+            //m_data_size              = sizeof(int32_t);
+            m_data                   = std::make_unique<uint8_t[]>(m_data_size);
+            *(int32_t *)m_data.get() = io::read_dword(f, bytes_read);
             break;
         case RecordDataType::Int64:
-            m_data                   = (uint8_t *)malloc(2 * sizeof(int32_t));
-            m_data_size              = 2 * sizeof(int32_t);
-            *(int32_t *)m_data       = io::read_dword(f, bytes_read);
-            *((int32_t *)m_data + 1) = io::read_dword(f, bytes_read);
+            //m_data_size                    = 2 * sizeof(int32_t);
+            m_data                         = std::make_unique<uint8_t[]>(m_data_size);
+            *(int32_t *)m_data.get()       = io::read_dword(f, bytes_read);
+            *((int32_t *)m_data.get() + 1) = io::read_dword(f, bytes_read);
             break;
         case RecordDataType::String:
             str         = io::read_string(f, bytes_read);
-            m_data      = (uint8_t *)calloc(str.length() + 1, sizeof(char));
             m_data_size = str.length() + 1;
-            strcpy((char *)m_data, str.c_str());
+            m_data = std::make_unique<uint8_t[]>(m_data_size);
+            for (int i = 0; i < m_data_size; ++i)
+                m_data.get()[i] = '\0';
+            strcpy((char *)m_data.get(), str.c_str());
             break;
         default:
             break;
@@ -75,8 +80,8 @@ Subrecord::Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes)
     m_id        = subrecord_id;
     m_type      = RecordDataType::Data;
     m_data_size = len_bytes;
-    m_data      = (uint8_t *)malloc(m_data_size);
-    memcpy(m_data, data, m_data_size);
+    m_data      = std::make_unique<uint8_t[]>(m_data_size);
+    memcpy(m_data.get(), data, m_data_size);
 }
 
 Subrecord::Subrecord(Subrecord *sr)
@@ -86,8 +91,8 @@ Subrecord::Subrecord(Subrecord *sr)
     m_id        = sr->GetID();
     m_type      = sr->GetType();
     m_data_size = sr->GetDataSize();
-    m_data      = (uint8_t *)malloc(m_data_size);
-    memcpy(m_data, sr->GetData(), m_data_size);
+    m_data      = std::make_unique<uint8_t[]>(m_data_size);
+    memcpy(m_data.get(), sr->GetData().get(), m_data_size);
 }
 
 Subrecord::Subrecord(std::string subrecord_id, std::string s)
@@ -96,25 +101,19 @@ Subrecord::Subrecord(std::string subrecord_id, std::string s)
     //     printf("Constructor of 0x%" PRIxPTR "\n",(intptr_t)this);
     m_id        = subrecord_id;
     m_type      = RecordDataType::String;
-    m_data      = (uint8_t *)calloc(s.length() + 1, sizeof(char));
     m_data_size = s.length() + 1;
-    strcpy((char *)m_data, s.c_str());
-}
-
-Subrecord::~Subrecord()
-{
-    // if (m_id == TARGET)
-    //     printf("Destructor of 0x%" PRIxPTR "\n", (intptr_t)this);
-    free(m_data);
+    m_data      = std::make_unique<uint8_t[]>(m_data_size);
+    for (int i = 0; i < m_data_size; ++i)
+        m_data.get()[i] = '\0';
+    strcpy((char *)m_data.get(), s.c_str());
 }
 
 Subrecord::Subrecord(const Subrecord &other) : m_id(other.m_id), m_type(other.m_type), m_data_size(other.m_data_size)
 {
     // if (m_id == TARGET)
     //     printf("Copy-constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&other, (intptr_t) this);
-    uint8_t *data = (uint8_t *)malloc(m_data_size);
-    memcpy(data, other.m_data, m_data_size);
-    m_data = data;
+    m_data = std::make_unique<uint8_t[]>(m_data_size);
+    memcpy(m_data.get(), other.m_data.get(), m_data_size);
 }
 
 Subrecord &Subrecord::operator=(const Subrecord rhs)
@@ -124,7 +123,7 @@ Subrecord &Subrecord::operator=(const Subrecord rhs)
     m_id        = rhs.m_id;
     m_type      = rhs.m_type;
     m_data_size = rhs.m_data_size;
-    m_data      = rhs.m_data;
+    m_data      = std::make_unique<uint8_t[]>(m_data_size);
 
     return *this;
 }
@@ -139,16 +138,17 @@ RecordDataType Subrecord::GetType()
     return m_type;
 }
 
-uint8_t *Subrecord::GetData()
+std::unique_ptr<uint8_t[]> Subrecord::GetData()
 {
-    return m_data;
+    auto result = std::make_unique<uint8_t[]>(m_data_size);
+    memcpy(result.get(), m_data.get(), m_data_size);
+    return result;
 }
 
-void Subrecord::SetData(uint8_t *data, size_t bytes)
+void Subrecord::SetData(std::unique_ptr<uint8_t[]> data, size_t bytes)
 {
-    if (bytes != m_data_size)
-        auto ptr = realloc(m_data, bytes);
-    memcpy(m_data, data, bytes);
+    m_data_size = bytes;
+    m_data      = std::move(data);
 }
 
 size_t Subrecord::GetDataSize()
@@ -169,7 +169,7 @@ void Subrecord::WriteSubrecord(uint8_t *buf, size_t *remaining_bytes)
 
     io::write_bytes(buf + 0, (uint8_t *)GetID().c_str(), 4);
     io::write_dword(buf + 4, m_data_size);
-    io::write_bytes(buf + 8, m_data, m_data_size);
+    io::write_bytes(buf + 8, m_data.get(), m_data_size);
 
     *remaining_bytes -= sz;
 }
@@ -207,7 +207,7 @@ std::string Record::GetName()
     if (HasSubrecord("NAME"))
     {
         auto srs = GetSubrecords("NAME");
-        return std::string((char *)srs[0]->GetData());
+        return std::string((char *)srs[0]->GetData().get());
     }
 
     return "";
@@ -217,7 +217,7 @@ std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
 {
     std::vector<std::unique_ptr<Subrecord>> result;
     for (std::unique_ptr<Subrecord> &sr : m_subrecords)
-        if (sr->GetID() == srid)
+        if (sr->GetID() == srid || srid == "*")
             result.push_back(std::make_unique<Subrecord>(new Subrecord(*sr)));
     return result;
 }

@@ -82,14 +82,17 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
             continue;
 
         std::vector<std::unique_ptr<Subrecord>> wpdt_srs = records[i]->GetSubrecords("WPDT");
-        uint8_t *wpdt                                    = wpdt_srs[0]->GetData();
+        auto wpdt                                        = wpdt_srs[0]->GetData();
 
-        uint16_t type     = io::read_word(wpdt + offset_type);
-        float weight      = io::read_float(wpdt + offset_weight);
-        int32_t value     = io::read_dword(wpdt + offset_value);
-        int16_t health    = io::read_dword(wpdt + offset_health);
-        float speed       = io::read_float(wpdt + offset_speed);
-        int16_t enchant   = io::read_word(wpdt + offset_enchant);
+        // for (int asd = 0; asd < 32; ++asd)
+        //     printf("wpdt%2d: 0x%" PRIxPTR "\n", asd, (long unsigned int)wpdt[asd]);
+
+        uint16_t type     = io::read_word(wpdt, offset_type);
+        float weight      = io::read_float(wpdt, offset_weight);
+        int32_t value     = io::read_dword(wpdt, offset_value);
+        int16_t health    = io::read_dword(wpdt, offset_health);
+        float speed       = io::read_float(wpdt, offset_speed);
+        int16_t enchant   = io::read_word(wpdt, offset_enchant);
         int8_t chop_min   = wpdt[offset_chop_min];
         int8_t chop_max   = wpdt[offset_chop_max];
         int8_t slash_min  = wpdt[offset_slash_min];
@@ -108,7 +111,7 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
         weapons[type]->damage_slash.Set(chop_max);
         weapons[type]->damage_thrust.Set(chop_min);
         weapons[type]->damage_thrust.Set(chop_max);
-        weapons[type]->resistance.Set(io::read_dword(wpdt + offset_resistance_flag));
+        weapons[type]->resistance.Set(io::read_dword(wpdt, offset_resistance_flag));
         weapons[type]->model_values.push_back(Weapons::AdditionalData(records[i]));
         weapons[type]->records.push_back(records[i]);
     }
@@ -137,7 +140,7 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
         {
             Record *weap                                     = weapon_type->records[i];
             std::vector<std::unique_ptr<Subrecord>> wpdt_srs = weap->GetSubrecords("WPDT");
-            uint8_t *wpdt                                    = wpdt_srs[0]->GetData();
+            auto wpdt                                        = wpdt_srs[0]->GetData();
 
             weapon_type->weight.Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt,
                                           io::write_float);
@@ -159,7 +162,7 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
                                                  offset_thrust_max, wpdt, io::write_byte, 127);
 
             weap->ClearSubrecords({ "WPDT" });
-            wpdt_srs[0]->SetData(wpdt, wpdt_srs[0]->GetDataSize());
+            wpdt_srs[0]->SetData(std::move(wpdt), wpdt_srs[0]->GetDataSize());
             weap->AddSubrecord(std::move(wpdt_srs[0]));
 
             if (settings.WeaponsModels != ShuffleType::None)

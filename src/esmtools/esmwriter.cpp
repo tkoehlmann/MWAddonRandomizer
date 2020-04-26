@@ -16,7 +16,7 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records,
     // Write TES3 record
     {
         Record tes3 = Record("TES3");
-        uint8_t *tes3_data;
+        //uint8_t *tes3_data;
         size_t tes3_size;
         uint8_t HEDR[300] = {};
 
@@ -32,7 +32,7 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records,
 
         tes3_size        = tes3.GetRecordSize();
         size_t remaining = tes3_size;
-        tes3_data        = (uint8_t *)malloc(tes3_size);
+        uint8_t tes3_data[tes3_size];
         tes3.WriteRecord(tes3_data, &remaining);
         fwrite(tes3_data, 1, tes3_size, f);
     }
@@ -41,7 +41,7 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records,
     for (Record *r : records)
     {
         size_t sz        = r->GetRecordSize();
-        uint8_t *data    = (uint8_t *)malloc(sz);
+        uint8_t data[sz];
         size_t remaining = sz;
         r->WriteRecord(data, &remaining);
         fwrite(data, 1, sz, f);
