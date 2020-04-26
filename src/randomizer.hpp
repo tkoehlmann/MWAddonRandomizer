@@ -1,5 +1,7 @@
 #include "records.hpp"
 #include "settings.hpp"
+#include "globals/magiceffects.hpp"
+#include "globals/skills.hpp"
 
 #include <vector>
 
@@ -23,5 +25,5 @@ struct MaxWeaponValues
 std::vector<Record *> RandomizeWeapons(std::vector<Record *> records, Settings &settings,
                                        MaxWeaponValues &maxweaponvalues);
 std::vector<Record *> RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
-                                       std::unique_ptr<std::unordered_map<int32_t, Record *>> &magic_effects);
+                                       std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills);
 } // namespace Randomizer

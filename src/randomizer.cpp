@@ -183,9 +183,9 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
     return result;
 }
 
-std::vector<Record *>
-    Randomizer::RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
-                                 std::unique_ptr<std::unordered_map<int32_t, Record *>> &magic_effects)
+std::vector<Record *> Randomizer::RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
+                                                   std::vector<Magic::Effect> &magic_effects,
+                                                   std::vector<Skills::Skill> &skills)
 {
-    return Alchemy::RandomizeAlchemy(records, settings, magic_effects);
+    return Alchemy::Randomize(records, settings, magic_effects, skills);
 }

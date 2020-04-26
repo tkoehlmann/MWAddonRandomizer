@@ -7,7 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
-enum class MagicSchool
+namespace Magic
+{
+
+enum class School
 {
     Alteration  = 0,
     Conjuration = 1,
@@ -17,6 +20,21 @@ enum class MagicSchool
     Restoration = 5
 };
 
-std::unique_ptr<std::unordered_map<int32_t, Record*>> ReadMagicEffects(std::vector<Record *> records);
+struct Effect
+{
+    int32_t id;
+    bool affects_skill;
+    bool affects_attribute;
+    School school;
+    float basecost;
+    bool spellmaking;
+    bool enchanting;
+    bool negative; // ?
+    // Use other stuff?
+    Record *record;
+};
+
+std::vector<Effect> ReadEffects(std::vector<Record *> records);
+} // namespace Magic
 
 #endif /* __MAGICEFFECTS_HPP */

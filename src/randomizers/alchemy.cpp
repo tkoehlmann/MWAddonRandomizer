@@ -44,7 +44,7 @@ Alchemy::EffectData effect(uint8_t *irdt, size_t id)
 void effect(uint8_t *irdt, size_t id, Alchemy::EffectData &data)
 {
     io::write_dword(irdt + 8 + id * 4, data.effect_id);
-    io::write_dword(irdt + 24 + id * 4, data.skill);
+    io::write_dword(irdt + 24 + id * 4, data.skill_id);
     io::write_dword(irdt + 40 + id * 4, data.attrib_id);
 }
 
@@ -82,10 +82,12 @@ void minmax(T &min, T &max)
         std::swap(min, max);
 }
 
-std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
-                                                std::unique_ptr<std::unordered_map<int32_t, Record *>> &magic_effects)
+
+std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings &settings,
+                                         std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills)
 {
-    std::set<int32_t> available_effect_ids;
+    std::set<int32_t> available_effect_ids_set;
+    std::set<int32_t> available_skill_ids_set;
     std::vector<float> ingredient_weights;
     float weight_min = FLT_MAX, weight_max = FLT_MIN;
     std::vector<int32_t> ingredient_values;
@@ -96,7 +98,6 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
     // Step 1: Collect data
     for (Record *r : records)
     {
-        printf("ID: %s:\n", r->GetName().c_str());
         std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords("IRDT");
         uint8_t *irdt                               = srs[0]->GetData().get();
 
@@ -119,12 +120,16 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
         {
             if (effect.effect_id >= 0) // don't store empty fields
             {
-                available_effect_ids.insert(effect.effect_id);
+                available_effect_ids_set.insert(effect.effect_id);
+                if (effect.skill_id >= 0)
+                    available_skill_ids_set.insert(effect.skill_id);
                 ingredient_effects.push_back(effect);
             }
         }
         ingredient_effect_count.push_back(ingr_effects[0].effect_count); // index doesn't matter
     }
+    std::vector<int32_t> available_effect_ids(available_effect_ids_set.begin(), available_effect_ids_set.end());
+    std::vector<int32_t> available_skill_ids(available_skill_ids_set.begin(), available_skill_ids_set.end());
 
     // Step 2: Shuffle
     if (settings.AlchemyWeight != ShuffleType::None)
@@ -222,16 +227,14 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
                     size_t effect_count = settings.GetNext(4) + 1;
                     for (size_t n = 0; n < effect_count; ++n)
                     {
-                        uint32_t eid = settings.GetNext((int)available_effect_ids.size() + 1);
-                        std::set<int32_t>::iterator setit = available_effect_ids.begin();
-                        std::advance(setit, eid);
-                        eid = *setit;
-                        uint32_t aid = 0;
-                        // TODO: This is nice and all, but there's also the option of Drain Skill etc. which also have their IDs.
-                        if (eid == 17 || eid == 22 || eid == 74 || eid == 79)
+                        uint32_t eid = available_effect_ids[settings.GetNext((int)available_effect_ids.size())];
+                        uint32_t aid = 0, sid = 0;
+                        if (magic_effects[eid].affects_attribute)
                             aid = settings.GetNext((int)Attributes::Attributes.size());
+                        if (magic_effects[eid].affects_skill)
+                            sid = available_skill_ids[settings.GetNext((int)available_skill_ids.size())];
 
-                        Alchemy::EffectData e(eid, 0, aid, effect_count);
+                        Alchemy::EffectData e(eid, sid, aid, effect_count);
 
                         effect(irdt, n, *effect_it);
                         effect_it++;
@@ -245,13 +248,15 @@ std::vector<Record *> Alchemy::RandomizeAlchemy(std::vector<Record *> records, S
                     size_t effect_count = settings.GetNext(4) + 1;
                     for (size_t n = 0; n < effect_count; ++n)
                     {
-                        auto srs     = magic_effects->at(settings.GetNext((int)magic_effects->size() + 1))->GetSubrecords("INDX");
-                        int32_t eid = *(int32_t*)srs[0]->GetData().get();
-                        uint32_t aid = 0;
-                        if (eid == 17 || eid == 22 || eid == 74 || eid == 79)
+                        size_t pos = settings.GetNext((int)magic_effects.size());
+                        int32_t eid   = magic_effects[pos].id;
+                        uint32_t aid = 0, sid = 0;
+                        if (magic_effects[eid].affects_attribute)
                             aid = settings.GetNext((int)Attributes::Attributes.size());
+                        if (magic_effects[eid].affects_skill)
+                            sid = skills[settings.GetNext((int)skills.size())].id;
 
-                        Alchemy::EffectData e(eid, 0, aid, effect_count);
+                        Alchemy::EffectData e(eid, sid, aid, effect_count);
 
                         effect(irdt, n, *effect_it);
                         effect_it++;
