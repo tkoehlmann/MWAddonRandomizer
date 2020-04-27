@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     settings.WeaponsDamage      = ShuffleType::Shuffled_Same;
     settings.WeaponsResistance  = ShuffleType::Shuffled_Same;
     settings.WeaponsModels      = ShuffleType::Random;
-    settings.AlchemyEffects     = ShuffleType::Shuffled_Same;
+    settings.AlchemyEffects     = ShuffleType::Random_Chaos;
     settings.UpdateAffectedRecords();
 
     auto start                   = std::chrono::high_resolution_clock::now();

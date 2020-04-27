@@ -201,6 +201,12 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                     effect(irdt_data, n, *effect_it);
                     effect_it++;
                 }
+                for (size_t n = ingredient_effect_count[i]; n < 4; ++n)
+                {
+                    // Clear remaining fields of their data
+                    EffectData d(-1, 0, 0, ingredient_effect_count[i]);
+                    effect(irdt_data, n, d);
+                }
                 break;
 
             case ShuffleType::Shuffled_Different:
@@ -218,6 +224,12 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                     effect(irdt_data, n, *effect_it);
                     effect_it++;
                     --effect_count_sum;
+                }
+                for (size_t n = effect_count; n < 4; ++n)
+                {
+                    // Clear remaining fields of their data
+                    EffectData d(-1, 0, 0, effect_count);
+                    effect(irdt_data, n, d);
                 }
             }
             break;
@@ -240,6 +252,12 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                         effect_it++;
                         --effect_count_sum;
                     }
+                    for (size_t n = effect_count; n < 4; ++n)
+                    {
+                        // Clear remaining fields of their data
+                        EffectData d(-1, 0, 0, effect_count);
+                        effect(irdt_data, n, d);
+                    }
                 }
                 break;
 
@@ -261,6 +279,12 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                         effect(irdt_data, n, *effect_it);
                         effect_it++;
                         --effect_count_sum;
+                    }
+                    for (size_t n = effect_count; n < 4; ++n)
+                    {
+                        // Clear remaining fields of their data
+                        EffectData d(-1, 0, 0, effect_count);
+                        effect(irdt_data, n, d);
                     }
                 }
                 break;
