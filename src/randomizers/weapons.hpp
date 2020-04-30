@@ -13,6 +13,9 @@
 
 namespace Weapons
 {
+bool prevent_shuffle(Record &rec);
+std::vector<Record *> Randomize(std::vector<Record *> records, Settings &settings);
+
 struct AdditionalData
 {
     public:
@@ -162,8 +165,6 @@ struct WeaponData
     WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values);
     void Shuffle(Settings &settings);
 };
-
-bool prevent_shuffle(Record &rec);
 
 } // namespace Weapons
 
