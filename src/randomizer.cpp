@@ -1,5 +1,6 @@
 #include "randomizer.hpp"
 
+#include "globals/globals.hpp"
 #include "iohelpers.hpp"
 #include "randomizers/alchemy.hpp"
 #include "randomizers/weapons.hpp"
@@ -19,12 +20,13 @@
  */
 std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records, Settings &settings)
 {
-    const size_t offset_weight          = 0;  // float
-    const size_t offset_value           = 4;  // long
-    const size_t offset_type            = 8;  // short
-    const size_t offset_health          = 10; // short
-    const size_t offset_speed           = 12; // float
-    const size_t offset_reach           = 16; // float
+    const size_t offset_weight = 0;  // float
+    const size_t offset_value  = 4;  // long
+    const size_t offset_type   = 8;  // short
+    const size_t offset_health = 10; // short
+    const size_t offset_speed  = 12; // float
+    const size_t offset_reach  = 16; // float
+    UNUSED(offset_reach);
     const size_t offset_enchant         = 20; // short
     const size_t offset_chop_min        = 22; // byte
     const size_t offset_chop_max        = 23; // byte

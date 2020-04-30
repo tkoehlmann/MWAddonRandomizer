@@ -1,6 +1,7 @@
 #include "esmtools/esmloader.hpp"
 #include "esmtools/esmwriter.hpp"
 #include "globals/attributes.hpp"
+#include "globals/globals.hpp"
 #include "globals/magiceffects.hpp"
 #include "globals/skills.hpp"
 #include "randomizer.hpp"
@@ -14,6 +15,9 @@
 
 int main(int argc, char **argv)
 {
+    UNUSED(argc);
+    UNUSED(argv);
+
     std::vector<std::string> files = {
         "Morrowind.esm",
         "Tribunal.esm",
