@@ -9,7 +9,6 @@
 
 namespace Magic
 {
-
 enum class School
 {
     Alteration  = 0,

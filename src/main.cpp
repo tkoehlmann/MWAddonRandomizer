@@ -14,10 +14,10 @@
 
 int main(int argc, char **argv)
 {
-    std::vector<std::pair<std::string, Randomizer::MaxWeaponValues>> files = {
-        { "Morrowind.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000) },
-        { "Tribunal.esm", Randomizer::MaxWeaponValues(20000, 50000, 20000, 20000) },
-        { "Bloodmoon.esm", Randomizer::MaxWeaponValues(20000, 20000, 20000, 20000) },
+    std::vector<std::string> files = {
+        "Morrowind.esm",
+        "Tribunal.esm",
+        "Bloodmoon.esm",
     };
     std::vector<std::pair<std::string, size_t>> master_files_sizes;
     std::unordered_map<std::string, std::vector<Record *>> file_records;
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     settings.MasterDataFilesDir = "";
     settings.PluginOutputDir    = "/mnt/ramdisk";
     settings.WeaponsWeight      = ShuffleType::Random;
-    settings.WeaponsValue       = ShuffleType::Shuffled_Same;
+    settings.WeaponsValue       = ShuffleType::Random;
     settings.WeaponsHealth      = ShuffleType::Random;
     settings.WeaponsSpeed       = ShuffleType::Random;
     settings.WeaponsEnchantPts  = ShuffleType::Random;
@@ -38,11 +38,8 @@ int main(int argc, char **argv)
 
     auto start                   = std::chrono::high_resolution_clock::now();
     size_t total_file_size_bytes = 0;
-    for (auto file : files)
+    for (std::string fname : files)
     {
-        std::string fname                         = file.first;
-        Randomizer::MaxWeaponValues weapon_values = file.second;
-
         size_t fsize;
         std::unordered_map<std::string, std::vector<Record *>> *res =
             ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
@@ -88,11 +85,10 @@ int main(int argc, char **argv)
         }
     }
 
-    Randomizer::MaxWeaponValues weapon_values(20000, 20000, 20000, 20000);
     std::vector<Record *> records_to_write;
 
     // Care must be taken that two different randomize functions can't modify the same records!
-    std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings, weapon_values);
+    std::vector<Record *> weapon_records = Randomizer::RandomizeWeapons(file_records["WEAP"], settings);
 
     std::vector<Magic::Effect> magic_effects = Magic::ReadEffects(file_records["MGEF"]);
     std::vector<Skills::Skill> skills        = Skills::Get(file_records["SKIL"]);

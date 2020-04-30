@@ -31,7 +31,7 @@ Alchemy::EffectData effect(std::unique_ptr<uint8_t[]> &irdt, size_t id)
 {
     int32_t e, s, a;
     size_t c;
-    e = io::read_dword(irdt,  8 + id * 4);
+    e = io::read_dword(irdt, 8 + id * 4);
     s = io::read_dword(irdt, 24 + id * 4);
     a = io::read_dword(irdt, 40 + id * 4);
     c = 0;
@@ -43,7 +43,7 @@ Alchemy::EffectData effect(std::unique_ptr<uint8_t[]> &irdt, size_t id)
 }
 void effect(std::unique_ptr<uint8_t[]> &irdt, size_t id, Alchemy::EffectData &data)
 {
-    io::write_dword(irdt, data.effect_id,  8 + id * 4);
+    io::write_dword(irdt, data.effect_id, 8 + id * 4);
     io::write_dword(irdt, data.skill_id, 24 + id * 4);
     io::write_dword(irdt, data.attrib_id, 40 + id * 4);
 }
@@ -51,8 +51,7 @@ void effect(std::unique_ptr<uint8_t[]> &irdt, size_t id, Alchemy::EffectData &da
 template<typename T>
 double mean(std::vector<T> *vs)
 {
-    int64_t sum    = 0;
-    size_t ignored = 0;
+    int64_t sum = 0;
     for (T n : *vs)
         sum += n * 1000;
     return (double)((sum / 1000.0d) / (double)vs->size());
@@ -60,7 +59,7 @@ double mean(std::vector<T> *vs)
 
 template<typename T>
 double std_deviation(int64_t mean, std::vector<T> *vs)
- {
+{
     double standardDeviation = 0;
     for (int64_t v : *vs)
         standardDeviation += std::pow(v - mean, 2);
@@ -148,7 +147,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                         0); // Necessary so we don't allocate too many effects so that each ingredient can get at least
                             // one effect (shuffle different and chaos options)
 
-    for (int i = 0; i < records.size(); ++i)
+    for (size_t i = 0; i < records.size(); ++i)
     {
         std::unique_ptr<Subrecord> irdt = std::move(records[i]->GetSubrecords("IRDT")[0]);
         auto irdt_data                  = irdt->GetData();
@@ -235,59 +234,59 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
             break;
 
             case ShuffleType::Random:
+            {
+                size_t effect_count = settings.GetNext(4) + 1;
+                for (size_t n = 0; n < effect_count; ++n)
                 {
-                    size_t effect_count = settings.GetNext(4) + 1;
-                    for (size_t n = 0; n < effect_count; ++n)
-                    {
-                        uint32_t eid = available_effect_ids[settings.GetNext((int)available_effect_ids.size())];
-                        uint32_t aid = 0, sid = 0;
-                        if (magic_effects[eid].affects_attribute)
-                            aid = settings.GetNext((int)Attributes::Attributes.size());
-                        if (magic_effects[eid].affects_skill)
-                            sid = available_skill_ids[settings.GetNext((int)available_skill_ids.size())];
+                    uint32_t eid = available_effect_ids[settings.GetNext((int)available_effect_ids.size())];
+                    uint32_t aid = 0, sid = 0;
+                    if (magic_effects[eid].affects_attribute)
+                        aid = settings.GetNext((int)Attributes::Attributes.size());
+                    if (magic_effects[eid].affects_skill)
+                        sid = available_skill_ids[settings.GetNext((int)available_skill_ids.size())];
 
-                        Alchemy::EffectData e(eid, sid, aid, effect_count);
+                    Alchemy::EffectData e(eid, sid, aid, effect_count);
 
-                        effect(irdt_data, n, *effect_it);
-                        effect_it++;
-                        --effect_count_sum;
-                    }
-                    for (size_t n = effect_count; n < 4; ++n)
-                    {
-                        // Clear remaining fields of their data
-                        EffectData d(-1, 0, 0, effect_count);
-                        effect(irdt_data, n, d);
-                    }
+                    effect(irdt_data, n, *effect_it);
+                    effect_it++;
+                    --effect_count_sum;
                 }
-                break;
+                for (size_t n = effect_count; n < 4; ++n)
+                {
+                    // Clear remaining fields of their data
+                    EffectData d(-1, 0, 0, effect_count);
+                    effect(irdt_data, n, d);
+                }
+            }
+            break;
 
             case ShuffleType::Random_Chaos:
+            {
+                size_t effect_count = settings.GetNext(4) + 1;
+                for (size_t n = 0; n < effect_count; ++n)
                 {
-                    size_t effect_count = settings.GetNext(4) + 1;
-                    for (size_t n = 0; n < effect_count; ++n)
-                    {
-                        size_t pos = settings.GetNext((int)magic_effects.size());
-                        int32_t eid   = magic_effects[pos].id;
-                        uint32_t aid = 0, sid = 0;
-                        if (magic_effects[eid].affects_attribute)
-                            aid = settings.GetNext((int)Attributes::Attributes.size());
-                        if (magic_effects[eid].affects_skill)
-                            sid = skills[settings.GetNext((int)skills.size())].id;
+                    size_t pos   = settings.GetNext((int)magic_effects.size());
+                    int32_t eid  = magic_effects[pos].id;
+                    uint32_t aid = 0, sid = 0;
+                    if (magic_effects[eid].affects_attribute)
+                        aid = settings.GetNext((int)Attributes::Attributes.size());
+                    if (magic_effects[eid].affects_skill)
+                        sid = skills[settings.GetNext((int)skills.size())].id;
 
-                        Alchemy::EffectData e(eid, sid, aid, effect_count);
+                    Alchemy::EffectData e(eid, sid, aid, effect_count);
 
-                        effect(irdt_data, n, *effect_it);
-                        effect_it++;
-                        --effect_count_sum;
-                    }
-                    for (size_t n = effect_count; n < 4; ++n)
-                    {
-                        // Clear remaining fields of their data
-                        EffectData d(-1, 0, 0, effect_count);
-                        effect(irdt_data, n, d);
-                    }
+                    effect(irdt_data, n, *effect_it);
+                    effect_it++;
+                    --effect_count_sum;
                 }
-                break;
+                for (size_t n = effect_count; n < 4; ++n)
+                {
+                    // Clear remaining fields of their data
+                    EffectData d(-1, 0, 0, effect_count);
+                    effect(irdt_data, n, d);
+                }
+            }
+            break;
 
             case ShuffleType::None:
                 break;

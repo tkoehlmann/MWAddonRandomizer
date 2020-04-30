@@ -1,14 +1,14 @@
 #ifndef __SKILLS_HPP
 #define __SKILLS_HPP
 
-#include <vector>
+#include "../records.hpp"
+
 #include <cstdint>
 #include <memory>
-#include "../records.hpp"
+#include <vector>
 
 namespace Skills
 {
-
 struct Skill
 {
     int32_t id;
@@ -17,8 +17,8 @@ struct Skill
     Record *record;
 };
 
-std::vector<Skill> Get(std::vector<Record*> records);
+std::vector<Skill> Get(std::vector<Record *> records);
 
-}
+} // namespace Skills
 
 #endif /* __SKILLS_HPP */

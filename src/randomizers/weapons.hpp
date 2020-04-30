@@ -64,35 +64,25 @@ struct MinMaxData
 
     void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i,
                    const size_t offset_min, const size_t offset_max, std::unique_ptr<uint8_t[]> &wpdt,
-                   void (*f)(std::unique_ptr<uint8_t[]> &, T, size_t), T ignore_numbers_higher_than = 20001)
+                   void (*f)(std::unique_ptr<uint8_t[]> &, T, size_t))
     {
         bool use_global = is_weapon && GlobalMin != nullptr && GlobalMax != nullptr;
         std::pair<int8_t, int8_t> minmax;
 
-        auto get_mean = [ignore_numbers_higher_than](std::vector<T> *vs) -> T {
-            int64_t sum    = 0;
-            size_t ignored = 0;
+        auto get_mean = [](std::vector<T> *vs) -> T {
+            int64_t sum = 0;
             for (T n : *vs)
-            {
-                if (n > ignore_numbers_higher_than)
-                    ignored++;
-                else
-                    sum += n * 1000;
-            }
-            return (double)((sum / 1000.0d) / (double)(vs->size() - ignored));
+                sum += n * 1000;
+            return (double)((sum / 1000.0d) / (double)vs->size());
         };
 
         double mean = get_mean(use_global ? GlobalValues : &Values);
 
-        auto get_std_deviation = [ignore_numbers_higher_than](int64_t mean, std::vector<T> *vs) {
+        auto get_std_deviation = [](int64_t mean, std::vector<T> *vs) {
             double standardDeviation = 0;
-            size_t ignored           = 0;
             for (int64_t v : *vs)
-                if (v > ignore_numbers_higher_than)
-                    ignored++;
-                else
-                    standardDeviation += std::pow(v - mean, 2);
-            return std::sqrt(standardDeviation / (vs->size() - ignored));
+                standardDeviation += std::pow(v - mean, 2);
+            return std::sqrt(standardDeviation / vs->size());
         };
         double std_deviation = get_std_deviation(mean, use_global ? GlobalValues : &Values);
 

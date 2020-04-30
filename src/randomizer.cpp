@@ -1,8 +1,8 @@
 #include "randomizer.hpp"
 
 #include "iohelpers.hpp"
-#include "randomizers/weapons.hpp"
 #include "randomizers/alchemy.hpp"
+#include "randomizers/weapons.hpp"
 
 #include <algorithm>
 #include <cfloat>
@@ -17,8 +17,7 @@
  *   animation and the bolt/arrow is fired as if by some psychic force. Pretty funny. Not sure if this
  *   needs to be changed or will stay in for the memes.
  */
-std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records, Settings &settings,
-                                                   MaxWeaponValues &maxweaponvalues)
+std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records, Settings &settings)
 {
     const size_t offset_weight          = 0;  // float
     const size_t offset_value           = 4;  // long
@@ -76,7 +75,7 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
                                                                     { type_Bolt, &ammo } };
 
     // Step 1: Fill min/max and value fields
-    for (int i = 0; i < records.size(); ++i)
+    for (size_t i = 0; i < records.size(); ++i)
     {
         if (Weapons::prevent_shuffle(*records[i]))
             continue;
@@ -107,10 +106,10 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
         weapons[type]->enchant.Set(enchant);
         weapons[type]->damage_chop.Set(chop_min);
         weapons[type]->damage_chop.Set(chop_max);
-        weapons[type]->damage_slash.Set(chop_min);
-        weapons[type]->damage_slash.Set(chop_max);
-        weapons[type]->damage_thrust.Set(chop_min);
-        weapons[type]->damage_thrust.Set(chop_max);
+        weapons[type]->damage_slash.Set(slash_min);
+        weapons[type]->damage_slash.Set(slash_max);
+        weapons[type]->damage_thrust.Set(thrust_min);
+        weapons[type]->damage_thrust.Set(thrust_max);
         weapons[type]->resistance.Set(io::read_dword(wpdt, offset_resistance_flag));
         weapons[type]->model_values.push_back(Weapons::AdditionalData(records[i]));
         weapons[type]->records.push_back(records[i]);
@@ -124,17 +123,16 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
 
     // Step 3: iteate over all records and put in shuffled values instead
 
-    std::vector<std::pair<Weapons::WeaponData *, int32_t>> weapon_type_values = {
-        { &melee, maxweaponvalues.melee },
-        { &bows, maxweaponvalues.bows },
-        { &thrown, maxweaponvalues.thrown },
-        { &ammo, maxweaponvalues.ammo },
+    std::vector<Weapons::WeaponData *> weapon_type_values = {
+        &melee,
+        &bows,
+        &thrown,
+        &ammo,
     };
 
     for (auto wtvs : weapon_type_values)
     {
-        Weapons::WeaponData *weapon_type = wtvs.first;
-        int32_t weapon_value             = wtvs.second;
+        Weapons::WeaponData *weapon_type = wtvs;
 
         for (size_t i = 0; i < weapon_type->records.size(); i++)
         {
@@ -144,8 +142,21 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
 
             weapon_type->weight.Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt,
                                           io::write_float);
-            weapon_type->value.Randomize(false, settings, settings.WeaponsValue, i, offset_value, 0, wpdt,
-                                         io::write_dword, weapon_value);
+            switch (settings.WeaponsValue)
+            {
+                case ShuffleType::None:
+                    break;
+
+                case ShuffleType::Random:
+                case ShuffleType::Random_Chaos:
+                case ShuffleType::Shuffled_Different:
+                case ShuffleType::Shuffled_Same:
+                    io::write_dword(wpdt, weapon_type->value.Values[i], offset_value);
+                    break;
+
+                default:
+                    break;
+            }
             weapon_type->health.Randomize(false, settings, settings.WeaponsHealth, i, offset_health, 0, wpdt,
                                           io::write_word);
             weapon_type->speed.Randomize(false, settings, settings.WeaponsSpeed, i, offset_speed, 0, wpdt,
@@ -155,11 +166,11 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
             weapon_type->resistance.Randomize(false, settings, settings.WeaponsResistance, i, offset_resistance_flag, 0,
                                               wpdt, io::write_dword);
             weapon_type->damage_chop.Randomize(true, settings, settings.WeaponsDamage, i, offset_chop_min,
-                                               offset_chop_max, wpdt, io::write_byte, 127);
+                                               offset_chop_max, wpdt, io::write_byte);
             weapon_type->damage_slash.Randomize(true, settings, settings.WeaponsDamage, i, offset_slash_min,
-                                                offset_slash_max, wpdt, io::write_byte, 127);
+                                                offset_slash_max, wpdt, io::write_byte);
             weapon_type->damage_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min,
-                                                 offset_thrust_max, wpdt, io::write_byte, 127);
+                                                 offset_thrust_max, wpdt, io::write_byte);
 
             weap->ClearSubrecords({ "WPDT" });
             wpdt_srs[0]->SetData(std::move(wpdt), wpdt_srs[0]->GetDataSize());
@@ -177,7 +188,7 @@ std::vector<Record *> Randomizer::RandomizeWeapons(std::vector<Record *> records
 
     std::vector<Record *> result;
     for (auto wtvs : weapon_type_values)
-        for (Record *rec : wtvs.first->records)
+        for (Record *rec : wtvs->records)
             result.push_back(rec);
 
     return result;

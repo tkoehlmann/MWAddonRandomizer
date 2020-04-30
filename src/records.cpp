@@ -18,7 +18,6 @@ const std::string TARGET = "FNAM";
 Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read)
 {
     std::string str;
-    size_t s;
 
     m_id   = subrecord_id;
     m_type = type;
@@ -31,33 +30,33 @@ Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, siz
         case RecordDataType::Data:
             // s           = io::read_dword(f, bytes_read);
             // m_data_size = s;
-            m_data      = std::make_unique<uint8_t[]>(m_data_size);
+            m_data = std::make_unique<uint8_t[]>(m_data_size);
             if (!fread(m_data.get(), 1, m_data_size, f))
                 throw "Error in Subrecord::Subrecord";
             *bytes_read += m_data_size;
             break;
         case RecordDataType::Float:
-            //m_data_size            = sizeof(float);
+            // m_data_size            = sizeof(float);
             m_data                 = std::make_unique<uint8_t[]>(m_data_size);
             *(float *)m_data.get() = io::read_float(f, bytes_read);
             break;
         case RecordDataType::Int8:
-            //m_data_size             = sizeof(uint8_t);
+            // m_data_size             = sizeof(uint8_t);
             m_data                  = std::make_unique<uint8_t[]>(m_data_size);
             *(int8_t *)m_data.get() = io::read_byte(f, bytes_read);
             break;
         case RecordDataType::Int16:
-            //m_data_size              = sizeof(uint16_t);
+            // m_data_size              = sizeof(uint16_t);
             m_data                   = std::make_unique<uint8_t[]>(m_data_size);
             *(int16_t *)m_data.get() = io::read_word(f, bytes_read);
             break;
         case RecordDataType::Int32:
-            //m_data_size              = sizeof(int32_t);
+            // m_data_size              = sizeof(int32_t);
             m_data                   = std::make_unique<uint8_t[]>(m_data_size);
             *(int32_t *)m_data.get() = io::read_dword(f, bytes_read);
             break;
         case RecordDataType::Int64:
-            //m_data_size                    = 2 * sizeof(int32_t);
+            // m_data_size                    = 2 * sizeof(int32_t);
             m_data                         = std::make_unique<uint8_t[]>(m_data_size);
             *(int32_t *)m_data.get()       = io::read_dword(f, bytes_read);
             *((int32_t *)m_data.get() + 1) = io::read_dword(f, bytes_read);
@@ -65,8 +64,8 @@ Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, siz
         case RecordDataType::String:
             str         = io::read_string(f, bytes_read);
             m_data_size = str.length() + 1;
-            m_data = std::make_unique<uint8_t[]>(m_data_size);
-            for (int i = 0; i < m_data_size; ++i)
+            m_data      = std::make_unique<uint8_t[]>(m_data_size);
+            for (size_t i = 0; i < m_data_size; ++i)
                 m_data.get()[i] = '\0';
             strcpy((char *)m_data.get(), str.c_str());
             break;
@@ -103,7 +102,7 @@ Subrecord::Subrecord(std::string subrecord_id, std::string s)
     m_type      = RecordDataType::String;
     m_data_size = s.length() + 1;
     m_data      = std::make_unique<uint8_t[]>(m_data_size);
-    for (int i = 0; i < m_data_size; ++i)
+    for (size_t i = 0; i < m_data_size; ++i)
         m_data.get()[i] = '\0';
     strcpy((char *)m_data.get(), s.c_str());
 }

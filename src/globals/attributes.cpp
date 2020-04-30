@@ -15,7 +15,7 @@ bool Attributes::GetID(std::string name, int8_t *id)
 
 bool Attributes::GetID(int8_t id, std::string &name)
 {
-    bool ok = id >= 0 && id < Attributes.size();
+    bool ok = id >= 0 && (size_t)id < Attributes.size();
     if (ok)
         name = Attributes[id];
     return ok;

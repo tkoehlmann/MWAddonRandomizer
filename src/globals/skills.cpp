@@ -1,5 +1,6 @@
-#include <algorithm>
 #include "skills.hpp"
+
+#include <algorithm>
 
 std::vector<Skills::Skill> Skills::Get(std::vector<Record *> records)
 {

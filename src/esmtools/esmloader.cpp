@@ -12,7 +12,7 @@
 
 // Forward declarations
 Record *read_record(_IO_FILE *f, Settings &settings);
-bool read_header(Record *r, FILE *f, size_t *record_size);
+bool read_header(FILE *f, size_t *record_size);
 bool read_subrecords(Record *r, FILE *f, size_t record_size);
 
 std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, size_t *f_size,
@@ -26,7 +26,7 @@ std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string 
         return nullptr;
 
     Record *r;
-    while ((ftell(f) < *f_size) && ((r = read_record(f, settings)) != nullptr))
+    while (((size_t)ftell(f) < *f_size) && ((r = read_record(f, settings)) != nullptr))
     {
         (*result)[r->GetID()].push_back(r);
     }
@@ -53,7 +53,7 @@ Record *read_record(_IO_FILE *f, Settings &settings)
         else
         {
             res = new Record(id);
-            if (!read_header(res, f, &record_size))
+            if (!read_header(f, &record_size))
             {
                 printf("Error reading header data for record ID \"%s\"\n", res->GetID().c_str());
                 exit(1);
@@ -82,7 +82,7 @@ Record *read_record(_IO_FILE *f, Settings &settings)
     return res;
 }
 
-bool read_header(Record *r, FILE *f, size_t *record_size)
+bool read_header(FILE *f, size_t *record_size)
 {
     try
     {
