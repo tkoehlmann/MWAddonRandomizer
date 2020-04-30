@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -ggdb -Wall -Wextra -Wno-reorder")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -ggdb -Wall -Wextra")
 add_executable(morrowindaddonrandomizercpp
     src/main.cpp
     src/esmtools/esmloader.cpp

@@ -37,22 +37,22 @@ std::vector<std::unique_ptr<Subrecord>> Weapons::AdditionalData::GetSubrecords()
 }
 
 Weapons::WeaponData::WeaponData(Settings &s, int8_t *global_min, int8_t *global_max, std::vector<int8_t> *global_values)
-    : settings(s),
-      damage_global_min(global_min),
+    : damage_global_min(global_min),
       damage_global_max(global_max),
       damage_global_values(global_values),
+      weight(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
+      value(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
+      health(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
+      speed(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
+      enchant(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
       damage_chop(
           Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
       damage_slash(
           Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
       damage_thrust(
           Weapons::MinMaxData<int8_t>(INT8_MAX, INT8_MIN, damage_global_min, damage_global_max, damage_global_values)),
-      weight(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-      value(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
-      health(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-      speed(FLT_MAX, FLT_MIN, nullptr, nullptr, nullptr),
-      enchant(INT16_MAX, INT16_MIN, nullptr, nullptr, nullptr),
-      resistance(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr)
+      resistance(INT32_MAX, INT32_MIN, nullptr, nullptr, nullptr),
+      settings(s)
 {
     rng = [this](int i) { return settings.GetNext(i); };
 }
