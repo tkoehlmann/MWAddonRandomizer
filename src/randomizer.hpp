@@ -10,7 +10,5 @@
 
 namespace Randomizer
 {
-std::vector<Record *> RandomizeWeapons(std::vector<Record *> records, Settings &settings);
-std::vector<Record *> RandomizeAlchemy(std::vector<Record *> records, Settings &settings,
-                                       std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills);
+size_t Game(std::vector<std::string> &files, Settings &settings);
 } // namespace Randomizer
