@@ -114,7 +114,6 @@ static std::vector<std::string> prevent_shuffle_ids = {
     "dagger_fang_unique",
     "dagger_fang_unique_x",
     "bonebiter_bow_unique",
-    "shortbow of sanguine sureflight",
     "iron_arrow_uniq_judgement",
     "fork_horripilation_unique",
     "keening",
