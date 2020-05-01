@@ -5,6 +5,7 @@
 #include "globals/globals.hpp"
 #include "iohelpers.hpp"
 #include "randomizers/alchemy.hpp"
+#include "randomizers/artifacts.hpp"
 #include "randomizers/weapons.hpp"
 
 #include <algorithm>
@@ -25,7 +26,7 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
 
         std::unordered_map<std::string, std::vector<Record *>> *res =
             ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
-        master_files_sizes.push_back(std::pair<std::string, size_t>(fname, fsize));
+        master_files_sizes.push_back(std::pair<std::string, size_t>(io::get_file_name(fname), fsize));
 
         if (res == nullptr)
             printf("Error reading file: %s", fname.c_str());
@@ -74,13 +75,24 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
 
     std::vector<Magic::Effect> magic_effects = Magic::ReadEffects(file_records["MGEF"]);
     std::vector<Skills::Skill> skills        = Skills::Get(file_records["SKIL"]);
-    std::vector<Record *> alchemy = Alchemy::Randomize(file_records["INGR"], settings, magic_effects, skills);
+    std::vector<Record *> alchemy           = Alchemy::Randomize(file_records["INGR"], settings, magic_effects, skills);
+    std::vector<Record *> artifacts_uniques = Artifacts::Randomize(
+        {
+            file_records["WEAP"],
+            file_records["ARMO"],
+            file_records["CLOT"],
+            file_records["LOCK"],
+            file_records["MISC"],
+        },
+        settings);
 
     // TODO: the same for other randomizers - maybe abstract this in the future, maybe not
     for (auto wrec : weapon_records)
         records_to_write.push_back(wrec);
     for (auto ingr : alchemy)
         records_to_write.push_back(ingr);
+    for (auto artuniq : artifacts_uniques)
+        records_to_write.push_back(artuniq);
 
     WriteESMFile(settings, records_to_write, master_files_sizes);
 

@@ -20,6 +20,7 @@ int main(int argc, char **argv)
         "Morrowind.esm",
         "Tribunal.esm",
         "Bloodmoon.esm",
+        "/home/tim/.config/openmw/data/plugins/masterindex/master_index.esp",
     };
 
 
@@ -35,6 +36,14 @@ int main(int argc, char **argv)
     settings.WeaponsResistance  = ShuffleType::Shuffled_Same;
     settings.WeaponsModels      = ShuffleType::Random;
     settings.AlchemyEffects     = ShuffleType::Random_Chaos;
+
+    settings.Artifacts                                     = ShuffleType::Random;
+    settings.Uniques                                       = ShuffleType::Random;
+    settings.ConsiderUniquesEqualToArtifacts               = false;
+    settings.ShuffleMAINQuestRequirementArtifactsOrUniques = false;
+    settings.ShufflePropylonIndices                        = true;
+    settings.ShuffleMasterIndex                            = false;
+
     settings.UpdateAffectedRecords();
 
     auto start                   = std::chrono::high_resolution_clock::now();

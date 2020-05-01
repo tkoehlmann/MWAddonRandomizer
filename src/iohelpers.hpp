@@ -16,6 +16,7 @@ std::string read_string(FILE *f, size_t *bytes_read);
 std::string read_record_id(FILE *f, size_t *bytes_read);
 float read_float(FILE *f, size_t *bytes_read);
 size_t get_file_size(FILE *f);
+std::string get_file_name(std::string path);
 
 void write_bytes(FILE *f, uint8_t *data, size_t len);
 

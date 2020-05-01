@@ -73,6 +73,15 @@ void Settings::UpdateAffectedRecords()
         m_affected_records->push_back("MGEF");
         m_affected_records->push_back("INGR");
     }
+
+    if (Artifacts != ShuffleType::None || Uniques != ShuffleType::None)
+    {
+        m_affected_records->push_back("WEAP");
+        m_affected_records->push_back("ARMO");
+        m_affected_records->push_back("CLOT");
+        m_affected_records->push_back("LOCK");
+        m_affected_records->push_back("MISC");
+    }
 }
 
 bool Settings::IsRecordAffected(std::string id)

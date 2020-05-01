@@ -73,6 +73,12 @@ size_t io::get_file_size(FILE *f)
     return res;
 }
 
+std::string io::get_file_name(std::string path)
+{
+    size_t found = path.find_last_of("/\\");
+    return path.substr(found + 1);
+}
+
 void io::write_bytes(FILE *f, uint8_t *data, size_t len)
 {
     fwrite(data, 1, len, f);

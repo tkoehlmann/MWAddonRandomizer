@@ -1,6 +1,7 @@
 #include "artifacts.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <string>
 
 // Artifacts that can be freely shuffled
@@ -301,48 +302,109 @@ std::vector<std::string> mq_uniques = {
     But this connection is currently lost when reading and exporting the file.
 */
 
-bool is_in_vec(std::vector<std::string> &v, std::string item)
+bool is_in(std::vector<std::string> &v, std::string item)
 {
     return std::find(v.begin(), v.end(), item) != v.end();
 }
 
-std::vector<Record *> Artifacts::Randomize(std::vector<Record *> records, Settings &settings)
+std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> record_groups, Settings &settings)
 {
+    // Records
+    std::vector<Record *> result;
     std::vector<Record *> artifacts;
-    std::vector<std::string> to_shuffle_artifacts;
-    std::vector<std::string> to_shuffle_uniques;
+    std::vector<Record *> uniques;
+    // Things we're looking for depending on the settings
+    std::vector<std::string> to_shuffle_artifacts_base;
+    std::vector<std::string> to_shuffle_uniques_base;
+    // Found record names in the same order as put into the artifacts/uniques vectors
+    std::vector<std::string> shuffle_artifacts;
+    std::vector<std::string> shuffle_uniques;
+
     if (settings.Artifacts == ShuffleType::None && settings.Uniques == ShuffleType::None)
         return artifacts;
 
     if (settings.Artifacts != ShuffleType::None)
-        to_shuffle_artifacts.insert(to_shuffle_artifacts.end(), valid_artifacts.begin(), valid_artifacts.end());
+        to_shuffle_artifacts_base.insert(to_shuffle_artifacts_base.end(), valid_artifacts.begin(),
+                                         valid_artifacts.end());
     if (settings.Uniques != ShuffleType::None)
-        to_shuffle_uniques.insert(to_shuffle_uniques.end(), valid_uniques.begin(), valid_uniques.end());
+        to_shuffle_uniques_base.insert(to_shuffle_uniques_base.end(), valid_uniques.begin(), valid_uniques.end());
     if (settings.ShuffleQuestRequirementArtifactsOrUniques)
     {
-        to_shuffle_artifacts.insert(to_shuffle_artifacts.end(), quest_artifacts.begin(), quest_artifacts.end());
-        to_shuffle_uniques.insert(to_shuffle_uniques.end(), quest_uniques.begin(), quest_uniques.end());
+        to_shuffle_artifacts_base.insert(to_shuffle_artifacts_base.end(), quest_artifacts.begin(),
+                                         quest_artifacts.end());
+        to_shuffle_uniques_base.insert(to_shuffle_uniques_base.end(), quest_uniques.begin(), quest_uniques.end());
     }
     if (settings.ShuffleMAINQuestRequirementArtifactsOrUniques)
     {
-        to_shuffle_artifacts.insert(to_shuffle_artifacts.end(), mq_artifacts.begin(), mq_artifacts.end());
-        to_shuffle_uniques.insert(to_shuffle_uniques.end(), mq_uniques.begin(), mq_uniques.end());
+        to_shuffle_artifacts_base.insert(to_shuffle_artifacts_base.end(), mq_artifacts.begin(), mq_artifacts.end());
+        to_shuffle_uniques_base.insert(to_shuffle_uniques_base.end(), mq_uniques.begin(), mq_uniques.end());
     }
     if (settings.ShufflePropylonIndices)
-        to_shuffle_uniques.insert(to_shuffle_uniques.end(), propylon_indices.begin(), propylon_indices.end());
+        to_shuffle_uniques_base.insert(to_shuffle_uniques_base.end(), propylon_indices.begin(), propylon_indices.end());
     if (settings.ShuffleMasterIndex)
-        to_shuffle_uniques.push_back(master_propylon_index);
+        to_shuffle_uniques_base.push_back(master_propylon_index);
 
     if (settings.ConsiderUniquesEqualToArtifacts)
-        to_shuffle_artifacts.insert(to_shuffle_artifacts.end(), to_shuffle_uniques.begin(), to_shuffle_uniques.end());
+        to_shuffle_artifacts_base.insert(to_shuffle_artifacts_base.end(), to_shuffle_uniques_base.begin(),
+                                         to_shuffle_uniques_base.end());
 
     // Step 1: Go over all records and find the artifacts!
+    for (std::vector<Record *> records : record_groups)
+    {
+        for (Record *r : records)
+        {
+            auto srs = r->GetSubrecords("NAME");
+            if (srs.size() == 0)
+                continue;
+
+            auto name = std::string((char *)srs[0]->GetData().get());
+            if (is_in(to_shuffle_artifacts_base, name))
+            {
+                artifacts.push_back(r);
+                shuffle_artifacts.push_back(name);
+            }
+            else if (is_in(to_shuffle_uniques_base, name))
+            {
+                uniques.push_back(r);
+                shuffle_uniques.push_back(name);
+            }
+        }
+    }
+
+    auto rng = [&settings](int i) { return settings.GetNext(i); };
 
     // Step 2: Shuffle the items
+    std::random_shuffle(shuffle_artifacts.begin(), shuffle_artifacts.end(), rng);
+    std::random_shuffle(shuffle_uniques.begin(), shuffle_uniques.end(), rng);
 
     // Step 3: Reassign artifacts/uniques
+    auto assigner = [&result](std::vector<Record *> &artuniq, std::vector<std::string> &names) {
+        for (size_t i = 0; i < artuniq.size(); ++i)
+        {
+            Record *r = artuniq[i];
+            auto srs  = r->GetSubrecords("NAME");
+            if (srs.size() == 0)
+                continue;
+
+            std::string newname = names[i];
+            size_t datalen      = newname.length() + 1;
+            auto srname         = std::make_unique<uint8_t[]>(datalen);
+            memcpy(srname.get(), newname.c_str(), datalen);
+            srs[0]->SetData(std::move(srname), datalen);
+
+            r->ClearSubrecords({ "NAME" });
+            r->AddSubrecord(std::move(std::make_unique<Subrecord>(*srs[0])));
+
+            result.push_back(r);
+        }
+    };
+
+    assigner(artifacts, shuffle_artifacts);
+    if (!settings.ConsiderUniquesEqualToArtifacts)
+        assigner(uniques, shuffle_uniques); // If they are considered the same then they'd already be put into the
+                                            // artifact data structures, making this step unnecessary
 
     // Step 4: Fix dialogue/scripts using those artifacts
 
-    return artifacts;
+    return result;
 }
