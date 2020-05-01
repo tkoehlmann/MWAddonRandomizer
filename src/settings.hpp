@@ -50,13 +50,17 @@ class Settings
     std::string GetPluginFullPath();
 
     // Caution: Can only work by changing cells which is not implemented and won't be for some time!
-    ShuffleType Artifacts = ShuffleType::None;      // Shuffle artifacts?
-    ShuffleType Uniques   = ShuffleType::None;      // Shuffle unique items?
-    bool ConsiderUniquesEqualToArtifacts;           // Put artifacts and uniques into the same shuffle pool?
-    bool ShuffleQuestRequirementArtifactsOrUniques; // To defeat Dagoth Ur you need Keening and Sunder, with this
-                                                    // enabled those may be shuffled somewhere else
+    ShuffleType Artifacts = ShuffleType::None; // Shuffle artifacts?
+    ShuffleType Uniques   = ShuffleType::None; // Shuffle unique items?
+    bool ConsiderUniquesEqualToArtifacts;      // Put artifacts and uniques into the same shuffle pool?
+    bool
+        ShuffleQuestRequirementArtifactsOrUniques; // Some uniques are required for quests. They'll get shuffled as well
+    bool ShuffleMAINQuestRequirementArtifactsOrUniques; // To defeat Dagoth Ur you need Keening and Sunder, with this
+                                                        // enabled those may be shuffled somewhere else
     bool ShufflePropylonIndices; // If left off the Propylon Indices and the Master Index can be acquired from the usual
                                  // locations
+    bool ShuffleMasterIndex;     // The idea is that the user can choose to get it at the usual location as a reward for
+                                 // finding all regular indices
 
     ShuffleType WeaponsWeight     = ShuffleType::None; // Weight of weapons
     ShuffleType WeaponsValue      = ShuffleType::None; // Value of weapons

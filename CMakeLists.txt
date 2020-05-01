@@ -20,6 +20,7 @@ add_executable(morrowindaddonrandomizercpp
     src/globals/skills.cpp
     src/randomizers/weapons.cpp
     src/randomizers/alchemy.cpp
+    src/randomizers/artifacts.cpp
 )
 
 add_library(mwaddonrandomizer SHARED src/records.cpp src/iohelpers.cpp)
