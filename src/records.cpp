@@ -648,8 +648,8 @@ std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>>
           { "CNAM", RecordDataType::String }, { "FNAM", RecordDataType::String }, { "ANAM", RecordDataType::String },
           { "DNAM", RecordDataType::String }, { "NAME", RecordDataType::String }, { "SNAM", RecordDataType::String },
           { "QSTN", RecordDataType::Int8 },   { "QSTF", RecordDataType::Int8 },   { "QSTR", RecordDataType::Int8 },
-          { "SCVR", RecordDataType::String }, { "INTV", RecordDataType::Int64 }, // Actually two int32s
-          { "FLTV", RecordDataType::Int64 },  { "BNAM", RecordDataType::String },
+          { "SCVR", RecordDataType::String }, { "INTV", RecordDataType::Int32 }, // Actually two int32s
+          { "FLTV", RecordDataType::Int32 },  { "BNAM", RecordDataType::String },
       } },
     /* Tribunal */
     { "SSCR",

@@ -1,5 +1,7 @@
 .kdev4/*
 build/*
+build_kdevelop/*
 .vscode/*
+MorrowindAddonRandomizer.kdev4
 MorrowindAddonRandomizerCpp.kdev4
 .VSCodeCounter/*

@@ -11,22 +11,25 @@
 #include <string>
 
 // Forward declarations
-Record *read_record(_IO_FILE *f, Settings &settings);
+Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL);
 bool read_header(FILE *f, size_t *record_size);
-bool read_subrecords(Record *r, FILE *f, size_t record_size);
+bool read_subrecords(Record *r, FILE *f, size_t record_size, Record *previous_DIAL);
 
 std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, size_t *f_size,
                                                                     Settings &settings, size_t *total_file_size_bytes)
 {
+    auto result = new std::unordered_map<std::string, std::vector<Record *>>();
+
     FILE *f = fopen(filepath.c_str(), "rb");
+    if (f == nullptr)
+        return result;
+
     *f_size = io::get_file_size(f);
     *total_file_size_bytes += *f_size;
-    auto result = new std::unordered_map<std::string, std::vector<Record *>>();
-    if (f == nullptr)
-        return nullptr;
 
     Record *r;
-    while (((size_t)ftell(f) < *f_size) && ((r = read_record(f, settings)) != nullptr))
+    Record *previous_DIAL;
+    while (((size_t)ftell(f) < *f_size) && ((r = read_record(f, settings, &previous_DIAL)) != nullptr))
     {
         (*result)[r->GetID()].push_back(r);
     }
@@ -35,7 +38,7 @@ std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string 
     return result;
 }
 
-Record *read_record(_IO_FILE *f, Settings &settings)
+Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL)
 {
     Record *res;
     size_t dont_care   = 0;
@@ -67,8 +70,10 @@ Record *read_record(_IO_FILE *f, Settings &settings)
             }
             else
             {
+                if (id == "DIAL")
+                    *previous_DIAL = res;
                 // Create subrecords
-                read_subrecords(res, f, record_size);
+                read_subrecords(res, f, record_size, *previous_DIAL);
             }
         }
     }
@@ -99,7 +104,7 @@ bool read_header(FILE *f, size_t *record_size)
     return true;
 }
 
-bool read_subrecords(Record *r, FILE *f, size_t record_size)
+bool read_subrecords(Record *r, FILE *f, size_t record_size, Record *previous_DIAL)
 {
     size_t bytecount = 0;
 
@@ -117,6 +122,9 @@ bool read_subrecords(Record *r, FILE *f, size_t record_size)
     {
         return false;
     }
+
+    if (r->GetID() == "INFO")
+        r->Previous_DIAL = previous_DIAL;
 
     return true;
 }

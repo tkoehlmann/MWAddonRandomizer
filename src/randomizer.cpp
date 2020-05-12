@@ -42,8 +42,10 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
                 else
                 {
                     // Merge records
-                    for (Record *r : recs)
+                    // for (Record *r : recs)
+                    for (size_t asd = 0; asd < recs.size(); ++asd)
                     {
+                        Record *r = recs[asd];
                         if (r->Ignored)
                             continue; // There's a reason we ignore records (hint: they are not adequately implemented)
 

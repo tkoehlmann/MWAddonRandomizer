@@ -61,6 +61,7 @@ class Record
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;
+    Record *Previous_DIAL;
 
     private:
     std::string m_id;
