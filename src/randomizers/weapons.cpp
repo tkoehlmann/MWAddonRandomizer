@@ -11,12 +11,8 @@
 
 void Weapons::AdditionalData::init_sr(Record *r, std::string field)
 {
-    if (r->HasSubrecord(field))
-    {
-        std::vector<std::unique_ptr<Subrecord>> srs = r->GetSubrecords(field);
-        m_subrecords.insert(m_subrecords.end(), std::make_move_iterator(srs.begin()),
-                            std::make_move_iterator(srs.end()));
-    }
+    for (std::shared_ptr<Subrecord> sr : r->GetSubrecords(field))
+        m_subrecords.push_back(*sr);
 }
 
 Weapons::AdditionalData::AdditionalData(Record *r)
@@ -29,11 +25,11 @@ Weapons::AdditionalData::AdditionalData(Record *r)
     init_sr(r, "SCRI");
 }
 
-std::vector<std::unique_ptr<Subrecord>> Weapons::AdditionalData::GetSubrecords()
+std::vector<std::reference_wrapper<Subrecord>> Weapons::AdditionalData::GetSubrecords()
 {
-    std::vector<std::unique_ptr<Subrecord>> result;
-    for (auto &sr : m_subrecords)
-        result.push_back(std::make_unique<Subrecord>(new Subrecord(*sr)));
+    std::vector<std::reference_wrapper<Subrecord>> result;
+    for (Subrecord &sr : m_subrecords)
+        result.push_back(sr);
     return result;
 }
 
@@ -348,8 +344,8 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
         if (Weapons::prevent_shuffle(*records[i]))
             continue;
 
-        std::vector<std::unique_ptr<Subrecord>> wpdt_srs = records[i]->GetSubrecords("WPDT");
-        auto wpdt                                        = wpdt_srs[0]->GetData();
+        std::shared_ptr<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT")[0];
+        std::vector<uint8_t> wpdt           = *wpdt_srs->Data;
 
         // for (int asd = 0; asd < 32; ++asd)
         //     printf("wpdt%2d: 0x%" PRIxPTR "\n", asd, (long unsigned int)wpdt[asd]);
@@ -404,9 +400,9 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
 
         for (size_t i = 0; i < weapon_type->records.size(); i++)
         {
-            Record *weap                                     = weapon_type->records[i];
-            std::vector<std::unique_ptr<Subrecord>> wpdt_srs = weap->GetSubrecords("WPDT");
-            auto wpdt                                        = wpdt_srs[0]->GetData();
+            Record *weap                        = weapon_type->records[i];
+            std::shared_ptr<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT")[0];
+            std::vector<uint8_t> wpdt           = *wpdt_srs->Data;
 
             weapon_type->weight.Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt,
                                           io::write_float);
@@ -440,16 +436,14 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
             weapon_type->damage_thrust.Randomize(true, settings, settings.WeaponsDamage, i, offset_thrust_min,
                                                  offset_thrust_max, wpdt, io::write_byte);
 
-            weap->ClearSubrecords({ "WPDT" });
-            wpdt_srs[0]->SetData(std::move(wpdt), wpdt_srs[0]->GetDataSize());
-            weap->AddSubrecord(std::move(wpdt_srs[0]));
+            *wpdt_srs->Data = wpdt;
 
             if (settings.WeaponsModels != ShuffleType::None)
             {
                 weap->ClearSubrecords({ "MODL", "FNAM", "ITEX", "ENAM", "SCRI" });
-                std::vector<std::unique_ptr<Subrecord>> srs = weapon_type->model_values[i].GetSubrecords();
-                for (auto &field_sr : srs)
-                    weap->AddSubrecord(std::move(std::make_unique<Subrecord>(*field_sr)));
+                std::vector<std::reference_wrapper<Subrecord>> srs = weapon_type->model_values[i].GetSubrecords();
+                for (Subrecord &field_sr : srs)
+                    weap->AddSubrecord(field_sr);
             }
         }
     }

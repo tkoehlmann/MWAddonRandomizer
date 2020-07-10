@@ -20,10 +20,10 @@ struct AdditionalData
 {
     public:
     AdditionalData(Record *r);
-    std::vector<std::unique_ptr<Subrecord>> GetSubrecords();
+    std::vector<std::reference_wrapper<Subrecord>> GetSubrecords();
 
     private:
-    std::vector<std::unique_ptr<Subrecord>> m_subrecords;
+    std::vector<Subrecord> m_subrecords;
     void init_sr(Record *r, std::string field);
 };
 
@@ -66,8 +66,8 @@ struct MinMaxData
     }
 
     void Randomize(const bool is_weapon, Settings &settings, const ShuffleType type, const int i,
-                   const size_t offset_min, const size_t offset_max, std::unique_ptr<uint8_t[]> &wpdt,
-                   void (*f)(std::unique_ptr<uint8_t[]> &, T, size_t))
+                   const size_t offset_min, const size_t offset_max, std::vector<uint8_t> &wpdt,
+                   void (*f)(std::vector<uint8_t> &, T, size_t))
     {
         bool use_global = is_weapon && GlobalMin != nullptr && GlobalMax != nullptr;
         std::pair<int8_t, int8_t> minmax;

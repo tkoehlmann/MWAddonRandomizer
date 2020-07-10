@@ -14,120 +14,114 @@ Subrecord::Subrecord()
 
 const std::string TARGET = "FNAM";
 
-
 Subrecord::Subrecord(std::string subrecord_id, RecordDataType type, FILE *f, size_t *bytes_read)
 {
     std::string str;
 
     m_id   = subrecord_id;
     m_type = type;
-    if (m_type != RecordDataType::String)
-        m_data_size = io::read_dword(f, bytes_read); // Subrecord length, reading
+    size_t data_size;
 
+    if (m_type != RecordDataType::String)
+        data_size = io::read_dword(f, bytes_read); // Subrecord length, reading
+    else
+    {
+        str       = io::read_string(f, bytes_read);
+        data_size = str.length() + 1;
+    }
+
+    Data = std::make_shared<std::vector<uint8_t>>(data_size);
+    uint8_t buf[data_size];
 
     switch (m_type)
     {
         case RecordDataType::Data:
-            // s           = io::read_dword(f, bytes_read);
-            // m_data_size = s;
-            m_data = std::make_unique<uint8_t[]>(m_data_size);
-            if (!fread(m_data.get(), 1, m_data_size, f))
+            if (!fread(buf, 1, data_size, f))
                 throw "Error in Subrecord::Subrecord";
-            *bytes_read += m_data_size;
+            *bytes_read += data_size;
             break;
         case RecordDataType::Float:
-            // m_data_size            = sizeof(float);
-            m_data                 = std::make_unique<uint8_t[]>(m_data_size);
-            *(float *)m_data.get() = io::read_float(f, bytes_read);
+            *(float *)buf = io::read_float(f, bytes_read);
             break;
         case RecordDataType::Int8:
-            // m_data_size             = sizeof(uint8_t);
-            m_data                  = std::make_unique<uint8_t[]>(m_data_size);
-            *(int8_t *)m_data.get() = io::read_byte(f, bytes_read);
+            *(int8_t *)buf = io::read_byte(f, bytes_read);
             break;
         case RecordDataType::Int16:
-            // m_data_size              = sizeof(uint16_t);
-            m_data                   = std::make_unique<uint8_t[]>(m_data_size);
-            *(int16_t *)m_data.get() = io::read_word(f, bytes_read);
+            *(int16_t *)buf = io::read_word(f, bytes_read);
             break;
         case RecordDataType::Int32:
-            // m_data_size              = sizeof(int32_t);
-            m_data                   = std::make_unique<uint8_t[]>(m_data_size);
-            *(int32_t *)m_data.get() = io::read_dword(f, bytes_read);
+            *(int32_t *)buf = io::read_dword(f, bytes_read);
             break;
         case RecordDataType::Int64:
-            // m_data_size                    = 2 * sizeof(int32_t);
-            m_data                         = std::make_unique<uint8_t[]>(m_data_size);
-            *(int32_t *)m_data.get()       = io::read_dword(f, bytes_read);
-            *((int32_t *)m_data.get() + 1) = io::read_dword(f, bytes_read);
+            *(int32_t *)buf       = io::read_dword(f, bytes_read);
+            *(int32_t *)(buf + 4) = io::read_dword(f, bytes_read);
             break;
         case RecordDataType::String:
-            str         = io::read_string(f, bytes_read);
-            m_data_size = str.length() + 1;
-            m_data      = std::make_unique<uint8_t[]>(m_data_size);
-            for (size_t i = 0; i < m_data_size; ++i)
-                m_data.get()[i] = '\0';
-            strcpy((char *)m_data.get(), str.c_str());
+            strcpy((char *)buf, str.c_str());
+            buf[data_size - 1] = '\0';
             break;
         default:
             break;
     }
+
+    for (size_t i = 0; i < data_size; ++i)
+        Data->at(i) = buf[i];
 }
 
 Subrecord::Subrecord(std::string subrecord_id, uint8_t *data, size_t len_bytes)
 {
-    m_id        = subrecord_id;
-    m_type      = RecordDataType::Data;
-    m_data_size = len_bytes;
-    m_data      = std::make_unique<uint8_t[]>(m_data_size);
-    memcpy(m_data.get(), data, m_data_size);
+    m_id   = subrecord_id;
+    m_type = RecordDataType::Data;
+    Data   = std::make_shared<std::vector<uint8_t>>(len_bytes);
+    for (size_t i = 0; i < len_bytes; ++i)
+        Data->at(i) = data[i];
 }
 
 Subrecord::Subrecord(Subrecord *sr)
 {
     // if (m_id == TARGET)
     //     printf("Constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)sr, (intptr_t)this);
-    m_id        = sr->GetID();
-    m_type      = sr->GetType();
-    m_data_size = sr->GetDataSize();
-    m_data      = std::make_unique<uint8_t[]>(m_data_size);
-    memcpy(m_data.get(), sr->GetData().get(), m_data_size);
+    m_id   = sr->GetID();
+    m_type = sr->GetType();
+    Data   = std::make_shared<std::vector<uint8_t>>(sr->GetDataSize());
+    *Data  = *sr->Data;
 }
 
 Subrecord::Subrecord(std::string subrecord_id, std::string s)
 {
     // if (m_id == TARGET)
     //     printf("Constructor of 0x%" PRIxPTR "\n",(intptr_t)this);
-    m_id        = subrecord_id;
-    m_type      = RecordDataType::String;
-    m_data_size = s.length() + 1;
-    m_data      = std::make_unique<uint8_t[]>(m_data_size);
-    for (size_t i = 0; i < m_data_size; ++i)
-        m_data.get()[i] = '\0';
-    strcpy((char *)m_data.get(), s.c_str());
+    m_id             = subrecord_id;
+    m_type           = RecordDataType::String;
+    size_t data_size = s.length() + 1;
+    Data             = std::make_shared<std::vector<uint8_t>>(data_size);
+    const char *cstr = s.c_str();
+    for (size_t i = 0; i < data_size - 1; ++i)
+        Data->at(i) = cstr[i];
+    Data->at(data_size - 1) = '\0';
 }
 
-Subrecord::Subrecord(const Subrecord &other) : m_id(other.m_id), m_type(other.m_type), m_data_size(other.m_data_size)
+Subrecord::Subrecord(const Subrecord &other) : m_id(other.m_id), m_type(other.m_type)
 {
     // if (m_id == TARGET)
     //     printf("Copy-constructor 0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&other, (intptr_t) this);
-    m_data = std::make_unique<uint8_t[]>(m_data_size);
-    memcpy(m_data.get(), other.m_data.get(), m_data_size);
+    Data  = std::make_shared<std::vector<uint8_t>>(other.Data->size());
+    *Data = *other.Data;
 }
 
 Subrecord &Subrecord::operator=(const Subrecord rhs)
 {
     // if (m_id == TARGET)
     //     printf("operator=  0x%" PRIxPTR " -> 0x%" PRIxPTR "\n", (intptr_t)&rhs, (intptr_t) this);
-    m_id        = rhs.m_id;
-    m_type      = rhs.m_type;
-    m_data_size = rhs.m_data_size;
-    m_data      = std::make_unique<uint8_t[]>(m_data_size);
+    m_id   = rhs.m_id;
+    m_type = rhs.m_type;
+    Data   = std::make_shared<std::vector<uint8_t>>(rhs.Data->size());
+    *Data  = *rhs.Data;
 
     return *this;
 }
 
-std::string Subrecord::GetID()
+std::string Subrecord::GetID() const
 {
     return m_id;
 }
@@ -137,27 +131,14 @@ RecordDataType Subrecord::GetType()
     return m_type;
 }
 
-std::unique_ptr<uint8_t[]> Subrecord::GetData()
-{
-    auto result = std::make_unique<uint8_t[]>(m_data_size);
-    memcpy(result.get(), m_data.get(), m_data_size);
-    return result;
-}
-
-void Subrecord::SetData(std::unique_ptr<uint8_t[]> data, size_t bytes)
-{
-    m_data_size = bytes;
-    m_data      = std::move(data);
-}
-
 size_t Subrecord::GetDataSize()
 {
-    return m_data_size;
+    return Data->size();
 }
 
 size_t Subrecord::GetSubrecordSize()
 {
-    return 4 + 4 + m_data_size; // (char[4])ID + (long)size of data, data
+    return 4 + 4 + Data->size(); // (char[4])ID + (long)size of data, data
 }
 
 void Subrecord::WriteSubrecord(uint8_t *buf, size_t *remaining_bytes)
@@ -166,9 +147,12 @@ void Subrecord::WriteSubrecord(uint8_t *buf, size_t *remaining_bytes)
     if (*remaining_bytes < sz)
         throw "Not enough free space to write " + GetID() + " data";
 
+    size_t data_size = Data->size();
     io::write_bytes(buf + 0, (uint8_t *)GetID().c_str(), 4);
-    io::write_dword(buf + 4, m_data_size);
-    io::write_bytes(buf + 8, m_data.get(), m_data_size);
+    io::write_dword(buf + 4, data_size);
+    for (size_t i = 0; i < data_size; i++)
+        buf[8 + i] = Data->at(i);
+    // io::write_bytes(buf + 8, Data.get()->data(), m_data_size);
 
     *remaining_bytes -= sz;
 }
@@ -179,58 +163,53 @@ Record::Record(std::string record_id)
     m_id = record_id;
 }
 
-void Record::AddSubrecord(std::unique_ptr<Subrecord> subrecord)
+void Record::AddSubrecord(Subrecord subrecord)
 {
-    m_subrecords.push_back(std::move(subrecord));
+    m_subrecords.push_back(std::make_shared<Subrecord>(subrecord));
 }
 
 
 void Record::ClearSubrecords(std::vector<std::string> ids)
 {
-    std::vector<std::unique_ptr<Subrecord>> new_subs;
-    for (std::unique_ptr<Subrecord> &sr : m_subrecords)
-        if (std::find(ids.begin(), ids.end(), sr->GetID()) == ids.end())
-            new_subs.push_back(std::move(sr));
-    m_subrecords.clear();
-    m_subrecords.insert(m_subrecords.end(), std::make_move_iterator(new_subs.begin()),
-                        std::make_move_iterator(new_subs.end()));
+    m_subrecords.erase(std::remove_if(m_subrecords.begin(), m_subrecords.end(),
+                                      [ids](std::shared_ptr<Subrecord> sr) {
+                                          return std::find(ids.begin(), ids.end(), sr->GetID()) != ids.end();
+                                      }),
+                       m_subrecords.end());
 }
 
-std::string Record::GetID()
+std::string Record::GetID() const
 {
     return m_id;
 }
 
 std::string Record::GetName()
 {
-    if (HasSubrecord("NAME"))
-    {
-        auto srs = GetSubrecords("NAME");
-        return std::string((char *)srs[0]->GetData().get());
-    }
-
+    auto srs = GetSubrecords("NAME");
+    if (srs.size() > 0)
+        return std::string((char *)srs[0]->Data->data());
     return "";
 }
 
-std::vector<std::unique_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
+std::vector<std::shared_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
 {
-    std::vector<std::unique_ptr<Subrecord>> result;
-    for (std::unique_ptr<Subrecord> &sr : m_subrecords)
+    std::vector<std::shared_ptr<Subrecord>> result;
+    for (std::shared_ptr<Subrecord> sr : m_subrecords)
         if (sr->GetID() == srid || srid == "*")
-            result.push_back(std::make_unique<Subrecord>(new Subrecord(*sr)));
+            result.push_back(sr);
     return result;
 }
 
 bool Record::HasSubrecord(std::string srid)
 {
     return std::find_if(m_subrecords.begin(), m_subrecords.end(),
-                        [srid](std::unique_ptr<Subrecord> &sr) { return sr->GetID() == srid; }) != m_subrecords.end();
+                        [srid](std::shared_ptr<Subrecord> sr) { return sr->GetID() == srid; }) != m_subrecords.end();
 }
 
 size_t Record::GetRecordSize()
 {
     size_t sz = 16;
-    for (auto &subrecord : m_subrecords)
+    for (std::shared_ptr<Subrecord> subrecord : m_subrecords)
         sz += subrecord->GetSubrecordSize();
     return sz;
 }
@@ -250,7 +229,7 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
     *remaining_bytes -= 16;
 
     size_t offset = 16;
-    for (auto &subrecord : m_subrecords)
+    for (std::shared_ptr<Subrecord> subrecord : m_subrecords)
     {
         size_t srsz = subrecord->GetSubrecordSize();
         subrecord->WriteSubrecord(buf + offset, remaining_bytes);

@@ -81,8 +81,8 @@ void Settings::UpdateAffectedRecords()
         m_affected_records->push_back("CLOT");
         m_affected_records->push_back("LOCK");
         m_affected_records->push_back("MISC");
-        m_affected_records->push_back("DIAL");
-        m_affected_records->push_back("INFO");
+        // m_affected_records->push_back("DIAL");
+        // m_affected_records->push_back("INFO");
     }
 }
 

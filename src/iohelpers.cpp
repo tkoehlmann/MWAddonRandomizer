@@ -84,27 +84,13 @@ void io::write_bytes(FILE *f, uint8_t *data, size_t len)
     fwrite(data, 1, len, f);
 }
 
-float io::read_float(uint8_t *mem)
+float io::read_float(uint8_t *mem, size_t offset)
 {
-    float f = *(float *)mem;
+    float f = *(float *)(mem + offset);
     return f;
 }
 
-float io::read_float(std::unique_ptr<uint8_t[]> &mem, size_t offset)
-{
-    uint8_t data[4] = { mem[0 + offset], mem[1 + offset], mem[2 + offset], mem[3 + offset] };
-    return *(float *)data;
-}
-
-void io::write_float(uint8_t *mem, float f)
-{
-    mem[0] = ((uint8_t *)&f)[0];
-    mem[1] = ((uint8_t *)&f)[1];
-    mem[2] = ((uint8_t *)&f)[2];
-    mem[3] = ((uint8_t *)&f)[3];
-}
-
-void io::write_float(std::unique_ptr<uint8_t[]> &mem, float f, size_t offset)
+void io::write_float(uint8_t *mem, float f, size_t offset)
 {
     mem[0 + offset] = ((uint8_t *)&f)[0];
     mem[1 + offset] = ((uint8_t *)&f)[1];
@@ -112,69 +98,88 @@ void io::write_float(std::unique_ptr<uint8_t[]> &mem, float f, size_t offset)
     mem[3 + offset] = ((uint8_t *)&f)[3];
 }
 
-int32_t io::read_dword(uint8_t *mem)
-{
-    int32_t i = (mem[3] << 24) | (mem[2] << 16) | (mem[1] << 8) | (mem[0] << 0);
-    return i;
-}
-
-int32_t io::read_dword(std::unique_ptr<uint8_t[]> &mem, size_t offset)
+int32_t io::read_dword(uint8_t *mem, size_t offset)
 {
     int32_t i = (mem[3 + offset] << 24) | (mem[2 + offset] << 16) | (mem[1 + offset] << 8) | (mem[0 + offset] << 0);
     return i;
 }
 
-void io::write_dword(uint8_t *mem, int32_t i)
+void io::write_dword(uint8_t *mem, int32_t i, size_t offset)
 {
-    mem[0] = ((uint8_t *)&i)[0];
-    mem[1] = ((uint8_t *)&i)[1];
-    mem[2] = ((uint8_t *)&i)[2];
-    mem[3] = ((uint8_t *)&i)[3];
+    mem[0] = ((uint8_t *)&i)[0 + offset];
+    mem[1] = ((uint8_t *)&i)[1 + offset];
+    mem[2] = ((uint8_t *)&i)[2 + offset];
+    mem[3] = ((uint8_t *)&i)[3 + offset];
 }
 
-void io::write_dword(std::unique_ptr<uint8_t[]> &mem, int32_t i, size_t offset)
-{
-    mem[0 + offset] = ((uint8_t *)&i)[0];
-    mem[1 + offset] = ((uint8_t *)&i)[1];
-    mem[2 + offset] = ((uint8_t *)&i)[2];
-    mem[3 + offset] = ((uint8_t *)&i)[3];
-}
-
-int16_t io::read_word(uint8_t *mem)
-{
-    int32_t i = (mem[1] << 8) | (mem[0] << 0);
-    return i;
-}
-
-int16_t io::read_word(std::unique_ptr<uint8_t[]> &mem, size_t offset)
+int16_t io::read_word(uint8_t *mem, size_t offset)
 {
     int32_t i = (mem[1 + offset] << 8) | (mem[0 + offset] << 0);
     return i;
 }
 
-void io::write_word(uint8_t *mem, int16_t i)
+void io::write_word(uint8_t *mem, int16_t i, size_t offset)
 {
-    mem[1] = ((uint8_t *)&i)[1];
-    mem[0] = ((uint8_t *)&i)[0];
+    mem[1] = ((uint8_t *)&i)[1 + offset];
+    mem[0] = ((uint8_t *)&i)[0 + offset];
 }
 
-void io::write_word(std::unique_ptr<uint8_t[]> &mem, int16_t i, size_t offset)
+void io::write_byte(uint8_t *mem, int8_t byte, size_t offset)
 {
-    mem[1 + offset] = ((uint8_t *)&i)[1];
-    mem[0 + offset] = ((uint8_t *)&i)[0];
+    mem[offset] = byte;
 }
 
-void io::write_byte(uint8_t *mem, int8_t byte)
-{
-    *mem = byte;
-}
-
-void io::write_byte(std::unique_ptr<uint8_t[]> &mem, int8_t byte, size_t offset)
-{
-    mem[0 + offset] = byte;
-}
 
 void io::write_bytes(uint8_t *buf, uint8_t *data, size_t len)
 {
     memcpy(buf, data, len);
+}
+
+
+float io::read_float(std::vector<uint8_t> &v, size_t offset)
+{
+    uint8_t res[4];
+    for (size_t i = 0; i < 4; i++)
+        res[i] = v.at(offset + i);
+    return *(float *)res;
+}
+
+void io::write_float(std::vector<uint8_t> &v, float f, size_t offset)
+{
+    for (size_t i = 0; i < 4; i++)
+        v.at(offset + i) = *((uint8_t *)&f + i);
+}
+
+int32_t io::read_dword(std::vector<uint8_t> &v, size_t offset)
+{
+    int32_t i = (v[3 + offset] << 24) | (v[2 + offset] << 16) | (v[1 + offset] << 8) | (v[0 + offset] << 0);
+    return i;
+}
+
+
+void io::write_dword(std::vector<uint8_t> &v, int32_t i, size_t offset)
+{
+    v[0 + offset] = ((uint8_t *)&i)[0];
+    v[1 + offset] = ((uint8_t *)&i)[1];
+    v[2 + offset] = ((uint8_t *)&i)[2];
+    v[3 + offset] = ((uint8_t *)&i)[3];
+}
+
+
+int16_t io::read_word(std::vector<uint8_t> &v, size_t offset)
+{
+    int32_t i = (v[1 + offset] << 8) | (v[0 + offset] << 0);
+    return i;
+}
+
+
+void io::write_word(std::vector<uint8_t> &v, int16_t i, size_t offset)
+{
+    v[0 + offset] = ((uint8_t *)&i)[0];
+    v[1 + offset] = ((uint8_t *)&i)[1];
+}
+
+void io::write_byte(std::vector<uint8_t> &v, int8_t byte, size_t offset)
+{
+    v[offset] = byte;
 }

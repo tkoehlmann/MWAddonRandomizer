@@ -11,23 +11,23 @@
 #include <set>
 
 
-float weight(std::unique_ptr<uint8_t[]> &irdt)
+float weight(std::vector<uint8_t> &irdt)
 {
     return io::read_float(irdt);
 }
-void weight(std::unique_ptr<uint8_t[]> &irdt, float v)
+void weight(std::vector<uint8_t> &irdt, float v)
 {
     io::write_float(irdt, v);
 }
-int32_t value(std::unique_ptr<uint8_t[]> &irdt)
+int32_t value(std::vector<uint8_t> &irdt)
 {
     return io::read_dword(irdt, 4);
 }
-void value(std::unique_ptr<uint8_t[]> &irdt, int32_t v)
+void value(std::vector<uint8_t> &irdt, int32_t v)
 {
     io::write_dword(irdt, v, 4);
 }
-Alchemy::EffectData effect(std::unique_ptr<uint8_t[]> &irdt, size_t id)
+Alchemy::EffectData effect(std::vector<uint8_t> &irdt, size_t id)
 {
     int32_t e, s, a;
     size_t c;
@@ -41,7 +41,7 @@ Alchemy::EffectData effect(std::unique_ptr<uint8_t[]> &irdt, size_t id)
 
     return Alchemy::EffectData(e, s, a, c);
 }
-void effect(std::unique_ptr<uint8_t[]> &irdt, size_t id, Alchemy::EffectData &data)
+void effect(std::vector<uint8_t> &irdt, size_t id, Alchemy::EffectData &data)
 {
     io::write_dword(irdt, data.effect_id, 8 + id * 4);
     io::write_dword(irdt, data.skill_id, 24 + id * 4);
@@ -97,8 +97,8 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
     // Step 1: Collect data
     for (Record *r : records)
     {
-        std::unique_ptr<Subrecord> irdt = std::move(r->GetSubrecords("IRDT")[0]);
-        auto irdt_data                  = irdt->GetData();
+        Subrecord &irdt                = *r->GetSubrecords("IRDT")[0];
+        std::vector<uint8_t> irdt_data = *irdt.Data;
 
         float ingr_weight                    = weight(irdt_data);
         int32_t ingr_value                   = value(irdt_data);
@@ -149,8 +149,8 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
 
     for (size_t i = 0; i < records.size(); ++i)
     {
-        std::unique_ptr<Subrecord> irdt = std::move(records[i]->GetSubrecords("IRDT")[0]);
-        auto irdt_data                  = irdt->GetData();
+        Subrecord &irdt                = *records[i]->GetSubrecords("IRDT")[0];
+        std::vector<uint8_t> irdt_data = *irdt.Data;
 
         std::normal_distribution<float> dist = get_distribution(ingredient_weights, settings.AlchemyWeight);
         switch (settings.AlchemyWeight)
@@ -295,9 +295,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                 break;
         }
 
-        irdt->SetData(std::move(irdt_data), irdt->GetDataSize());
-        records[i]->ClearSubrecords({ "IRDT" });
-        records[i]->AddSubrecord(std::move(irdt));
+        irdt.Data = std::make_shared<std::vector<uint8_t>>(irdt_data);
         result.push_back(records[i]);
     }
 

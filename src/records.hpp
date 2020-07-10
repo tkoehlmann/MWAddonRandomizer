@@ -1,6 +1,7 @@
 #ifndef __RECORDS_HPP_
 #define __RECORDS_HPP_
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -33,30 +34,28 @@ class Subrecord
     Subrecord(const Subrecord &other);         // cc
     Subrecord &operator=(const Subrecord rhs); // ac
 
-    std::string GetID();
+    std::string GetID() const;
     RecordDataType GetType();
-    std::unique_ptr<uint8_t[]> GetData();
-    void SetData(std::unique_ptr<uint8_t[]> data, size_t bytes);
     size_t GetDataSize();
     size_t GetSubrecordSize();
-    void WriteSubrecord(uint8_t *buf, size_t *remaining_bytes);
+    void WriteSubrecord(uint8_t *buf, size_t *remaining_bytes); // Make sure that buf has GetDataSize() of free space!!!
+
+    std::shared_ptr<std::vector<uint8_t>> Data; // The stored data, don't do anything stupid with it!
 
     private:
     std::string m_id;
     RecordDataType m_type;
-    std::unique_ptr<uint8_t[]> m_data;
-    size_t m_data_size;
 };
 
 class Record
 {
     public:
     Record(std::string record_id);
-    void AddSubrecord(std::unique_ptr<Subrecord> subrecord);
+    void AddSubrecord(Subrecord subrecord);
     void ClearSubrecords(std::vector<std::string> ids);
-    std::vector<std::unique_ptr<Subrecord>> GetSubrecords(std::string srid);
+    std::vector<std::shared_ptr<Subrecord>> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
-    std::string GetID();
+    std::string GetID() const;
     std::string GetName();
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
@@ -65,7 +64,7 @@ class Record
 
     private:
     std::string m_id;
-    std::vector<std::unique_ptr<Subrecord>> m_subrecords;
+    std::vector<std::shared_ptr<Subrecord>> m_subrecords;
 };
 
 int64_t HasRecordWithName(std::vector<Record *> &records, std::string id);

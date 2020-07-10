@@ -22,12 +22,12 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records,
 
         io::write_float(HEDR + 0, 1.3f);
         io::write_dword(HEDR + 296, records.size());
-        tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("HEDR", HEDR, 300))));
+        tes3.AddSubrecord(Subrecord("HEDR", HEDR, 300));
         for (auto file_size : master_files_size)
         {
-            tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("MAST", file_size.first))));
+            tes3.AddSubrecord(Subrecord("MAST", file_size.first));
             uint64_t DATA = file_size.second;
-            tes3.AddSubrecord(std::move(std::make_unique<Subrecord>(new Subrecord("DATA", (uint8_t *)&DATA, 8))));
+            tes3.AddSubrecord(Subrecord("DATA", (uint8_t *)&DATA, 8));
         }
 
         tes3_size        = tes3.GetRecordSize();

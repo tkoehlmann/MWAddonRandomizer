@@ -12,9 +12,14 @@ namespace Skills
 struct Skill
 {
     int32_t id;
-    std::unique_ptr<uint8_t[]> skdt;
+    size_t skdt_size;
+    std::shared_ptr<std::vector<uint8_t>> skdt;
     std::string description;
     Record *record;
+
+    Skill();
+    Skill(const Skill &other);         // cc
+    Skill &operator=(const Skill rhs); // ac
 };
 
 std::vector<Skill> Get(std::vector<Record *> records);

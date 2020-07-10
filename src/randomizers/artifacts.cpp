@@ -357,7 +357,8 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
             if (srs.size() == 0)
                 continue;
 
-            auto name = std::string((char *)srs[0]->GetData().get());
+
+            std::string name = std::string((char *)srs[0]->Data->data());
             if (is_in(to_shuffle_artifacts_base, name))
             {
                 artifacts.push_back(r);
@@ -387,13 +388,11 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
                 continue;
 
             std::string newname = names[i];
-            size_t datalen      = newname.length() + 1;
-            auto srname         = std::make_unique<uint8_t[]>(datalen);
-            memcpy(srname.get(), newname.c_str(), datalen);
-            srs[0]->SetData(std::move(srname), datalen);
-
-            r->ClearSubrecords({ "NAME" });
-            r->AddSubrecord(std::move(std::make_unique<Subrecord>(*srs[0])));
+            auto newdata        = std::vector<uint8_t>(newname.size() + 1);
+            for (size_t i = 0; i < newname.size(); ++i)
+                newdata[i] = newname[i];
+            newdata[newdata.size() - 1] = 0;
+            *srs[0]->Data               = newdata;
 
             result.push_back(r);
         }

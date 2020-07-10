@@ -23,7 +23,6 @@ int main(int argc, char **argv)
         "/home/tim/.config/openmw/data/plugins/masterindex/master_index.esp",
     };
 
-
     Settings settings;
     settings.MasterDataFilesDir = "";
     settings.PluginOutputDir    = "/mnt/ramdisk";
