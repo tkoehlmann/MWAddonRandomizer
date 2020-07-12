@@ -19,16 +19,22 @@ std::vector<Magic::Effect> Magic::ReadEffects(std::vector<Record *> records)
         std::shared_ptr<std::vector<uint8_t>> medt = srs_medt[0]->Data;
 
         Effect e;
-        e.id                = id;
-        e.school            = (School)io::read_dword(medt->data());
-        e.basecost          = io::read_float(medt->data(), 4);
-        int32_t flags       = io::read_dword(medt->data(), 8);
-        e.affects_attribute = id == 17 || id == 22 || id == 74 || id == 79 || id == 85; // FIXME: Remove magic constants
-        e.affects_skill     = id == 21 || id == 26 || id == 78 || id == 83 || id == 89; // FIXME: Remove magic constants
-        e.spellmaking       = flags & 0x200;
-        e.enchanting        = flags & 0x400;
-        e.negative          = flags & 0x800;
-        e.record            = r;
+        e.id          = id;
+        e.school      = (School)io::read_dword(medt->data());
+        e.basecost    = io::read_float(medt->data(), 4);
+        int32_t flags = io::read_dword(medt->data(), 8);
+        e.affects_attribute =
+            id == (int32_t)Magic::EffectType::DrainAttr || id == (int32_t)Magic::EffectType::DamageAttr ||
+            id == (int32_t)Magic::EffectType::RestoreAttr || id == (int32_t)Magic::EffectType::FortifyAttr ||
+            id == (int32_t)Magic::EffectType::AbsorbAttr;
+        e.affects_skill =
+            id == (int32_t)Magic::EffectType::DrainSkill || id == (int32_t)Magic::EffectType::DamageSkill ||
+            id == (int32_t)Magic::EffectType::RestoreSkill || id == (int32_t)Magic::EffectType::FortifySkill ||
+            id == (int32_t)Magic::EffectType::AbsorbSkill;
+        e.spellmaking = flags & 0x200;
+        e.enchanting  = flags & 0x400;
+        e.negative    = flags & 0x800;
+        e.record      = r;
 
         result.push_back(e);
     }

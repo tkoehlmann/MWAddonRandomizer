@@ -19,6 +19,21 @@ enum class School
     Restoration = 5
 };
 
+
+enum class EffectType
+{
+    DrainAttr = 17,
+    DrainSkill = 21,
+    DamageAttr = 22,
+    DamageSkill = 26,
+    RestoreAttr = 74,
+    RestoreSkill = 78,
+    FortifyAttr = 79,
+    FortifySkill = 83,
+    AbsorbAttr = 85,
+    AbsorbSkill = 89,
+};
+
 struct Effect
 {
     int32_t id;
