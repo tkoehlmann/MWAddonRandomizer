@@ -86,6 +86,8 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
             file_records["LOCK"],
             file_records["MISC"],
         },
+        file_records["DIAL"],
+        file_records["INFO"],
         settings);
 
     // TODO: the same for other randomizers - maybe abstract this in the future, maybe not

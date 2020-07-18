@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <unordered_map>
 
 // Artifacts that can be freely shuffled
 std::vector<std::string> valid_artifacts = {
@@ -288,6 +289,202 @@ std::vector<std::string> mq_uniques = {
 };
 
 
+struct TopicReplacer
+{
+    std::string id;              // Topic-ID
+    std::string index;           // Actor
+    std::string text_to_replace; // text that should get replace with the item's name
+};
+
+/**
+ * Maps an item to its journal quests and stages to replace text
+ * map<journal_id, map<quest_id, map<quest_stage, text_to_replace[]>>>
+ */
+auto journal_replacementsmap =
+    std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<int, std::vector<std::string>>>>{
+        { "mace of molag bal_unique", { { "DA_MolagBal", { { 30, { "his mace, the Mace of Molag Bal" } } } } } },
+        { "katana_goldbrand_unique", { { "DA_Boethiah", { { 20, { "Goldbrand" } }, { 70, { "Goldbrand" } } } } } },
+        { "spear_mercy_unique",
+          { { "DA_Sheogorath",
+              {
+                  { 70, { "Spear of Bitter Mercy" } },
+              } } } },
+        { "helm_bearclaw_unique",
+          { { "DA_Malacath",
+              {
+                  { 10, { "a helm of great power" } },
+                  { 70, { "Helm of Oreyn Bearclaw" } },
+              } } } },
+        { "ring_khajiit_unique",
+          { { "DA_Mephala",
+              {
+                  { 60, { "Ring of Khajiit" } },
+              } } } },
+        { "ring_wind_unique",
+          { { "IC25_JonHawker",
+              {
+                  { 1, { "Ring of the Wind" } },
+                  { 50, { "Ring of the Wind" } },
+              } } } },
+        { "skeleton_key",
+          { { "TG_KillHardHeart",
+              {
+                  { 100, { "Skeleton Key" } },
+              } } } },
+        { "M_Mace_Aevar_UNI",
+          { { "BM_Stones",
+              {
+                  { 100, { "Mace of Aevar Stonesinger" } },
+              } } } },
+        { "boots of blinding speed[unique]",
+          { { "MV_TraderAbandoned",
+              {
+                  { 0, { "Boots of Blinding Speed" } },
+                  { 30, { "Boots of Blinding Speed" } },
+                  { 100, { "Boots of Blinding Speed" } },
+              } } } },
+        { "cleaverstfelms",
+          { { "TT_FelmsCleaver",
+              {
+                  { 0, { "Cleaver of St. Felms" } },
+                  { 10, { "Cleaver of St. Felms" } },
+                  { 100, { "Cleaver of St. Felms the Bold" } },
+                  { 110, { "Cleaver of St. Felms the Bold" } },
+              } } } },
+        { "warhammer_crusher_unique",
+          { { "IC29_Crusher",
+              {
+                  { 0, { "Skull-Crusher" } },
+                  { 1, { "ancient warhammer Skull-Crusher" } },
+                  { 1, { "Skull-Crusher" } },
+                  { 15, { "Skull-Crusher" } },
+                  { 50, { "Skull-Crusher" } },
+              } } } },
+        { "staff_magnus_unique",
+          { { "MG_StaffMagnus",
+              {
+                  { 0, { "Staff of Magnus" } },
+                  { 10, { "Staff of Magnus" } },
+                  { 100, { "Staff of Magnus" } },
+              } } } },
+        { "ebony_bow_auriel",
+          { { "HT_AurielBow",
+              {
+                  { 0, { "Auriel's Bow" } },
+                  { 10, { "Auriel's Bow" } },
+                  { 100, { "Auriel's Bow" } },
+              } } } },
+        { "claymore_chrysamere_unique",
+          { { "IL_KnightShield",
+              {
+                  { 60, { "Paladin's Blade, Chrysamere" } },
+                  { 100, { "Chrysamere" } },
+              } } } },
+        { "lords_cuirass_unique",
+          { { "IL_KnightShield",
+              {
+                  { 0, { "Lord's Mail" } },
+                  { 10, { "Lord's Mail" } },
+                  { 30, { "Lord's Mail" } },
+                  { 50, { "Lord's Mail" } },
+              } } } },
+        { "claymore_iceblade_unique",
+          { { "IC27_Oracle",
+              {
+                  { 0, { "Ice Blade of the Monarch" } },
+                  { 1, { "Ice Blade of the Monarch" } },
+                  { 50, { "Ice Blade of the Monarch" } },
+                  { 55, { "Ice Blade of the Monarch" } },
+              } },
+            { "IC27_Oracle_A",
+              {
+                  { 0, { "Ice Blade of the Monarch" } },
+                  { 40, { "Ice Blade of the Monarch" } },
+                  { 45, { "Ice Blade of the Monarch" } },
+              } } } },
+        { "fork_horripilation_unique",
+          { { "DA_Sheogorath",
+              {
+                  { 10, { "Fork of Horripilation" } },
+                  { 30, { "Fork of Horripilation" } },
+                  { 50, { "Fork of Horripilation" } },
+                  { 55, { "Fork of Horripilation" } },
+                  { 60, { "Fork of Horripilation" } },
+              } } } },
+        { "mehrunes'_razor_unique",
+          { { "DA_Mehrunes",
+              {
+                  { 20, { "Mehrunes' Razor" } },
+                  { 20, { "Razor" } },
+                  { 30, { "Mehrunes' Razor" } },
+                  { 40, { "dagger" } },
+                  { 40, { "Razor" } },
+              } } } },
+        { "boots_apostle_unique",
+          { { "IC26_AmaNin_free",
+              {
+                  { 0, { "Boots of the Apostle" } },
+              } },
+            { "IC26_AmaNin",
+              {
+                  { 0, { "Boots of the Apostle" } },
+                  { 1, { "Boots of the Apostle" } },
+                  { 50, { "Boots of the Apostle", "boots" } },
+                  { 60, { "Boots of the Apostle", "boots" } },
+              } } } },
+        { "ebon_plate_cuirass_unique",
+          { { "TT_Assarnibibi",
+              {
+                  { 0, { "Ebony Mail" } },
+                  { 10, { "Ebony Mail" } },
+                  { 100, { "Ebony Mail" } },
+                  { 110, { "Ebony Mail" } },
+              } } } },
+        { "spell_breaker_unique",
+          { { "VA_VampCurse",
+              {
+                  { 40, { "Spell Breaker" } },
+                  { 55, { "Spell Breaker" } },
+                  { 60, { "Spell Breaker" } },
+              } } } },
+        { "ring_warlock_unique",
+          { { "MG_WarlocksRing",
+              {
+                  { 0, { "Warlock's Ring" } },
+                  { 10, { "Warlock's Ring" } },
+                  { 100, { "Warlock's Ring" } },
+              } } } },
+        { "expensive_shirt_hair",
+          { { "TT_HairShirt",
+              {
+                  { 0, { "Hair Shirt of St. Aralor" } },
+                  { 10, { "Hair Shirt of St. Aralor" } },
+                  { 100, { "Hair Shirt of St. Aralor" } },
+                  { 110, { "Hair Shirt of St. Aralor the Penitent" } },
+              } } } },
+        { "shoes of st. rilms",
+          { { "TT_RilmsShoes",
+              {
+                  { 0, { "Shoes of St. Rilms" } },
+                  { 10, { "Shoes of St. Rilms" } },
+                  { 10, { "shoes" } },
+                  { 100, { "Shoes of St. Rilms" } },
+                  { 110, { "Shoes of St. Rilms" } },
+              } } } },
+        { "artifact_bittercup_01",
+          { { "TG_BitterBribe",
+              {
+                  { 0, { "Bitter Cup" } },
+                  { 10, { "Bitter Cup" } },
+                  { 25, { "Bitter Cup" } },
+                  { 30, { "Bitter Cup" } },
+                  { 50, { "Bitter Cup" } },
+                  { 100, { "Bitter Cup" } },
+              } } } },
+        // continued: mq_artifacts...
+    };
+
+
 /*
     Record types for artifacts and uniques:
     - WEAP
@@ -307,7 +504,9 @@ bool is_in(std::vector<std::string> &v, std::string item)
     return std::find(v.begin(), v.end(), item) != v.end();
 }
 
-std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> record_groups, Settings &settings)
+std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> artifact_record_groups,
+                                           std::vector<Record *> dialog_journal_recs, std::vector<Record *> info_recs,
+                                           Settings &settings)
 {
     // Records
     std::vector<Record *> result;
@@ -319,6 +518,10 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
     // Found record names in the same order as put into the artifacts/uniques vectors
     std::vector<std::string> shuffle_artifacts;
     std::vector<std::string> shuffle_uniques;
+    // Maps the old item name to the new one so we can tell how dialogue needs to be modified later
+    auto old_to_new_artifacts = std::vector<std::pair<std::string, std::string>>();
+    auto old_to_new_uniques   = std::vector<std::pair<std::string, std::string>>();
+    std::unordered_map<std::string, std::string> id_to_readable_name;
 
     if (settings.Artifacts == ShuffleType::None && settings.Uniques == ShuffleType::None)
         return artifacts;
@@ -349,7 +552,7 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
                                          to_shuffle_uniques_base.end());
 
     // Step 1: Go over all records and find the artifacts!
-    for (std::vector<Record *> records : record_groups)
+    for (std::vector<Record *> records : artifact_record_groups)
     {
         for (Record *r : records)
         {
@@ -357,17 +560,25 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
             if (srs.size() == 0)
                 continue;
 
+            auto readable_names = r->GetSubrecords("FNAM");
+            if (readable_names.size() == 0)
+                continue;
+            std::string readable_name = std::string((char *)readable_names[0]->Data->data());
 
             std::string name = std::string((char *)srs[0]->Data->data());
             if (is_in(to_shuffle_artifacts_base, name))
             {
                 artifacts.push_back(r);
                 shuffle_artifacts.push_back(name);
+                old_to_new_artifacts.push_back(std::pair(name, ""));
+                id_to_readable_name[name] = readable_name;
             }
             else if (is_in(to_shuffle_uniques_base, name))
             {
                 uniques.push_back(r);
                 shuffle_uniques.push_back(name);
+                old_to_new_uniques.push_back(std::pair(name, ""));
+                id_to_readable_name[name] = readable_name;
             }
         }
     }
@@ -379,7 +590,9 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
     std::random_shuffle(shuffle_uniques.begin(), shuffle_uniques.end(), rng);
 
     // Step 3: Reassign artifacts/uniques
-    auto assigner = [&result](std::vector<Record *> &artuniq, std::vector<std::string> &names) {
+
+    auto assigner = [&result](std::vector<Record *> &artuniq, std::vector<std::string> &names,
+                              std::vector<std::pair<std::string, std::string>> &old_to_new) {
         for (size_t i = 0; i < artuniq.size(); ++i)
         {
             Record *r = artuniq[i];
@@ -387,8 +600,9 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
             if (srs.size() == 0)
                 continue;
 
-            std::string newname = names[i];
-            auto newdata        = std::vector<uint8_t>(newname.size() + 1);
+            std::string newname  = names[i];
+            old_to_new[i].second = newname;
+            auto newdata         = std::vector<uint8_t>(newname.size() + 1);
             for (size_t i = 0; i < newname.size(); ++i)
                 newdata[i] = newname[i];
             newdata[newdata.size() - 1] = 0;
@@ -398,12 +612,30 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> re
         }
     };
 
-    assigner(artifacts, shuffle_artifacts);
+    assigner(artifacts, shuffle_artifacts, old_to_new_artifacts);
     if (!settings.ConsiderUniquesEqualToArtifacts)
-        assigner(uniques, shuffle_uniques); // If they are considered the same then they'd already be put into the
-                                            // artifact data structures, making this step unnecessary
+        assigner(uniques, shuffle_uniques,
+                 old_to_new_uniques); // If they are considered the same then they'd already be put into the
+                                      // artifact data structures, making this step unnecessary
 
     // Step 4: Fix dialogue/scripts using those artifacts
+    // if (settings.Artifacts != ShuffleType::None)
+    // {
+    //     for (std::pair<std::string, std::string> old_to_new : old_to_new_artifacts)
+    //     {
+    //         std::string &old_artifact_id = old_to_new.first;
+    //         std::string &new_artifact_readable_name = old_to_new.second;
+
+    //         // TODO: Shouldn't be necessary in the final version
+    //         if (!journal_replacementsmap.contains(old_artifact_id))
+    //             continue;
+
+    //         for(Record *jrec : dialog_journal_recs)
+    //         {
+    //         }
+    //     }
+    // }
+    // TODO: same with uniques
 
     return result;
 }
