@@ -49,14 +49,15 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
                         if (r->Ignored)
                             continue; // There's a reason we ignore records (hint: they are not adequately implemented)
 
-                        std::string name = r->GetName();
                         int64_t pos      = -1;
-                        if (name != "")
-                            pos = HasRecordWithName(file_records[type], r->GetName());
+                        // if (asd > 3400)
+                        //     printf("ok\n");
+                        if (r->Name != "")
+                            pos = HasRecordWithName(file_records[type], r->Name);
 
                         // if the record doesn't have a name or can't be found then we can just add it
                         // otherwise replace the old one
-                        if (name == "" || pos < 0)
+                        if (r->Name == "" || pos < 0)
                             file_records[type].push_back(r);
                         else
                             file_records[type][pos] = r;

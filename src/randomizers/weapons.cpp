@@ -269,7 +269,7 @@ static std::vector<std::string> prevent_shuffle_ids = {
 bool Weapons::prevent_shuffle(Record &rec)
 {
     // Things that aren't weapons or are uniques or artifacts
-    std::string id = rec.GetName();
+    std::string id = rec.Name;
     bool found     = std::find(prevent_shuffle_ids.begin(), prevent_shuffle_ids.end(), id) != prevent_shuffle_ids.end();
     return found;
 }

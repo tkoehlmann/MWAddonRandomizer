@@ -56,7 +56,7 @@ class Record
     std::vector<std::shared_ptr<Subrecord>> GetSubrecords(std::string srid);
     bool HasSubrecord(std::string srid);
     std::string GetID() const;
-    std::string GetName();
+    std::string Name;
     size_t GetRecordSize();
     void WriteRecord(uint8_t *buf, size_t *remaining_bytes);
     bool Ignored;

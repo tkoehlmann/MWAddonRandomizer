@@ -166,6 +166,15 @@ Record::Record(std::string record_id)
 void Record::AddSubrecord(Subrecord subrecord)
 {
     m_subrecords.push_back(std::make_shared<Subrecord>(subrecord));
+    if (subrecord.GetID() == "NAME")
+    {
+        size_t sz = subrecord.Data->size();
+        char name[sz + 1];
+        for (size_t i = 0; i < sz; i++)
+            name[i] = subrecord.Data->at(i);
+        name[sz] = '\0';
+        Name = std::string(name);
+    }
 }
 
 
@@ -181,14 +190,6 @@ void Record::ClearSubrecords(std::vector<std::string> ids)
 std::string Record::GetID() const
 {
     return m_id;
-}
-
-std::string Record::GetName()
-{
-    auto srs = GetSubrecords("NAME");
-    if (srs.size() > 0)
-        return std::string((char *)srs[0]->Data->data());
-    return "";
 }
 
 std::vector<std::shared_ptr<Subrecord>> Record::GetSubrecords(std::string srid)
@@ -242,7 +243,7 @@ int64_t HasRecordWithName(std::vector<Record *> &records, std::string id)
     int64_t i = 0;
     for (auto r : records)
     {
-        if (r->GetName() == id)
+        if (r->Name == id)
             return i;
         ++i;
     }
