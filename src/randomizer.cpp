@@ -14,11 +14,25 @@
 #include <cstdint>
 #include <cstring>
 
+
+int HasRecordWithName(std::vector<Record *> &records,
+                      std::unordered_map<std::string, std::unordered_map<std::string, int>> &entries, std::string file,
+                      std::string name)
+{
+    if (entries.find(file) == entries.end())
+        return -1;
+    if (entries[file].find(name) == entries[file].end())
+        return -1;
+    return entries[file][name];
+}
+
+
 size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
 {
     size_t total_file_size_bytes = 0;
     std::vector<std::pair<std::string, size_t>> master_files_sizes;
     std::unordered_map<std::string, std::vector<Record *>> file_records;
+    std::unordered_map<std::string, std::unordered_map<std::string, int>> entry_names;
 
     for (std::string fname : files)
     {
@@ -27,6 +41,10 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
         std::unordered_map<std::string, std::vector<Record *>> *res =
             ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
         master_files_sizes.push_back(std::pair<std::string, size_t>(io::get_file_name(fname), fsize));
+
+        for (std::pair<std::string, std::vector<Record *>> file : *res)
+            for (size_t i = 0; i < file.second.size(); i++)
+                entry_names[file.first][file.second[i]->Name] = i;
 
         if (res == nullptr)
             printf("Error reading file: %s", fname.c_str());
@@ -49,11 +67,11 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
                         if (r->Ignored)
                             continue; // There's a reason we ignore records (hint: they are not adequately implemented)
 
-                        int64_t pos      = -1;
+                        int64_t pos = -1;
                         // if (asd > 3400)
                         //     printf("ok\n");
                         if (r->Name != "")
-                            pos = HasRecordWithName(file_records[type], r->Name);
+                            pos = HasRecordWithName(file_records[type], entry_names, fname, r->Name);
 
                         // if the record doesn't have a name or can't be found then we can just add it
                         // otherwise replace the old one

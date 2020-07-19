@@ -67,8 +67,6 @@ class Record
     std::vector<std::shared_ptr<Subrecord>> m_subrecords;
 };
 
-int64_t HasRecordWithName(std::vector<Record *> &records, std::string id);
-
 extern std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes;
 
 #endif /* __RECORDS_HPP_ */

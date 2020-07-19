@@ -173,7 +173,7 @@ void Record::AddSubrecord(Subrecord subrecord)
         for (size_t i = 0; i < sz; i++)
             name[i] = subrecord.Data->at(i);
         name[sz] = '\0';
-        Name = std::string(name);
+        Name     = std::string(name);
     }
 }
 
@@ -236,18 +236,6 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
         subrecord->WriteSubrecord(buf + offset, remaining_bytes);
         offset += srsz;
     }
-}
-
-int64_t HasRecordWithName(std::vector<Record *> &records, std::string id)
-{
-    int64_t i = 0;
-    for (auto r : records)
-    {
-        if (r->Name == id)
-            return i;
-        ++i;
-    }
-    return -1;
 }
 
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes = {
