@@ -20,8 +20,8 @@ struct EffectData
     EffectData(int32_t e, int32_t s, int32_t a, size_t c) : effect_id(e), skill_id(s), attrib_id(a), effect_count(c) {}
 };
 
-std::vector<Record *> Randomize(std::vector<Record *> records, Settings &settings,
-                                std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills);
+RecordCollection Randomize(RecordCollection records, Settings &settings, std::vector<Magic::Effect> &magic_effects,
+                           std::vector<Skills::Skill> &skills);
 } // namespace Alchemy
 
 #endif /* _ALCHEMY_HPP */

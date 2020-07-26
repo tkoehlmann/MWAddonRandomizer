@@ -13,18 +13,18 @@
 
 namespace Weapons
 {
-bool prevent_shuffle(Record &rec);
-std::vector<Record *> Randomize(std::vector<Record *> records, Settings &settings);
+bool prevent_shuffle(std::shared_ptr<Record> &rec);
+RecordCollection Randomize(RecordCollection &records, Settings &settings);
 
 struct AdditionalData
 {
     public:
-    AdditionalData(Record *r);
+    AdditionalData(std::shared_ptr<Record> &r);
     std::vector<std::reference_wrapper<Subrecord>> GetSubrecords();
 
     private:
     std::vector<Subrecord> m_subrecords;
-    void init_sr(Record *r, std::string field);
+    void init_sr(std::shared_ptr<Record> &r, std::string field);
 };
 
 template<typename T>
@@ -158,7 +158,7 @@ struct WeaponData
     Weapons::MinMaxData<int8_t> damage_thrust;
     Weapons::MinMaxData<int32_t> resistance;
     std::vector<Weapons::AdditionalData> model_values; // Those things will always stay together (at least for now)
-    std::vector<Record *> records;
+    RecordCollection records;
     Settings &settings;
     std::function<uint32_t(int)> rng;
 

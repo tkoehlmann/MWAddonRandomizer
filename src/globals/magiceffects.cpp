@@ -6,12 +6,13 @@
 #include <functional>
 
 
-std::vector<Magic::Effect> Magic::ReadEffects(std::vector<Record *> records)
+std::vector<Magic::Effect> Magic::ReadEffects(RecordCollection records)
 {
     std::vector<Effect> result;
 
-    for (Record *r : records)
+    for (std::pair<const std::string, std::shared_ptr<Record>> rs : records)
     {
+        std::shared_ptr<Record> &r                 = rs.second;
         auto srs                                   = r->GetSubrecords("INDX");
         std::shared_ptr<std::vector<uint8_t>> data = srs[0]->Data;
         auto id                                    = io::read_dword(data->data());

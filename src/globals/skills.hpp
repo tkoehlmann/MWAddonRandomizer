@@ -15,14 +15,14 @@ struct Skill
     size_t skdt_size;
     std::shared_ptr<std::vector<uint8_t>> skdt;
     std::string description;
-    Record *record;
+    std::shared_ptr<Record> record;
 
     Skill();
     Skill(const Skill &other);         // cc
     Skill &operator=(const Skill rhs); // ac
 };
 
-std::vector<Skill> Get(std::vector<Record *> records);
+std::vector<Skill> Get(RecordCollection records);
 
 } // namespace Skills
 

@@ -32,21 +32,14 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
     std::vector<std::pair<std::string, size_t>>
         master_files_sizes; // stores file sizes for master files as they are necessary to include into the resulting
                             // plugin file
-    std::unordered_map<std::string, std::vector<Record *>> file_records; // Records of each of the files to load
-    /*
-     * Optimization for merging records (i.e. one master file or plugin overwriting a previous ones' records).
-     * Type: map<file-name, map<record-name, index-of-record-in-its-vector>.
-     * The alternative is to run over the list for each record which is O(n^2) which is not only in theory incredibly
-     * slow...
-     */
-    std::unordered_map<std::string, std::unordered_map<std::string, int>> entry_names;
+    std::unordered_map<std::string, RecordCollection> file_records; // Records of each of the files to load
 
     for (std::string fname : files)
     {
         size_t fsize;
 
         // Read file records and save file size
-        std::unordered_map<std::string, std::vector<Record *>> *res =
+        std::unordered_map<std::string, RecordCollection> *res =
             ReadESMFile(fname, &fsize, settings, &total_file_size_bytes);
         master_files_sizes.push_back(std::pair<std::string, size_t>(io::get_file_name(fname), fsize));
 
@@ -54,37 +47,25 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
             printf("Error reading file: %s", fname.c_str());
         else
         {
-            // iterate over records and put their information into entry_names
-            for (std::pair<std::string, std::vector<Record *>> file : *res)
-                for (size_t i = 0; i < file.second.size(); i++)
-                    entry_names[file.first][file.second[i]->Name] = i;
-
             for (auto element : *res)
             {
-                std::string type            = element.first;
-                std::vector<Record *> &recs = element.second;
+                std::string type      = element.first;
+                RecordCollection recs = element.second;
 
                 // Put records into their categories
                 if (file_records.find(type) == file_records.end())
-                    file_records[type] = std::vector<Record *>(recs);
+                    file_records[type] = recs;
                 else
                 {
                     // Merge records
-                    for (Record *r : recs)
+                    for (std::pair<const std::string, std::shared_ptr<Record>> &r : recs)
                     {
-                        if (r->Ignored)
-                            continue; // There's a reason we ignore records (hint: they are not adequately implemented)
+                        const std::string name         = r.first;
+                        std::shared_ptr<Record> record = r.second;
 
-                        int64_t pos = -1;
-                        if (r->Name != "")
-                            pos = HasRecordWithName(entry_names, fname, r->Name);
-
-                        // if the record doesn't have a name or can't be found then we can just add it
-                        // otherwise replace the old one
-                        if (r->Name == "" || pos < 0)
-                            file_records[type].push_back(r);
-                        else
-                            file_records[type][pos] = r;
+                        // There's a reason we ignore records (hint: they are not adequately implemented)
+                        if (!record->Ignored)
+                            file_records[type].Insert(record);
                     }
                 }
             }
@@ -95,14 +76,14 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
         }
     }
 
-    std::vector<Record *> records_to_write;
+    std::vector<std::shared_ptr<Record>> records_to_write;
 
     // Care must be taken that two different randomize functions won't modify the same records!
-    std::vector<Record *> weapon_records     = Weapons::Randomize(file_records["WEAP"], settings);
+    RecordCollection weapon_records          = Weapons::Randomize(file_records["WEAP"], settings);
     std::vector<Magic::Effect> magic_effects = Magic::ReadEffects(file_records["MGEF"]);
     std::vector<Skills::Skill> skills        = Skills::Get(file_records["SKIL"]);
-    std::vector<Record *> alchemy           = Alchemy::Randomize(file_records["INGR"], settings, magic_effects, skills);
-    std::vector<Record *> artifacts_uniques = Artifacts::Randomize(
+    RecordCollection alchemy           = Alchemy::Randomize(file_records["INGR"], settings, magic_effects, skills);
+    RecordCollection artifacts_uniques = Artifacts::Randomize(
         {
             file_records["WEAP"],
             file_records["ARMO"],
@@ -114,11 +95,11 @@ size_t Randomizer::Game(std::vector<std::string> &files, Settings &settings)
 
     // TODO: the same for other randomizers - maybe abstract this in the future, maybe not
     for (auto wrec : weapon_records)
-        records_to_write.push_back(wrec);
+        records_to_write.push_back(wrec.second);
     for (auto ingr : alchemy)
-        records_to_write.push_back(ingr);
+        records_to_write.push_back(ingr.second);
     for (auto artuniq : artifacts_uniques)
-        records_to_write.push_back(artuniq);
+        records_to_write.push_back(artuniq.second);
 
     WriteESMFile(settings, records_to_write, master_files_sizes);
 

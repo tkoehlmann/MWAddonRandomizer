@@ -504,14 +504,14 @@ bool is_in(std::vector<std::string> &v, std::string item)
     return std::find(v.begin(), v.end(), item) != v.end();
 }
 
-std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> artifact_record_groups,
-                                           std::vector<Record *> dialog_journal_recs, std::vector<Record *> info_recs,
-                                           Settings &settings)
+RecordCollection Artifacts::Randomize(std::vector<RecordCollection> artifact_record_groups,
+                                      RecordCollection dialog_journal_recs, RecordCollection info_recs,
+                                      Settings &settings)
 {
     // Records
-    std::vector<Record *> result;
-    std::vector<Record *> artifacts;
-    std::vector<Record *> uniques;
+    RecordCollection result;
+    RecordCollection artifacts;
+    RecordCollection uniques;
     // Things we're looking for depending on the settings
     std::vector<std::string> to_shuffle_artifacts_base;
     std::vector<std::string> to_shuffle_uniques_base;
@@ -552,11 +552,12 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> ar
                                          to_shuffle_uniques_base.end());
 
     // Step 1: Go over all records and find the artifacts!
-    for (std::vector<Record *> records : artifact_record_groups)
+    for (RecordCollection records : artifact_record_groups)
     {
-        for (Record *r : records)
+        for (std::pair<const std::string, std::shared_ptr<Record>> rs : records)
         {
-            auto srs = r->GetSubrecords("NAME");
+            std::shared_ptr<Record> &r = rs.second;
+            auto srs                   = r->GetSubrecords("NAME");
             if (srs.size() == 0)
                 continue;
 
@@ -568,14 +569,14 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> ar
             std::string name = std::string((char *)srs[0]->Data->data());
             if (is_in(to_shuffle_artifacts_base, name))
             {
-                artifacts.push_back(r);
+                artifacts.Insert(r);
                 shuffle_artifacts.push_back(name);
                 old_to_new_artifacts.push_back(std::pair(name, ""));
                 id_to_readable_name[name] = readable_name;
             }
             else if (is_in(to_shuffle_uniques_base, name))
             {
-                uniques.push_back(r);
+                uniques.Insert(r);
                 shuffle_uniques.push_back(name);
                 old_to_new_uniques.push_back(std::pair(name, ""));
                 id_to_readable_name[name] = readable_name;
@@ -591,12 +592,13 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> ar
 
     // Step 3: Reassign artifacts/uniques
 
-    auto assigner = [&result](std::vector<Record *> &artuniq, std::vector<std::string> &names,
+    auto assigner = [&result](RecordCollection &artuniq, std::vector<std::string> &names,
                               std::vector<std::pair<std::string, std::string>> &old_to_new) {
-        for (size_t i = 0; i < artuniq.size(); ++i)
+        size_t i = 0;
+        for (std::pair<const std::string, std::shared_ptr<Record>> rs : artuniq)
         {
-            Record *r = artuniq[i];
-            auto srs  = r->GetSubrecords("NAME");
+            std::shared_ptr<Record> &r = rs.second;
+            auto srs                   = r->GetSubrecords("NAME");
             if (srs.size() == 0)
                 continue;
 
@@ -608,7 +610,8 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> ar
             newdata[newdata.size() - 1] = 0;
             *srs[0]->Data               = newdata;
 
-            result.push_back(r);
+            result.Insert(r);
+            ++i;
         }
     };
 
@@ -627,11 +630,12 @@ std::vector<Record *> Artifacts::Randomize(std::vector<std::vector<Record *>> ar
     //         std::string &new_artifact_readable_name = old_to_new.second;
 
     //         // TODO: Shouldn't be necessary in the final version
-    //         if (!journal_replacementsmap.contains(old_artifact_id))
+    //         if (journal_replacementsmap.find(old_artifact_id) == journal_replacementsmap.end())
     //             continue;
 
     //         for(Record *jrec : dialog_journal_recs)
     //         {
+    //             // Uhhhhhh
     //         }
     //     }
     // }

@@ -82,8 +82,8 @@ void minmax(T &min, T &max)
 }
 
 
-std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings &settings,
-                                         std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills)
+RecordCollection Alchemy::Randomize(RecordCollection records, Settings &settings,
+                                    std::vector<Magic::Effect> &magic_effects, std::vector<Skills::Skill> &skills)
 {
     std::set<int32_t> available_effect_ids_set;
     std::set<int32_t> available_skill_ids_set;
@@ -95,8 +95,9 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
     std::vector<size_t> ingredient_effect_count;
 
     // Step 1: Collect data
-    for (Record *r : records)
+    for (std::pair<const std::string, std::shared_ptr<Record>> rs : records)
     {
+        std::shared_ptr<Record> &r     = rs.second;
         Subrecord &irdt                = *r->GetSubrecords("IRDT")[0];
         std::vector<uint8_t> irdt_data = *irdt.Data;
 
@@ -139,7 +140,7 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
         std::random_shuffle(ingredient_effects.begin(), ingredient_effects.end());
 
     // Step 3: Reassign
-    std::vector<Record *> result;
+    RecordCollection result;
     std::vector<Alchemy::EffectData>::iterator effect_it =
         ingredient_effects.begin(); // iterator pointing to the next-to-use effect
     size_t effect_count_sum =
@@ -147,10 +148,13 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                         0); // Necessary so we don't allocate too many effects so that each ingredient can get at least
                             // one effect (shuffle different and chaos options)
 
-    for (size_t i = 0; i < records.size(); ++i)
+    size_t i = 0;
+    for (std::pair<const std::string, std::shared_ptr<Record>> rs : records)
     {
-        Subrecord &irdt                = *records[i]->GetSubrecords("IRDT")[0];
-        std::vector<uint8_t> irdt_data = *irdt.Data;
+        std::shared_ptr<Record> &record = rs.second;
+        std::shared_ptr<Subrecord> irdt = record->GetSubrecords("IRDT")[0];
+
+        std::vector<uint8_t> irdt_data = *irdt->Data;
 
         std::normal_distribution<float> dist = get_distribution(ingredient_weights, settings.AlchemyWeight);
         switch (settings.AlchemyWeight)
@@ -295,8 +299,9 @@ std::vector<Record *> Alchemy::Randomize(std::vector<Record *> records, Settings
                 break;
         }
 
-        irdt.Data = std::make_shared<std::vector<uint8_t>>(irdt_data);
-        result.push_back(records[i]);
+        irdt->Data = std::make_shared<std::vector<uint8_t>>(irdt_data);
+        result.Insert(record);
+        ++i;
     }
 
     return result;

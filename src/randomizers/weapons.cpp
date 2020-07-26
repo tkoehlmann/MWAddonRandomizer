@@ -9,13 +9,13 @@
 #include <unordered_map>
 #include <vector>
 
-void Weapons::AdditionalData::init_sr(Record *r, std::string field)
+void Weapons::AdditionalData::init_sr(std::shared_ptr<Record> &r, std::string field)
 {
     for (std::shared_ptr<Subrecord> sr : r->GetSubrecords(field))
         m_subrecords.push_back(*sr);
 }
 
-Weapons::AdditionalData::AdditionalData(Record *r)
+Weapons::AdditionalData::AdditionalData(std::shared_ptr<Record> &r)
 {
     // Maybe just dump all subrecords that match these and be done with it?
     init_sr(r, "MODL");
@@ -266,10 +266,10 @@ static std::vector<std::string> prevent_shuffle_ids = {
     "silver arrow_thirsk_0",
 };
 
-bool Weapons::prevent_shuffle(Record &rec)
+bool Weapons::prevent_shuffle(std::shared_ptr<Record> &rec)
 {
     // Things that aren't weapons or are uniques or artifacts
-    std::string id = rec.Name;
+    std::string id = rec->Name;
     bool found     = std::find(prevent_shuffle_ids.begin(), prevent_shuffle_ids.end(), id) != prevent_shuffle_ids.end();
     return found;
 }
@@ -280,7 +280,7 @@ bool Weapons::prevent_shuffle(Record &rec)
  *   animation and the bolt/arrow is fired as if by some psychic force. Pretty funny. Not sure if this
  *   needs to be changed or will stay in for the memes.
  */
-std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings &settings)
+RecordCollection Weapons::Randomize(RecordCollection &records, Settings &settings)
 {
     const size_t offset_weight = 0;  // float
     const size_t offset_value  = 4;  // long
@@ -339,12 +339,12 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
                                                                     { type_Bolt, &ammo } };
 
     // Step 1: Fill min/max and value fields
-    for (size_t i = 0; i < records.size(); ++i)
+    for (std::pair<const std::string, std::shared_ptr<Record>> &record : records)
     {
-        if (Weapons::prevent_shuffle(*records[i]))
+        if (Weapons::prevent_shuffle(record.second))
             continue;
 
-        std::shared_ptr<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT")[0];
+        std::shared_ptr<Subrecord> wpdt_srs = record.second->GetSubrecords("WPDT")[0];
         std::vector<uint8_t> wpdt           = *wpdt_srs->Data;
 
         // for (int asd = 0; asd < 32; ++asd)
@@ -375,8 +375,8 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
         weapons[type]->damage_thrust.Set(thrust_min);
         weapons[type]->damage_thrust.Set(thrust_max);
         weapons[type]->resistance.Set(io::read_dword(wpdt, offset_resistance_flag));
-        weapons[type]->model_values.push_back(Weapons::AdditionalData(records[i]));
-        weapons[type]->records.push_back(records[i]);
+        weapons[type]->model_values.push_back(Weapons::AdditionalData(record.second));
+        weapons[type]->records.Insert(record.second);
     }
 
     // Step 2: Shuffle if necessary
@@ -394,14 +394,13 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
         &ammo,
     };
 
-    for (auto wtvs : weapon_type_values)
+    for (Weapons::WeaponData *weapon_type : weapon_type_values)
     {
-        Weapons::WeaponData *weapon_type = wtvs;
-
-        for (size_t i = 0; i < weapon_type->records.size(); i++)
+        size_t i = 0;
+        for (std::pair<const std::string, std::shared_ptr<Record>> weaponrecord : weapon_type->records)
         {
-            Record *weap                        = weapon_type->records[i];
-            std::shared_ptr<Subrecord> wpdt_srs = records[i]->GetSubrecords("WPDT")[0];
+            std::shared_ptr<Record> &weap       = weaponrecord.second;
+            std::shared_ptr<Subrecord> wpdt_srs = weap->GetSubrecords("WPDT")[0];
             std::vector<uint8_t> wpdt           = *wpdt_srs->Data;
 
             weapon_type->weight.Randomize(false, settings, settings.WeaponsWeight, i, offset_weight, 0, wpdt,
@@ -445,13 +444,14 @@ std::vector<Record *> Weapons::Randomize(std::vector<Record *> records, Settings
                 for (Subrecord &field_sr : srs)
                     weap->AddSubrecord(field_sr);
             }
+            ++i;
         }
     }
 
-    std::vector<Record *> result;
-    for (auto wtvs : weapon_type_values)
-        for (Record *rec : wtvs->records)
-            result.push_back(rec);
+    RecordCollection result;
+    for (Weapons::WeaponData *wtvs : weapon_type_values)
+        for (std::pair<const std::string, std::shared_ptr<Record>> &rec : wtvs->records)
+            result.Insert(rec.second);
 
     return result;
 }

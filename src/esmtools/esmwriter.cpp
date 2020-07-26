@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-bool WriteESMFile(Settings &settings, std::vector<Record *> records,
+bool WriteESMFile(Settings &settings, std::vector<std::shared_ptr<Record>> &records,
                   std::vector<std::pair<std::string, size_t>> master_files_size)
 {
     FILE *f = fopen(settings.GetPluginFullPath().c_str(), "wb");
@@ -38,7 +38,7 @@ bool WriteESMFile(Settings &settings, std::vector<Record *> records,
     }
 
     // Write all other records
-    for (Record *r : records)
+    for (std::shared_ptr<Record> &r : records)
     {
         size_t sz = r->GetRecordSize();
         uint8_t data[sz];

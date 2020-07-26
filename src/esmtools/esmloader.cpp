@@ -11,14 +11,14 @@
 #include <string>
 
 // Forward declarations
-Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL);
+std::shared_ptr<Record> read_record(_IO_FILE *f, Settings &settings, std::shared_ptr<Record> &previous_DIAL);
 bool read_header(FILE *f, size_t *record_size);
-bool read_subrecords(Record *r, FILE *f, size_t record_size, Record *previous_DIAL);
+bool read_subrecords(std::shared_ptr<Record> r, FILE *f, size_t record_size, std::shared_ptr<Record> previous_DIAL);
 
-std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string filepath, size_t *f_size,
-                                                                    Settings &settings, size_t *total_file_size_bytes)
+std::unordered_map<std::string, RecordCollection> *ReadESMFile(std::string filepath, size_t *f_size, Settings &settings,
+                                                               size_t *total_file_size_bytes)
 {
-    auto result = new std::unordered_map<std::string, std::vector<Record *>>();
+    auto result = new std::unordered_map<std::string, RecordCollection>();
 
     FILE *f = fopen(filepath.c_str(), "rb");
     if (f == nullptr)
@@ -27,20 +27,20 @@ std::unordered_map<std::string, std::vector<Record *>> *ReadESMFile(std::string 
     *f_size = io::get_file_size(f);
     *total_file_size_bytes += *f_size;
 
-    Record *r;
-    Record *previous_DIAL;
-    while (((size_t)ftell(f) < *f_size) && ((r = read_record(f, settings, &previous_DIAL)) != nullptr))
+    std::shared_ptr<Record> r;
+    std::shared_ptr<Record> previous_DIAL = nullptr;
+    while (((size_t)ftell(f) < *f_size) && ((r = read_record(f, settings, previous_DIAL)) != nullptr))
     {
-        (*result)[r->GetID()].push_back(r);
+        (*result)[r->GetID()].Insert(r);
     }
 
     fclose(f);
     return result;
 }
 
-Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL)
+std::shared_ptr<Record> read_record(_IO_FILE *f, Settings &settings, std::shared_ptr<Record> &previous_DIAL)
 {
-    Record *res;
+    std::shared_ptr<Record> res;
     size_t dont_care   = 0;
     size_t record_size = 0;
     try
@@ -55,7 +55,7 @@ Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL)
         }
         else
         {
-            res = new Record(id);
+            res = std::make_shared<Record>(id);
             if (!read_header(f, &record_size))
             {
                 printf("Error reading header data for record ID \"%s\"\n", res->GetID().c_str());
@@ -71,16 +71,14 @@ Record *read_record(_IO_FILE *f, Settings &settings, Record **previous_DIAL)
             else
             {
                 if (id == "DIAL")
-                    *previous_DIAL = res;
+                    previous_DIAL = res;
                 // Create subrecords
-                read_subrecords(res, f, record_size, *previous_DIAL);
+                read_subrecords(res, f, record_size, previous_DIAL);
             }
         }
     }
     catch (...)
     {
-        if (res != nullptr)
-            delete res;
         return nullptr;
     }
 
@@ -104,7 +102,7 @@ bool read_header(FILE *f, size_t *record_size)
     return true;
 }
 
-bool read_subrecords(Record *r, FILE *f, size_t record_size, Record *previous_DIAL)
+bool read_subrecords(std::shared_ptr<Record> r, FILE *f, size_t record_size, std::shared_ptr<Record> previous_DIAL)
 {
     size_t bytecount = 0;
 

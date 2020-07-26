@@ -22,16 +22,16 @@ enum class School
 
 enum class EffectType
 {
-    DrainAttr = 17,
-    DrainSkill = 21,
-    DamageAttr = 22,
-    DamageSkill = 26,
-    RestoreAttr = 74,
+    DrainAttr    = 17,
+    DrainSkill   = 21,
+    DamageAttr   = 22,
+    DamageSkill  = 26,
+    RestoreAttr  = 74,
     RestoreSkill = 78,
-    FortifyAttr = 79,
+    FortifyAttr  = 79,
     FortifySkill = 83,
-    AbsorbAttr = 85,
-    AbsorbSkill = 89,
+    AbsorbAttr   = 85,
+    AbsorbSkill  = 89,
 };
 
 struct Effect
@@ -45,10 +45,10 @@ struct Effect
     bool enchanting;
     bool negative; // ?
     // Use other stuff?
-    Record *record;
+    std::shared_ptr<Record> record;
 };
 
-std::vector<Effect> ReadEffects(std::vector<Record *> records);
+std::vector<Effect> ReadEffects(RecordCollection records);
 } // namespace Magic
 
 #endif /* __MAGICEFFECTS_HPP */

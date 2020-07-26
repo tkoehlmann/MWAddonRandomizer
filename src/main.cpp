@@ -38,7 +38,8 @@ int main(int argc, char **argv)
 
     settings.Artifacts                                     = ShuffleType::Random;
     settings.Uniques                                       = ShuffleType::Random;
-    settings.ConsiderUniquesEqualToArtifacts               = false;
+    settings.ConsiderUniquesEqualToArtifacts               = true;
+    settings.ShuffleQuestRequirementArtifactsOrUniques     = true;
     settings.ShuffleMAINQuestRequirementArtifactsOrUniques = false;
     settings.ShufflePropylonIndices                        = true;
     settings.ShuffleMasterIndex                            = false;

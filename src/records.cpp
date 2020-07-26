@@ -238,6 +238,43 @@ void Record::WriteRecord(uint8_t *buf, size_t *remaining_bytes)
     }
 }
 
+void RecordCollection::Insert(const std::shared_ptr<Record> r)
+{
+    std::vector<std::shared_ptr<Subrecord>> srs = r->GetSubrecords("NAME");
+    if (srs.size() > 0)
+    {
+        auto name       = std::string((char *)srs[0]->Data->data());
+        m_records[name] = r;
+    }
+    else
+    {
+        // This is necessary for things like MGEF-records that don't have a name
+        // But doing things depending on record-id doesn't seem worth the hassle
+        auto name       = std::to_string(m_records.size());
+        m_records[name] = r;
+    }
+}
+
+std::shared_ptr<Record> RecordCollection::Get(const std::string &name)
+{
+    return (m_records.find(name) == m_records.end()) ? nullptr : m_records[name];
+}
+
+std::shared_ptr<Record> RecordCollection::operator[](const std::string &key)
+{
+    return Get(key);
+}
+
+std::unordered_map<std::string, std::shared_ptr<Record>>::iterator RecordCollection::begin()
+{
+    return m_records.begin();
+}
+
+std::unordered_map<std::string, std::shared_ptr<Record>>::iterator RecordCollection::end()
+{
+    return m_records.end();
+}
+
 std::unordered_map<std::string, std::unordered_map<std::string, RecordDataType>> RecordToSubrecordTypes = {
     { "TES3",
       {

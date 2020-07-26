@@ -5,15 +5,16 @@
 #include <algorithm>
 #include <cstring>
 
-std::vector<Skills::Skill> Skills::Get(std::vector<Record *> records)
+std::vector<Skills::Skill> Skills::Get(RecordCollection records)
 {
     std::vector<Skill> result;
 
-    for (Record *r : records)
+    for (std::pair<const std::string, std::shared_ptr<Record>> rs : records)
     {
-        auto srs_indx = r->GetSubrecords("INDX");
-        auto srs_skdt = r->GetSubrecords("SKDT");
-        auto srs_desc = r->GetSubrecords("DESC");
+        std::shared_ptr<Record> &r = rs.second;
+        auto srs_indx              = r->GetSubrecords("INDX");
+        auto srs_skdt              = r->GetSubrecords("SKDT");
+        auto srs_desc              = r->GetSubrecords("DESC");
         Skill s;
 
         s.id          = *srs_indx[0]->Data->data();
